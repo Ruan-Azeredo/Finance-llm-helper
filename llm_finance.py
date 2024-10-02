@@ -15,11 +15,13 @@ for file in os.listdir('extratos'):
         for account in ofx.accounts:
             for transaction in account.statement.transactions:
                 transsactions_data.append({
-                    'date': transaction.date,
-                    'payee': transaction.payee,
-                    'amount': transaction.amount,
+                    'Data': transaction.date,
+                    'Descrição': transaction.memo,
+                    'Valor': transaction.amount,
                     'id': transaction.id,
                 })
 
         df_temp = pd.DataFrame(transsactions_data)
-        df_temp['amount'] = df_temp['amount'].astype(float)
+        df_temp['Valor'] = df_temp['Valor'].astype(float)
+        df_temp['Data'] = df_temp['Data'].apply(lambda x: x.date())
+        df = pd.concat([df, df_temp])

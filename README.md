@@ -24,7 +24,10 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
-3. **Execute o projeto**: Após a instalação, você poderá rodar os scripts disponíveis no projeto, como o `llm_finance.py`.
+
+3. **Adicione os extratos**: Adicione extratos  no formato .ofx em uma pasta /extratos no diretorio do projeto.
+
+4. **Execute o projeto**: Após a instalação, você poderá rodar os scripts disponíveis no projeto, como o `llm_finance.py`.
 
 ## Adicionando Dependências
 Se você adicionar uma nova dependência ao projeto, não se esqueça de atualizar o arquivo requirements.txt com o seguinte comando:

@@ -4,31 +4,45 @@ import os
 from datetime import datetime
 from LLMInterface import get_category
 
+def get_ofx_from_file(file):
+    with open(f'extratos/{file}', encoding='ISO-8859-1') as ofx_file:
+        return ofxparse.OfxParser.parse(ofx_file)
+    
+def get_transaction_data(ofx):
+    transactions_data = []
+
+    for account in ofx.accounts:
+        for transaction in account.statement.transactions:
+            transactions_data.append({
+                'Data': transaction.date,
+                'Descrição': transaction.memo,
+                'Valor': transaction.amount,
+                'id': transaction.id,
+            })
+
+    return transactions_data
+
+def treatment_data(transactions_data):
+    df = pd.DataFrame(transactions_data)
+    df['Valor'] = df['Valor'].astype(float)
+    df['Data'] = df['Data'].apply(lambda x: x.date())
+    return df
+
+def format_description_transaction(transaction):
+    return transaction["Data"].strftime("%d/%m/%Y") + '|' + transaction["Descrição"] + '|' + transaction["Valor"].__str__()
 
 df = pd.DataFrame()
 
 for file in os.listdir('extratos'):
-    with open(f'extratos/{file}', encoding='ISO-8859-1') as ofx_file:
-        ofx = ofxparse.OfxParser.parse(ofx_file)
+    ofx = get_ofx_from_file(file)
+    transactions_data = get_transaction_data(ofx)
 
-        transsactions_data = []
-
-        for account in ofx.accounts:
-            for transaction in account.statement.transactions:
-                transsactions_data.append({
-                    'Data': transaction.date,
-                    'Descrição': transaction.memo,
-                    'Valor': transaction.amount,
-                    'id': transaction.id,
-                })
-
-        df_temp = pd.DataFrame(transsactions_data)
-        df_temp['Valor'] = df_temp['Valor'].astype(float)
-        df_temp['Data'] = df_temp['Data'].apply(lambda x: x.date())
-        df = pd.concat([df, df_temp])
+    df_temp = treatment_data(transactions_data)
+    df = pd.concat([df, df_temp])
 
 transaction_with_category = []
 for index, transaction in df.iterrows():
-    answer = get_category(transaction["Data"].strftime("%d/%m/%Y") + '|' + transaction["Descrição"] + '|' + transaction["Valor"].__str__())
+    description = format_description_transaction(transaction)
+    answer = get_category(description)
     transaction_with_category.append((transaction, answer))
     print(transaction["Data"], '|', transaction["Descrição"], '|', transaction["Valor"], '|', answer)

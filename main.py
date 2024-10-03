@@ -1,8 +1,9 @@
 import ofxparse
-import pandas as pd
 import os
 from datetime import datetime
 from LLMInterface import get_category
+
+from models.transaction import Transaction
 
 def get_ofx_from_file(file):
     with open(f'extratos/{file}', encoding='ISO-8859-1') as ofx_file:
@@ -22,27 +23,34 @@ def get_transaction_data(ofx):
 
     return transactions_data
 
-def treatment_data(transactions_data):
+""" def treatment_data(transactions_data):
     df = pd.DataFrame(transactions_data)
     df['Valor'] = df['Valor'].astype(float)
     df['Data'] = df['Data'].apply(lambda x: x.date())
     return df
 
 def format_description_transaction(transaction):
-    return transaction["Data"].strftime("%d/%m/%Y") + '|' + transaction["Descrição"] + '|' + transaction["Valor"].__str__()
+    return transaction["Data"].strftime("%d/%m/%Y") + '|' + transaction["Descrição"] + '|' + transaction["Valor"].__str__() """
 
-df = pd.DataFrame()
+df = []
 
 for file in os.listdir('extratos'):
     ofx = get_ofx_from_file(file)
     transactions_data = get_transaction_data(ofx)
+    for transaction_in_data in transactions_data:
+        transaction = Transaction(
+            transaction_in_data["id"],
+            transaction_in_data["Data"],
+            transaction_in_data["Valor"],
+            transaction_in_data["Descrição"]
+        )
 
-    df_temp = treatment_data(transactions_data)
-    df = pd.concat([df, df_temp])
+        df_temp = transaction.treatment_data()
+        df.append(df_temp)
 
 transaction_with_category = []
-for index, transaction in df.iterrows():
-    description = format_description_transaction(transaction)
+for transaction in df:
+    description = transaction.format_description_transaction()
     answer = get_category(description)
     transaction_with_category.append((transaction, answer))
-    print(transaction["Data"], '|', transaction["Descrição"], '|', transaction["Valor"], '|', answer)
+    print(transaction.date, '|', transaction.description, '|', transaction.value, '|', answer)

@@ -23,15 +23,6 @@ def get_transaction_data(ofx):
 
     return transactions_data
 
-""" def treatment_data(transactions_data):
-    df = pd.DataFrame(transactions_data)
-    df['Valor'] = df['Valor'].astype(float)
-    df['Data'] = df['Data'].apply(lambda x: x.date())
-    return df
-
-def format_description_transaction(transaction):
-    return transaction["Data"].strftime("%d/%m/%Y") + '|' + transaction["Descrição"] + '|' + transaction["Valor"].__str__() """
-
 df = []
 
 for file in os.listdir('extratos'):

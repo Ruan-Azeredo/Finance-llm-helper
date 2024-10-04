@@ -23,6 +23,9 @@ def get_transaction_data(ofx):
 
     return transactions_data
 
+def get_transaction_description(transaction: Transaction):
+    return transaction.format_description_transaction()
+
 df = []
 
 for file in os.listdir('extratos'):
@@ -41,7 +44,7 @@ for file in os.listdir('extratos'):
 
 transaction_with_category = []
 for transaction in df:
-    description = transaction.format_description_transaction()
+    description = get_transaction_description(transaction)
     answer = get_category(description)
     transaction_with_category.append((transaction, answer))
     print(transaction.date, '|', transaction.description, '|', transaction.value, '|', answer)

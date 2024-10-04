@@ -35,3 +35,10 @@ Se você adicionar uma nova dependência ao projeto, não se esqueça de atualiz
 ```bash
 pip freeze > requirements.txt
 ```
+## To do
+
+- [ ] Melhorar arquitetura (adicionado ./src)
+- [ ] Criar class para file
+- [ ] Maior cobertura de gerenciamento de erros
+- [ ] Implementar testes unitarios e de integração
+- [ ] Realocar defs da main

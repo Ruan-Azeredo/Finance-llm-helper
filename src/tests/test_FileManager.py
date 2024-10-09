@@ -11,12 +11,14 @@ def test_loadDir_returns_list_with_files():
         assert isinstance(file, str)
         assert file.endswith('.ofx')
 
+
 def test_loadDir_when_no_files():
 
     with pytest.raises(Exception) as error:
         loadDir(path='/ext')
 
     assert str(error.value) == "Nenhum arquivo encontrado"
+
 
 def test_loadFile_returns_object_with_accounts():
     parsed_data = loadOfxFile(
@@ -27,6 +29,7 @@ def test_loadFile_returns_object_with_accounts():
     assert hasattr(parsed_data, 'accounts')
     assert isinstance(parsed_data.accounts, list)
 
+
 def test_loadFile_when_file_is_not_ofx():
 
     with pytest.raises(Exception) as error:
@@ -36,3 +39,14 @@ def test_loadFile_when_file_is_not_ofx():
         )
 
     assert str(error.value) == "Arquivo inválido, arquivo deve ser do formato .ofx"
+
+
+def test_loadFile_when_file_not_exit():
+
+    with pytest.raises(Exception) as error:
+        t = loadOfxFile(
+            path='extratos',
+            file_name='abacaxi.ofx'
+        )
+
+    assert str(error.value) == "Arquivo não pode ser aberto"

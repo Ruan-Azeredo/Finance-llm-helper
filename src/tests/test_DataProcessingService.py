@@ -2,7 +2,7 @@ import pytest
 from services.DataProcessingService import processedData
 from pTypes import Transaction
 
-def test_data_processing_service_return_transaction():
+def test_data_processing_service_return_transaction_type():
 
     data = processedData({
         'id': '1',

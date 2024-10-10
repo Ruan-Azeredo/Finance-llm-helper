@@ -29,9 +29,6 @@ def loadDataFromOfxFile(path: str = 'extratos', file_name: str = 'Extrato-01-09-
                     transaction_dict = transaction.__dict__
                     result.append(transaction_dict)
             
-            if len(result) == 0:
-                raise ValueError("Nenhuma transação encontrada")
-            
             return result
 
         except FileNotFoundError:

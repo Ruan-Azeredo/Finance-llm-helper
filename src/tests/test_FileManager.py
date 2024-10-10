@@ -69,11 +69,3 @@ def test_loadDataFromOfxFile_when_file_not_exit():
         )
 
     assert str(error.value) == f"Arquivo {file_name} não encontrado no caminho {path}"
-
-def test_loadDataFromOfxFile_with_no_transactions_data():
-    with pytest.raises(Exception) as error:
-        loadDataFromOfxFile(
-            path='extratos_sem_transacoes',
-            file_name='Extrato-01-09-2024-a-01-10-2024.ofx'
-        )
-

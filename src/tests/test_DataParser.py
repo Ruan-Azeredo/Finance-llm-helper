@@ -1,10 +1,11 @@
 import pytest
-from services.DataProcessingService import processedData
+
+from useCases import parsedData
 from pTypes import Transaction
 
-def test_data_processing_service_return_transaction_type():
+def test_data_parser_return_transaction_type():
 
-    data = processedData({
+    data = parsedData({
         'id': '1',
         'date': '2022-01-01',
         'amount': 100,
@@ -13,10 +14,10 @@ def test_data_processing_service_return_transaction_type():
     
     assert type(data) == Transaction
 
-def test_data_processing_service_return_error_if_file_is_incomplete():
+def test_data_parser_return_error_if_file_is_incomplete():
 
     with pytest.raises(Exception) as error:
-        processedData({
+        parsedData({
             'id': '1',
             'amount': 100
         })

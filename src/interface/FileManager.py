@@ -15,15 +15,31 @@ def loadDir(path: str = 'extratos'):
     return files
 
 
-def loadOfxFile(path: str = 'extratos', file_name: str = 'Extrato-01-09-2024-a-01-10-2024 (1).ofx'):
+def loadDataFromOfxFile(path: str = 'extratos', file_name: str = 'Extrato-01-09-2024-a-01-10-2024 (1).ofx'):
     if file_name.endswith('.ofx'):
         try:
             with open(f'{path}/{file_name}', encoding='ISO-8859-1') as ofx_file:
                 print(ofxparse.OfxParser.parse(ofx_file))
                 parsed_data = ofxparse.OfxParser.parse(ofx_file)
             
-            return parsed_data
-        except:
-            raise Exception("Arquivo não pode ser aberto")
+
+            result = []
+            for account in parsed_data.accounts:
+                for transaction in account.statement.transactions:
+                    transaction_dict = transaction.__dict__
+                    result.append(transaction_dict)
+            
+            if len(result) == 0:
+                raise ValueError("Nenhuma transação encontrada")
+            
+            return result
+
+        except FileNotFoundError:
+            raise Exception(f"Arquivo {file_name} não encontrado no caminho {path}")
+        except ofxparse.OfxParserError:
+            raise Exception("Erro ao processar o arquivo OFX. O formato pode estar incorreto.")
+        except Exception as error:
+            raise Exception(f"Erro inesperado: {error}")
+
     else:
         raise Exception("Arquivo inválido, arquivo deve ser do formato .ofx")

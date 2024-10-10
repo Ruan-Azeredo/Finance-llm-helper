@@ -1,6 +1,8 @@
 import pytest
+import inspect
 
-from interface import loadOfxFile, loadDir
+from pTypes import FileTransaction
+from interface import loadDataFromOfxFile, loadDir
 
 def test_loadDir_returns_list_with_files():
     files = loadDir(path='extratos')
@@ -20,20 +22,34 @@ def test_loadDir_when_no_files():
     assert str(error.value) == "Nenhum arquivo encontrado"
 
 
-def test_loadFile_returns_object_with_accounts():
-    parsed_data = loadOfxFile(
+def test_loadDataFromOfxFile_returns_file_transactions_data():
+    transactions_data = loadDataFromOfxFile(
         path='extratos',
         file_name='Extrato-01-09-2024-a-01-10-2024 (1).ofx'
     )
 
-    assert hasattr(parsed_data, 'accounts')
-    assert isinstance(parsed_data.accounts, list)
+    assert isinstance(transactions_data, list)
+
+    # Get Props existents in FileTransaction
+    allowed_keys = {
+        param.name 
+        for param in inspect.signature(FileTransaction.__init__).parameters.values()
+        if param.name != 'self'
+    }
+    
+    for transaction in transactions_data:
+
+        # Just get Props existents in FileTransaction
+        filtered_transaction = {key: value for key, value in transaction.items() if key in allowed_keys}
+
+        transactionClass = FileTransaction(**filtered_transaction)
+        assert isinstance(transactionClass, FileTransaction)
 
 
-def test_loadFile_when_file_is_not_ofx():
+def test_loadDataFromOfxFile_when_file_is_not_ofx():
 
     with pytest.raises(Exception) as error:
-        loadOfxFile(
+        loadDataFromOfxFile(
             path='extratos',
             file_name='Extrato.pdf'
         )
@@ -41,12 +57,23 @@ def test_loadFile_when_file_is_not_ofx():
     assert str(error.value) == "Arquivo inválido, arquivo deve ser do formato .ofx"
 
 
-def test_loadFile_when_file_not_exit():
+def test_loadDataFromOfxFile_when_file_not_exit():
+
+    file_name = 'abacaxi.ofx'
+    path = 'extratos'
 
     with pytest.raises(Exception) as error:
-        t = loadOfxFile(
-            path='extratos',
-            file_name='abacaxi.ofx'
+        loadDataFromOfxFile(
+            path=path,
+            file_name=file_name
         )
 
-    assert str(error.value) == "Arquivo não pode ser aberto"
+    assert str(error.value) == f"Arquivo {file_name} não encontrado no caminho {path}"
+
+def test_loadDataFromOfxFile_with_no_transactions_data():
+    with pytest.raises(Exception) as error:
+        loadDataFromOfxFile(
+            path='extratos_sem_transacoes',
+            file_name='Extrato-01-09-2024-a-01-10-2024.ofx'
+        )
+

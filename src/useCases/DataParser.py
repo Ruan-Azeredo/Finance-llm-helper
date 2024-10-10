@@ -1,4 +1,4 @@
-from pTypes import Transaction, FileTransaction
+from src.pTypes import Transaction, FileTransaction
 
 def parsedData(file_transaction: FileTransaction) -> Transaction:
 

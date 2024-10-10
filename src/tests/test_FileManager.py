@@ -1,8 +1,8 @@
 import pytest
 import inspect
 
-from pTypes import FileTransaction
-from interface import loadDataFromOfxFile, loadDir
+from src.pTypes import FileTransaction
+from src.pInterface import loadDataFromOfxFile, loadDir
 
 def test_loadDir_returns_list_with_files():
     files = loadDir(path='src/tests/extratos')

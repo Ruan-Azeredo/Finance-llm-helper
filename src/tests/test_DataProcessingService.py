@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from src.services import dataProcessingService
 from src.interface import loadDataFromOfxFile, loadDir
 from src.useCases import parsedDataToTransaction
@@ -10,7 +12,12 @@ def test_data_processing_service_function():
     assert isinstance(processed_transaction_list, list)
 
     for transaction in processed_transaction_list:
-        assert isinstance(transaction, Transaction)
+
+        transaction_description = transaction.split(' | ')
+        print(transaction_description)
+        assert isinstance(datetime.strptime(transaction_description[0], '%d/%m/%Y'), datetime)
+        assert isinstance(transaction_description[1], str)
+        assert 'R$' in transaction_description[2]
 
 def test_file_manager_to_data_parser_integration():
     processed_transaction_list = []

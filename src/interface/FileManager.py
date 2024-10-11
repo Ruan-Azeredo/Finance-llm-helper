@@ -1,4 +1,5 @@
 import ofxparse
+import csv
 import os
 
 
@@ -40,3 +41,50 @@ def loadDataFromOfxFile(path: str = 'extratos', file_name: str = 'Extrato-01-09-
 
     else:
         raise Exception("Arquivo inválido, arquivo deve ser do formato .ofx")
+
+def loadDataFromCsvFile(path: str = 'extratos', file_name: str = 'extrato.csv'):
+    if file_name.endswith('.csv'):
+        try:
+
+            with open(f'{path}/{file_name}', newline='', encoding='utf-8') as csv_file:
+                while True:
+                    line = csv_file.readline()
+                    if 'Data Lançamento' in line:
+                        headers = line.split(';')
+                        break
+
+                csv_file.seek(csv_file.tell())
+                csv_reader = csv.DictReader(csv_file, fieldnames=headers, delimiter=';')
+                
+                result = []
+                next(csv_reader, None)
+                for i, row in enumerate(csv_reader, start = 1):
+                    valor_str = row.get('Valor')
+                    if valor_str:
+                        amount = float(valor_str.replace(',', '.'))
+                    else:
+                        amount = 0.0
+
+                    historico = row.get('Histórico') or ''
+                    descricao = row.get('Descrição') or ''
+
+                    transaction = {
+                        'id': i,
+                        'date': row.get('Data Lançamento'),
+                        'amount': amount,
+                        'memo': historico + ' ' + descricao,
+                    }
+                    
+                    result.append(transaction)
+            
+            return result
+
+        except StopIteration:
+            raise Exception("O arquivo CSV parece estar vazio.")
+        except FileNotFoundError:
+            raise Exception(f"Arquivo {file_name} não encontrado no caminho {path}")
+        except Exception as error:
+            raise Exception(f"Erro inesperado: {error}")
+
+    else:
+        raise Exception("Arquivo inválido, arquivo deve ser do formato .csv")

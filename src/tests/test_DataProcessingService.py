@@ -1,5 +1,5 @@
 from src.services import dataProcessingService
-from src.pInterface import loadDataFromOfxFile, loadDir
+from src.interface import loadDataFromOfxFile, loadDir
 from src.useCases import parsedData
 from src.pTypes import Transaction
 

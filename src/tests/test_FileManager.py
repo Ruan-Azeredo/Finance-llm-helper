@@ -2,7 +2,7 @@ import pytest
 import inspect
 
 from src.pTypes import FileTransaction
-from src.pInterface import loadDataFromOfxFile, loadDir
+from src.interface import loadDataFromOfxFile, loadDir
 
 def test_loadDir_returns_list_with_files():
     files = loadDir(path='src/tests/extratos')

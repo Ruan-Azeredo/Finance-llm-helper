@@ -1,1 +1,1 @@
-from .DataParser import parsedData
+from .DataParser import parsedDataToTransaction, formatDescriptionTransaction

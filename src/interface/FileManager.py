@@ -2,6 +2,7 @@ import ofxparse
 import csv
 import os
 
+from src.pTypes import FileTransaction
 
 def loadDir(path: str = 'extratos'):
     files = []
@@ -49,38 +50,32 @@ def loadDataFromCsvFile(path: str = 'extratos', file_name: str = 'extrato.csv'):
             with open(f'{path}/{file_name}', newline='', encoding='utf-8') as csv_file:
                 while True:
                     line = csv_file.readline()
+
                     if 'Data Lançamento' in line:
                         headers = line.split(';')
                         break
 
                 csv_file.seek(csv_file.tell())
                 csv_reader = csv.DictReader(csv_file, fieldnames=headers, delimiter=';')
-                
+
                 result = []
-                next(csv_reader, None)
+
+                try:
+                    next(csv_reader)
+                except:
+                    raise StopIteration()
+                
                 for i, row in enumerate(csv_reader, start = 1):
-                    valor_str = row.get('Valor')
-                    if valor_str:
-                        amount = float(valor_str.replace(',', '.'))
-                    else:
-                        amount = 0.0
-
-                    historico = row.get('Histórico') or ''
-                    descricao = row.get('Descrição') or ''
-
-                    transaction = {
-                        'id': i,
-                        'date': row.get('Data Lançamento'),
-                        'amount': amount,
-                        'memo': historico + ' ' + descricao,
-                    }
                     
+                    transaction = _process_row(i, row)
+                    print('transaction: ',transaction)
+
                     result.append(transaction)
             
             return result
 
-        except StopIteration:
-            raise Exception("O arquivo CSV parece estar vazio.")
+        except StopIteration as error:
+            raise Exception("O arquivo CSV parece estar vazio")
         except FileNotFoundError:
             raise Exception(f"Arquivo {file_name} não encontrado no caminho {path}")
         except Exception as error:
@@ -88,3 +83,26 @@ def loadDataFromCsvFile(path: str = 'extratos', file_name: str = 'extrato.csv'):
 
     else:
         raise Exception("Arquivo inválido, arquivo deve ser do formato .csv")
+    
+def _process_row(index, row) -> FileTransaction:
+    valor_str = row.get('Valor')
+    if valor_str:
+        amount = float(valor_str.replace(',', '.'))
+    else:
+        amount = 0.0
+
+    historico = row.get('Histórico') or ''
+    descricao = row.get('Descrição') or ''
+
+    transaction = {
+        'id': index,
+        'date': row.get('Data Lançamento'),
+        'amount': amount,
+        'memo': historico + ' ' + descricao,
+    }
+    print('transaction: ',transaction)
+
+    if transaction['amount'] is None or len(transaction['memo']) == 0:
+        raise Exception('current transaction is incomplete')
+    else:
+        return transaction

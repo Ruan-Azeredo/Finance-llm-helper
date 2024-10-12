@@ -1,5 +1,5 @@
-from utils.validator import category_validator
-from utils.constants import default_categories as categories
+from src.utils import category_validator
+from src.utils import default_categories as categories
 
 class LLMAnswerCheck:
     def execute(self, answer: str):

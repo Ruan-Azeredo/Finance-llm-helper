@@ -1,4 +1,4 @@
-from utils.constants import default_categories as categories
+from src.utils import default_categories as categories
 
 class PersonalizePrompt:
     def execute(self, text: str):

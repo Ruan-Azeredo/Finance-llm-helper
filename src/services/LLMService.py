@@ -5,7 +5,8 @@ from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
 
 from src.useCases.PersonalizePrompt import PersonalizePrompt
-from src.useCases.LLMAnswerCheck import LLMAnswerCheck
+from src.useCases import llmAnswerCheck
+from src.utils import default_categories as categories
 
 def llmService(prompt_content: str, limit: int = 5) -> str:
     _  = load_dotenv(find_dotenv())
@@ -16,7 +17,7 @@ def llmService(prompt_content: str, limit: int = 5) -> str:
         chat = ChatGroq(model="llama-3.1-8b-instant")
         answer = chat.invoke(prompt).content
 
-        is_answer_checked = LLMAnswerCheck().execute(answer)
+        is_answer_checked = llmAnswerCheck(categories, answer)
         if is_answer_checked:
             return answer
         elif limit > 0:

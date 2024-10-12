@@ -68,7 +68,6 @@ def loadDataFromCsvFile(path: str = 'extratos', file_name: str = 'extrato.csv'):
                 for i, row in enumerate(csv_reader, start = 1):
                     
                     transaction = _process_row(i, row)
-                    print('transaction: ',transaction)
 
                     result.append(transaction)
             
@@ -100,7 +99,6 @@ def _process_row(index, row) -> FileTransaction:
         'amount': amount,
         'memo': historico + ' ' + descricao,
     }
-    print('transaction: ',transaction)
 
     if transaction['amount'] is None or len(transaction['memo']) == 0:
         raise Exception('current transaction is incomplete')

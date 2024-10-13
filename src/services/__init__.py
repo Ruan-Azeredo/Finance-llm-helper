@@ -1,2 +1,2 @@
 from .DataProcessingService import dataProcessingService
-from .LLMService import llmService
+from .CategorizeTransactionService import categorizeTransactionService

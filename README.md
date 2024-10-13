@@ -37,8 +37,9 @@ pip freeze > requirements.txt
 ```
 ## To do
 
-- [ ] Melhorar arquitetura (adicionado ./src)
-- [ ] Criar class para file
-- [ ] Maior cobertura de gerenciamento de erros
-- [ ] Implementar testes unitarios e de integração
-- [ ] Realocar defs da main
+- [x] Melhorar arquitetura (adicionado ./src)
+- [x] Criar class para file
+- [x] Maior cobertura de gerenciamento de erros
+- [x] Implementar testes unitarios e de integração
+- [x] Realocar defs da main
+- [ ] Flexibilizar leitura de .csv de acordo com padrões de outros bancos

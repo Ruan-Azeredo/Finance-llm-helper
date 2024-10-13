@@ -1,4 +1,4 @@
-from src.utils import category_validator
+from utils import category_validator
 
 
 def llmAnswerCheck(categories: list[str], answer: str):

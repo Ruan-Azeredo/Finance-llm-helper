@@ -1,7 +1,7 @@
 import pytest
 
-from src.useCases import parsedDataToTransaction, formatDescriptionTransaction
-from src.pTypes import Transaction
+from useCases import parsedDataToTransaction, formatDescriptionTransaction
+from pTypes import Transaction
 
 def test_data_parser_return_transaction_type():
 

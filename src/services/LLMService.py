@@ -4,9 +4,9 @@ from langchain_core.prompts import PromptTemplate
 from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
 
-from src.useCases.PersonalizePrompt import personalizePrompt
-from src.useCases import llmAnswerCheck
-from src.utils import default_categories as categories
+from useCases.PersonalizePrompt import personalizePrompt
+from useCases import llmAnswerCheck
+from utils import default_categories as categories
 
 def llmService(prompt_content: str, limit: int = 5) -> str:
     _  = load_dotenv(find_dotenv())

@@ -2,11 +2,11 @@ import pytest
 import inspect
 from unittest.mock import mock_open, patch
 
-from src.pTypes import FileTransaction
-from src.interface import loadDataFromOfxFile, loadDataFromCsvFile, loadDir
+from pTypes import FileTransaction
+from interface import loadDataFromOfxFile, loadDataFromCsvFile, loadDir
 
 def test_loadDir_returns_list_with_files():
-    files = loadDir(path='src/tests/extratos')
+    files = loadDir(path='tests/extratos')
 
     assert isinstance(files, list)
 
@@ -25,7 +25,7 @@ def test_loadDir_when_no_files():
 
 def test_loadDataFromOfxFile_returns_file_transactions_data():
     transactions_data = loadDataFromOfxFile(
-        path='src/tests/extratos',
+        path='tests/extratos',
         file_name='Extrato-01-09-2024-a-01-10-2024 (1).ofx'
     )
 

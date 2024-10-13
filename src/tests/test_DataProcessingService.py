@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from src.services import dataProcessingService
-from src.interface import loadDataFromOfxFile, loadDir
-from src.useCases import parsedDataToTransaction
-from src.pTypes import Transaction
+from services import dataProcessingService
+from interface import loadDataFromOfxFile, loadDir
+from useCases import parsedDataToTransaction
+from pTypes import Transaction
 
 def test_data_processing_service_function():
-    processed_transaction_list = dataProcessingService('extratos')
+    processed_transaction_list = dataProcessingService('tests/extratos')
     
     assert processed_transaction_list != None
     assert isinstance(processed_transaction_list, list)
@@ -22,10 +22,10 @@ def test_data_processing_service_function():
 def test_file_manager_to_data_parser_integration():
     processed_transaction_list = []
 
-    files = loadDir(path='src/tests/extratos')
+    files = loadDir(path='tests/extratos')
 
     for file in files:
-        data_from_ofx= loadDataFromOfxFile(path='src/tests/extratos', file_name=file)
+        data_from_ofx= loadDataFromOfxFile(path='tests/extratos', file_name=file)
         for transaction in data_from_ofx:
             processed_transaction = parsedDataToTransaction(transaction)
             processed_transaction_list.append(processed_transaction)

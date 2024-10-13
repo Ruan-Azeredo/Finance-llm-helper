@@ -1,6 +1,6 @@
-from src.interface import loadDataFromOfxFile, loadDataFromCsvFile, loadDir
-from src.useCases import parsedDataToTransaction, formatDescriptionTransaction
-from src.pTypes import FileTransaction
+from interface import loadDataFromOfxFile, loadDataFromCsvFile, loadDir
+from useCases import parsedDataToTransaction, formatDescriptionTransaction
+from pTypes import FileTransaction
 
 def dataProcessingService(path: str):
 

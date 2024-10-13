@@ -2,7 +2,7 @@ import ofxparse
 import csv
 import os
 
-from src.pTypes import FileTransaction
+from pTypes import FileTransaction
 
 def loadDir(path: str = 'extratos'):
     files = []

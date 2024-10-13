@@ -1,5 +1,5 @@
-from src.pTypes import Transaction, FileTransaction
-from src.utils import formatDate, formatAmount
+from pTypes import Transaction, FileTransaction
+from utils import formatDate, formatAmount
 
 def parsedDataToTransaction(file_transaction: FileTransaction) -> Transaction:
 

@@ -1,4 +1,4 @@
-from src.useCases import llmAnswerCheck
+from useCases import llmAnswerCheck
 
 def test_llmAnswerCheck_success():
 

@@ -1,11 +1,11 @@
 from services import dataProcessingService
 from pTypes import Transaction
-from services import llmService
+from services import categorizeTransactionService
 
 transactions: list[Transaction] = dataProcessingService('../extratos-csv')
 
 for transaction in transactions:
 
-    categoryzed_transaction = llmService(transaction)
+    categoryzed_transaction = categorizeTransactionService(transaction)
 
     print(transaction, '|', categoryzed_transaction)

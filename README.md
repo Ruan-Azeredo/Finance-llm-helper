@@ -42,4 +42,6 @@ pip freeze > requirements.txt
 - [x] Maior cobertura de gerenciamento de erros
 - [x] Implementar testes unitarios e de integração
 - [x] Realocar defs da main
-- [ ] Flexibilizar leitura de .csv de acordo com padrões de outros bancos
+- [x] Flexibilizar leitura de .csv de acordo com padrões de outros bancos
+- [ ] Transformar em api
+- [ ] Fazer testes de integração com o LLM

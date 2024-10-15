@@ -23,4 +23,8 @@ def formatDate(date: str) -> str:
         except Exception as error:
             raise Exception(f"Erro inesperado: {error}, date: {date}")
     return ''
+
+def formatHaderKey(row: dict) -> dict:
+    clear_row = {key.replace('\n', ''): value for key, value in row.items()}
+    return clear_row
     

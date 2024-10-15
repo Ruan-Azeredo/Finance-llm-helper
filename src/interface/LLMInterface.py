@@ -20,6 +20,7 @@ def llmInterface(
     if is_answer_checked:
         return answer
     elif limit > 0:
+        print('LLM try, limit: ', limit)
         llmInterface(prompt, llmAnswerCheck, callLLM, limit - 1)
     else:
         raise Exception(f"Erro na interface com a LLM, muitas tentativas sem sucesso")

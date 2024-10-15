@@ -14,7 +14,6 @@ def test_data_processing_service_function():
     for transaction in processed_transaction_list:
 
         transaction_description = transaction.split(' | ')
-        print(transaction_description)
         assert isinstance(datetime.strptime(transaction_description[0], '%d/%m/%Y'), datetime)
         assert isinstance(transaction_description[1], str)
         assert 'R$' in transaction_description[2]

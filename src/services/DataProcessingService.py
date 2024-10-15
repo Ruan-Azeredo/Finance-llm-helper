@@ -1,5 +1,6 @@
-from interface import loadDataFromOfxFile, loadDataFromCsvFile, loadDir
+from interface import loadDataFromOfxFile, loadDataFromCsvFile, loadDir, openCsvFile
 from useCases import parsedDataToTransaction, formatDescriptionTransaction
+from services import defineCsvHeadersService
 from pTypes import FileTransaction
 
 def dataProcessingService(path: str):
@@ -14,7 +15,9 @@ def dataProcessingService(path: str):
         if file.endswith('.ofx'):
             data_from_ofx: list[FileTransaction] = loadDataFromOfxFile(path, file)
         elif file.endswith('.csv'):
-            data_from_ofx: list[FileTransaction] = loadDataFromCsvFile(path, file)
+            file_data = openCsvFile(path, file)
+            headers = defineCsvHeadersService(file_data)
+            data_from_ofx: list[FileTransaction] = loadDataFromCsvFile(path, file, headers)
         else:
             raise Exception("Formato de arquivo inválido, use .ofx ou .csv")
         

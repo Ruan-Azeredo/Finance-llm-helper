@@ -2,7 +2,16 @@ from utils import category_validator, formatHaderKey
 import json
 
 def llmAnswerCheck(answer: dict):
-    answer_json = json.loads(answer)
+    answer = answer.replace("'", '"')
+    print('answer: ', answer)
+    if '#' in answer or '```' in answer:
+        return False
+    
+    try:
+        answer_json = json.loads(answer)
+    except:
+        return False
+    
     answer_json_formated = formatHaderKey(answer_json)
     if type(answer_json_formated['amount']) == list and type(answer_json_formated['description']) == list and type(answer_json_formated['date']) == list:
         return answer_json_formated
@@ -22,8 +31,8 @@ def personalizedPrompt(csv: str) -> str:
     exemplo:
 
     {{
-        "amount": ["Valor"]
-        "description": ["Descrição", "Histórico"]
+        "amount": ["Valor"],
+        "description": ["Descrição", "Histórico"],
         "date": ["Data Lançamento"]
     }}
 

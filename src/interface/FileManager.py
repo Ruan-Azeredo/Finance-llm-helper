@@ -1,6 +1,7 @@
 import ofxparse
 import csv
 import os
+import io
 
 from pTypes import FileTransaction
 from utils import default_headers, formatHaderKey
@@ -18,30 +19,25 @@ def loadDir(path: str = 'extratos'):
     return files
 
 
-def loadDataFromOfxFile(path: str = 'extratos', file_name: str = 'Extrato-01-09-2024-a-01-10-2024 (1).ofx'):
-    if file_name.endswith('.ofx'):
-        try:
-            with open(f'{path}/{file_name}', encoding='ISO-8859-1') as ofx_file:
-                parsed_data = ofxparse.OfxParser.parse(ofx_file)
-            
+def loadDataFromOfxFile(content: bytes):
+    try:
+        ofx_data = io.BytesIO(content)
+        parsed_data = ofxparse.OfxParser.parse(ofx_data)
+        
 
-            result = []
-            for account in parsed_data.accounts:
-                for transaction in account.statement.transactions:
-                    transaction_dict = transaction.__dict__
-                    result.append(transaction_dict)
-            
-            return result
+        result = []
+        for account in parsed_data.accounts:
+            for transaction in account.statement.transactions:
+                transaction_dict = transaction.__dict__
+                result.append(transaction_dict)
+        
+        return result
 
-        except FileNotFoundError:
-            raise Exception(f"Arquivo {file_name} não encontrado no caminho {path}")
-        except ofxparse.OfxParserError:
-            raise Exception("Erro ao processar o arquivo OFX. O formato pode estar incorreto.")
-        except Exception as error:
-            raise Exception(f"Erro inesperado: {error}")
+    except ofxparse.OfxParserException:
+        raise Exception("Erro ao processar o arquivo OFX. O formato pode estar incorreto.")
+    except Exception as error:
+        raise Exception(f"Erro inesperado: {error}")
 
-    else:
-        raise Exception("Arquivo inválido, arquivo deve ser do formato .ofx")
 
 
 def openCsvFile(path: str, file_name: str):
@@ -56,51 +52,51 @@ def openCsvFile(path: str, file_name: str):
             raise Exception(f"Arquivo {file_name} não encontrado no caminho {path}")
 
 
-def loadDataFromCsvFile(path: str, file_name: str, headers: dict = default_headers):
-    if file_name.endswith('.csv'):
+async def loadDataFromCsvFile(content: bytes, headers: dict = default_headers):
+
+    try:
+
+        decoded_content = content.decode('utf-8')
+
+        lines = decoded_content.splitlines()
+
+        i = 20
+        while i > 0:
+            i = i - 1
+            line = lines[0].strip()  # Lê a primeira linha e remove espaços extras
+            lines.pop(0)  # Remove a linha já lida
+            if headers['amount'][0] in line:
+                if ';' in line:
+                    headers_csv = line.split(';')
+                    delimiter = ';'
+                elif ',' in line:
+                    headers_csv = line.split(',')
+                    delimiter = ','
+                break
+
+        csv_reader = csv.DictReader(lines, fieldnames=headers_csv, delimiter=delimiter)
+
+        result = []
+
         try:
-
-            with open(f'{path}/{file_name}', newline='', encoding='utf-8') as csv_file:
-                while True:
-                    line = csv_file.readline()
-
-                    if headers['amount'][0] in line:
-                        if ';' in line:
-                            headers_csv = line.split(';')
-                            delimiter = ';'
-                        elif ',' in line:
-                            headers_csv = line.split(',')
-                            delimiter = ','
-                        break
-
-                csv_file.seek(csv_file.tell())
-                csv_reader = csv.DictReader(csv_file, fieldnames=headers_csv, delimiter=delimiter)
-
-                result = []
-
-                try:
-                    next(csv_reader)
-                except:
-                    raise StopIteration()
-                
-                for i, row in enumerate(csv_reader, start = 1):
-                    clear_row = formatHaderKey(row)
-                    
-                    transaction = _process_abstract_row(i, clear_row, headers)
-
-                    result.append(transaction)
+            next(csv_reader)
+        except:
+            raise StopIteration()
+        
+        for i, row in enumerate(csv_reader, start = 1):
+            clear_row = formatHaderKey(row)
             
-            return result
+            transaction = _process_abstract_row(i, clear_row, headers)
 
-        except StopIteration as error:
-            raise Exception("O arquivo CSV parece estar vazio")
-        except FileNotFoundError:
-            raise Exception(f"Arquivo {file_name} não encontrado no caminho {path}")
-        except Exception as error:
-            raise Exception(f"Erro inesperado: {error}")
+            result.append(transaction)
+        
+        return result
 
-    else:
-        raise Exception("Arquivo inválido, arquivo deve ser do formato .csv")
+    except StopIteration as error:
+        raise Exception("O arquivo CSV parece estar vazio")
+    except Exception as error:
+        raise Exception(f"Erro inesperado: {error}")
+
     
 def _process_row(index, row) -> FileTransaction:
     valor_str = row.get('Valor')

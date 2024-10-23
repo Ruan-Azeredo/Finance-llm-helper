@@ -1,1 +1,2 @@
 from .DataParser import parsedDataToTransaction, formatDescriptionTransaction
+from .GenerateReport import generateReport

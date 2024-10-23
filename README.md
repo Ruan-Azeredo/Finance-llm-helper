@@ -35,6 +35,19 @@ Se você adicionar uma nova dependência ao projeto, não se esqueça de atualiz
 ```bash
 pip freeze > requirements.txt
 ```
+
+## Testes
+O comando `pytest` executa todos os testes do projeto. Incluind testes e2e que podem ser demorados e dependem de dependecias externas.
+Para executar os testes excluindo os que são e2e, execute:
+```bash
+    pytest -m "not e2e"
+```
+
+Para executar os testes e2e, execute:
+```bash
+    pytest -m e2e
+```
+
 ## To do
 
 - [x] Melhorar arquitetura (adicionado ./src)
@@ -43,5 +56,5 @@ pip freeze > requirements.txt
 - [x] Implementar testes unitarios e de integração
 - [x] Realocar defs da main
 - [x] Flexibilizar leitura de .csv de acordo com padrões de outros bancos
-- [ ] Transformar em api
+- [x] Transformar em api
 - [ ] Fazer testes de integração com o LLM

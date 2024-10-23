@@ -7,8 +7,18 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 import os
 
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Ou especifique ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def root():
@@ -17,38 +27,26 @@ async def root():
 UPLOAD_DIR = "imported-extratos"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@app.post("/categorizetransaction")
-async def root(file: UploadFile = File(...)):
-    try:
-        allowed_extensions = ['ofx', 'csv']
-        filename = file.filename
-        file_extension = filename.split('.')[-1].lower()
+@app.post("/categorize-transaction")
+async def categorize_transaction(file: UploadFile = File(...)):
 
-        if file_extension not in allowed_extensions:
-            print(file_extension)
-            raise HTTPException(status_code=400, detail="Arquivo inválido, arquivo deve ser do formato .ofx ou .csv")
+    data: dict = await dataProcessingService(file = file)
+    transactions = data["processed_transaction_list"]
+    raw_transactions = data["transactions_params_list"]
 
-        file_path = os.path.join(UPLOAD_DIR, filename)
+    categorized_transactions: list = []
+    for i, transaction in enumerate(transactions):
+        print('transaction: ', transaction)
 
-        try:
-            content = await file.read()
-            with open(file_path, "wb") as uploaded_file:
-                uploaded_file.write(content)
-        except Exception as error:
-            raise HTTPException(status_code=500, detail=f"Erro ao salvar o arquivo: {error}")
+        categoryzed_transaction = await categorizeTransactionService(transaction)
 
-        return JSONResponse(content={
-            "filename": filename, "message": "File uploaded successfully"
-        })
+        categorized_transactions.append({"transaction": raw_transactions[i], "category": categoryzed_transaction})
+        print(transaction, '|', categoryzed_transaction)
+        raw_transactions[i]["date"] = raw_transactions[i]["date"].__str__()
+        raw_transactions[i]["amount"] = raw_transactions[i]["amount"].__str__()
+        print(type(raw_transactions[i]["date"]))
 
-    except Exception as error:
-        print(error)
-        raise HTTPException(status_code=500, detail=f"Erro inesperado: {error}")
-
-""" transactions: list[Transaction] = dataProcessingService('../extratos-csv')
-
-for transaction in transactions:
-
-    categoryzed_transaction = categorizeTransactionService(transaction)
-
-    print(transaction, '|', categoryzed_transaction) """
+    return JSONResponse(content={
+        "transactions": categorized_transactions, 
+        "message": "File uploaded successfully"
+    })

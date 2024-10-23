@@ -51,3 +51,14 @@ async def test_file_manager_to_data_parser_integration():
 
     for transaction in processed_transaction_list:
         assert isinstance(transaction, Transaction)
+
+@pytest.mark.asyncio
+async def test_data_processing_service_function_when_file_is_not_ofx_or_csv():
+
+    invalid_file_content = "Arquivo de teste com formato inválido".encode('utf-8')
+    upload_file = UploadFile(filename="extrato_invalido.txt", file=BytesIO(invalid_file_content))
+
+    with pytest.raises(Exception) as error:
+        await dataProcessingService(file = upload_file)
+
+    assert str(error.value) == "Formato de arquivo inválido, use .ofx ou .csv"

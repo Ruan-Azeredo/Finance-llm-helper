@@ -1,7 +1,7 @@
 from utils import category_validator, formatHaderKey
 import json
 
-def llmAnswerCheck(answer: dict):
+def llmAnswerCheck(answer: str):
     answer = answer.replace("'", '"')
     print('answer: ', answer)
     if '#' in answer or '```' in answer:
@@ -13,8 +13,9 @@ def llmAnswerCheck(answer: dict):
         return False
     
     answer_json_formated = formatHaderKey(answer_json)
+
     if type(answer_json_formated['amount']) == list and type(answer_json_formated['description']) == list and type(answer_json_formated['date']) == list:
-        return answer_json_formated
+        return True
     else:
         return False
     

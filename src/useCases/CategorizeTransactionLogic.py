@@ -2,7 +2,7 @@ from utils import category_validator, default_categories as categories
 
 def llmAnswerCheck(answer: str, categories: str = categories):
     if category_validator(categories, answer):
-        return answer
+        return True
     else:
         return False
     

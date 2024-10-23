@@ -16,8 +16,7 @@ def test_llmAnswerCheck_success():
 
     answer = llmAnswerCheck(category, categories)
 
-    assert category == answer
-    assert category in categories
+    assert answer == True
 
 
 def test_llmAnswerCheck_when_category_is_not_in_categories():

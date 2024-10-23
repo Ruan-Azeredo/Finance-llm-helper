@@ -16,9 +16,9 @@ async def llmInterface(
 
     answer = await callLLM(prompt)
 
-    answer_checked = llmAnswerCheck(answer)
+    is_answer_checked = llmAnswerCheck(answer)
 
-    if answer_checked:
+    if is_answer_checked:
         return answer
     elif limit > 0:
         print('LLM try, limit: ', limit)

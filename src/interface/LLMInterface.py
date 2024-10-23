@@ -13,13 +13,12 @@ async def llmInterface(
     limit: int = 5
 ) -> str:
     _  = load_dotenv(find_dotenv())
-    print('chegou no llm inteface')
 
     answer = await callLLM(prompt)
 
-    is_answer_checked = llmAnswerCheck(answer)
-    print('is_answer_checked: ', is_answer_checked)
-    if is_answer_checked:
+    answer_checked = llmAnswerCheck(answer)
+
+    if answer_checked:
         return answer
     elif limit > 0:
         print('LLM try, limit: ', limit)

@@ -1,6 +1,7 @@
 from services import dataProcessingService
-from pTypes import Transaction
+from pTypes import FileTransaction
 from services import categorizeTransactionService
+from useCases import generateReport
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException
@@ -14,8 +15,8 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Ou especifique ["http://localhost:3000"]
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials = True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -24,29 +25,26 @@ app.add_middleware(
 async def root():
     return {'message': 'Hello World'}
 
-UPLOAD_DIR = "imported-extratos"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
 @app.post("/categorize-transaction")
-async def categorize_transaction(file: UploadFile = File(...)):
+async def categorize_transaction(file: UploadFile = File(...)) -> None:
+    print('Recebido arquivo: ', file.filename, ' Iniciando processamento para definição da categoria...')
 
-    data: dict = await dataProcessingService(file = file)
-    transactions = data["processed_transaction_list"]
-    raw_transactions = data["transactions_params_list"]
+    try:
+        data: dict = await dataProcessingService(file = file)
+        transactions = data["processed_transaction_list"]
+        raw_transactions = data["transactions_params_list"]
 
-    categorized_transactions: list = []
-    for i, transaction in enumerate(transactions):
-        print('transaction: ', transaction)
+        categorized_transactions: list = []
+        for i, transaction in enumerate(transactions):
 
-        categoryzed_transaction = await categorizeTransactionService(transaction)
+            categoryzed_transaction = await categorizeTransactionService(transaction)
 
-        categorized_transactions.append({"transaction": raw_transactions[i], "category": categoryzed_transaction})
-        print(transaction, '|', categoryzed_transaction)
-        raw_transactions[i]["date"] = raw_transactions[i]["date"].__str__()
-        raw_transactions[i]["amount"] = raw_transactions[i]["amount"].__str__()
-        print(type(raw_transactions[i]["date"]))
+            categorized_transactions.append(generateReport(raw_transactions[i], categoryzed_transaction))
 
-    return JSONResponse(content={
-        "transactions": categorized_transactions, 
-        "message": "File uploaded successfully"
-    })
+        return JSONResponse(content={
+            "transactions": categorized_transactions, 
+            "message": "Transações categorizadas com sucesso"
+        })
+    
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=str(error))

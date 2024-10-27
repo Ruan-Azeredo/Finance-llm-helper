@@ -22,7 +22,7 @@ async def llmInterface(
         return answer
     elif limit > 0:
         print('LLM try, limit: ', limit)
-        await llmInterface(prompt, llmAnswerCheck, callLLM, limit - 1)
+        return await llmInterface(prompt, llmAnswerCheck, callLLM, limit - 1)
     else:
         raise Exception(f"Erro na interface com a LLM, muitas tentativas sem sucesso")
         

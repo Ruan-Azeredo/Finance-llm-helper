@@ -57,4 +57,7 @@ Para executar os testes e2e, execute:
 - [x] Realocar defs da main
 - [x] Flexibilizar leitura de .csv de acordo com padrões de outros bancos
 - [x] Transformar em api
-- [ ] Fazer testes de integração com o LLM
+- [x] Fazer testes de integração com o LLM
+- [ ] Adicionar DB
+- [ ] Criar contas p/ cada usuario
+- [ ] Salvar as transações

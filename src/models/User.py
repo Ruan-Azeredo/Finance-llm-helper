@@ -15,12 +15,20 @@ class User(Model):
         database = db
         table_name = 'user'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'User: {self.id}, {self.name}, {self.email}'
     
-    def create(**kwargs):
+    def create(**kwargs) -> 'User':
 
         if 'password' in kwargs:
             kwargs['password'] = hash(kwargs['password'])
 
         return super(User, User).create(**kwargs)
+    
+    def update(self, **kwargs) -> None:
+
+        if 'password' in kwargs:
+            kwargs['password'] = hash(kwargs['password'])
+
+        super(User, User).update(**kwargs).where(User.id == self.id).execute()
+        

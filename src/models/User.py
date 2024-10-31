@@ -16,7 +16,16 @@ class User(Model):
         table_name = 'user'
 
     def __str__(self) -> str:
+
         return f'User: {self.id}, {self.name}, {self.email}'
+    
+    def all() -> list['User']:
+
+        return User.select()
+    
+    def fromId(id: int) -> 'User':
+
+        return User.select().where(User.id == id).get()
     
     def create(**kwargs) -> 'User':
 
@@ -33,5 +42,6 @@ class User(Model):
         super(User, User).update(**kwargs).where(User.id == self.id).execute()
 
     def delete(self) -> None:
+        
         super(User, User).delete().where(User.id == self.id).execute()
         

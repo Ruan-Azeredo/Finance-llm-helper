@@ -1,53 +1,26 @@
-from peewee import SqliteDatabase, Model, CharField
-import os
-import asyncio
+from peewee import SqliteDatabase, Model, CharField, IntegerField, DateTimeField
+from datetime import datetime
 
 db = SqliteDatabase('database.db')
 
-class UserTable(Model):
+class User(Model):
+    id = IntegerField(unique = True, primary_key = True)
     name = CharField()
-    email = CharField(unique=True)
+    email = CharField(unique = True)
     password = CharField()
+    created_at = DateTimeField(default = datetime.now())
+    updated_at = DateTimeField(default = datetime.now())
 
     class Meta:
         database = db
-
-class User(UserTable):
+        table_name = 'user'
 
     def __str__(self):
-        return f'User: {self.id}, {self.name}, {self.email}, {self.password}'
-
-    async def create(self):
-        UserTable.create(
-            id = self.id,
-            name = self.name,
-            email = self.email,
-            password = self.password
-        )
-
-        return self
-
-async def ops():
-    db.connect()
-    db.create_tables([UserTable])
-
-    new_user = await User(
-        id = 1,
-        name = 'name',
-        email = 'email',
-        password = 'password'
-    ).create()
-    print(new_user.__str__(), type(new_user))
-
-    users: UserTable = list(UserTable.select().execute())
-
-    for user in users:
-        print(user.__str__(), type(user))
+        return f'User: {self.id}, {self.name}, {self.email}'
     
-    
-    
-    
-    os.remove('database.db')
+    def create(**kwargs):
 
+        if 'password' in kwargs:
+            kwargs['password'] = hash(kwargs['password'])
 
-asyncio.run(ops())
+        return super(User, User).create(**kwargs)

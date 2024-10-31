@@ -31,4 +31,7 @@ class User(Model):
             kwargs['password'] = hash(kwargs['password'])
 
         super(User, User).update(**kwargs).where(User.id == self.id).execute()
+
+    def delete(self) -> None:
+        super(User, User).delete().where(User.id == self.id).execute()
         

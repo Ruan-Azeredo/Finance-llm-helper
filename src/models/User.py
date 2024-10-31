@@ -1,7 +1,7 @@
 from peewee import SqliteDatabase, Model, CharField, IntegerField, DateTimeField
 from datetime import datetime
 
-db = SqliteDatabase('database.db')
+from database import db
 
 class User(Model):
     id = IntegerField(unique = True, primary_key = True)
@@ -42,6 +42,6 @@ class User(Model):
         super(User, User).update(**kwargs).where(User.id == self.id).execute()
 
     def delete(self) -> None:
-        
+
         super(User, User).delete().where(User.id == self.id).execute()
         

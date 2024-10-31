@@ -1,1 +1,1 @@
-from .UserTable import UserTable
+from SQLite import db

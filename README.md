@@ -35,6 +35,13 @@ Se você adicionar uma nova dependência ao projeto, não se esqueça de atualiz
 ```bash
 pip freeze > requirements.txt
 ```
+## Crie .Env
+Crie um arquivo .env e adicione as seguintes variáveis:
+
+```bash
+GROQ_API_KEY=YOUR_API_KEY
+```
+
 
 ## Testes
 O comando `pytest` executa todos os testes do projeto. Incluind testes e2e que podem ser demorados e dependem de dependecias externas.

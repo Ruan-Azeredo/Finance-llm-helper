@@ -2,6 +2,7 @@ from services import dataProcessingService
 from pTypes import FileTransaction
 from services import categorizeTransactionService
 from useCases import generateReport
+from controllers import user_router
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException
@@ -20,6 +21,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(user_router, prefix="/user")
 
 @app.get("/")
 async def root():

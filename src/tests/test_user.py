@@ -16,7 +16,6 @@ def test_create_user_model():
     test_db.create_tables([User])
     
     user = User.create(
-        id = 1,
         name = 'name',
         email = 'email@email.com',
         password = 'password'

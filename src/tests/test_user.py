@@ -39,7 +39,7 @@ def test_get_user_model():
         password = 'password'
     )
 
-    user_from_db = User.fromId(id = 1)
+    user_from_db = User.from_id(id = 1)
     
     assert user_from_db.__str__() == 'User: 1, name, email@email.com'
     assert user_from_db.name == 'name'

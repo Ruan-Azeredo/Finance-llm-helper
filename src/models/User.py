@@ -1,9 +1,10 @@
-from peewee import SqliteDatabase, Model, CharField, IntegerField, DateTimeField
+from peewee import CharField, IntegerField, DateTimeField
 from datetime import datetime
 
+from models import BaseModel
 from database import db
 
-class User(Model):
+class User(BaseModel):
     id = IntegerField(unique = True, primary_key = True)
     name = CharField()
     email = CharField(unique = True)
@@ -19,14 +20,6 @@ class User(Model):
 
         return f'User: {self.id}, {self.name}, {self.email}'
     
-    def all() -> list['User']:
-
-        return User.select()
-    
-    def fromId(id: int) -> 'User':
-
-        return User.select().where(User.id == id).get()
-    
     def create(**kwargs) -> 'User':
 
         if 'password' in kwargs:
@@ -39,9 +32,5 @@ class User(Model):
         if 'password' in kwargs:
             kwargs['password'] = hash(kwargs['password'])
 
-        super(User, User).update(**kwargs).where(User.id == self.id).execute()
-
-    def delete(self) -> None:
-
-        super(User, User).delete().where(User.id == self.id).execute()
+        super(User, self).update(**kwargs)
         

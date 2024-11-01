@@ -5,7 +5,7 @@ init_db:
 	@python src/initialize_db.py
 
 start:
-	@cd src && uvicorn src.server:app --host 0.0.0.0 --port 8000
+	@cd src && uvicorn server:app --host 0.0.0.0 --port 8000
 
 build: install init_db start
 

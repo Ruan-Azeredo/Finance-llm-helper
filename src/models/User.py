@@ -14,7 +14,6 @@ class User(BaseModel):
 
     class Meta:
         database = db
-        table_name = 'user'
 
     def __str__(self) -> str:
 

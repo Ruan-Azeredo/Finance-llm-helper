@@ -14,7 +14,10 @@ class BaseModel(Model):
     @classmethod
     def all(cls: Type[T]) -> List[T]:
 
-        return list(cls.select())
+        try:
+            return list(cls.select())
+        except Exception as error:
+            raise Exception(f"Erro ao listar os registros: {error}")
 
     @classmethod
     def from_id(cls: Type[T], id: int) -> T:
@@ -27,12 +30,22 @@ class BaseModel(Model):
     @classmethod
     def create(cls: Type[T], **kwargs) -> T:
 
-        return super().create(**kwargs)
+
+        try:
+            return super().create(**kwargs)
+        except Exception as error:
+            raise Exception(f"Erro ao criar o registro: {error}")
   
     def update(self: T, **kwargs) -> None:
 
-        super(BaseModel, self).update(**kwargs).where(self.__class__.id == self.id).execute()
+        try:
+            super(BaseModel, self).update(**kwargs).where(self.__class__.id == self.id).execute()
+        except Exception as error:
+            raise Exception(f"Erro ao atualizar o registro: {error}")
 
     def delete(self: T) -> None:
 
-        super(BaseModel, self).delete().where(self.__class__.id == self.id).execute()
+        try:
+            super(BaseModel, self).delete().where(self.__class__.id == self.id).execute()
+        except Exception as error:
+            raise Exception(f"Erro ao deletar o registro: {error}")    

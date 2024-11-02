@@ -1,6 +1,9 @@
 install:
 	@pip install -r requirements.txt
 
+test:
+	@cd src && pytest -m "not e2e"
+
 init_db:
 	@cd src && python initialize_db.py
 

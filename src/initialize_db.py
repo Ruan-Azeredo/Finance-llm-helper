@@ -5,7 +5,7 @@ from models import User
 from database import db
 
 def initialize_db():
-    if Path('database.db').exists():
+    if not Path('database.db').exists():
         db.connect()
         db.create_tables([User])
 

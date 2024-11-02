@@ -14,7 +14,7 @@ user_router = APIRouter()
 async def get_users():
     try:
         users = User.all()
-        return {"users": [str(user) for user in users]}
+        return {"users": [user.to_dict() for user in users]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -24,7 +24,7 @@ async def get_user(user_id: int):
         user = User.from_id(user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return {"user": str(user)}
+        return {"user": user.to_dict()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

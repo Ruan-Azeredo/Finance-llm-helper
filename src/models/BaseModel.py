@@ -8,6 +8,9 @@ class BaseModel(Model):
     class Meta:
         database = db
 
+    def to_dict(self) -> dict:
+        return {field.name: getattr(self, field.name) for field in self._meta.sorted_fields}
+    
     @classmethod
     def all(cls: Type[T]) -> List[T]:
 

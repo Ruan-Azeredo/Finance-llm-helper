@@ -1,13 +1,9 @@
-from src.server import app
 from models import User
 from src.controllers.userController import UserInput, get_users, get_user, create_user, update_user, delete_user
 
 import pytest
 from peewee import SqliteDatabase
-from fastapi.testclient import TestClient
 from fastapi import HTTPException
-
-client = TestClient(app)
 
 def setupTestDatabase():
     test_db = SqliteDatabase(':memory:')

@@ -4,7 +4,7 @@ from database import db
 
 T = TypeVar('T', bound='BaseModel')
 
-def handle_database_error(method: Callable[..., T]) -> Callable[..., T]:
+def handle_database_error(method: Callable[..., T]) -> Callable[..., T] | None:
     def wrapper(*args, **kwargs):
         try:
             return method(*args, **kwargs)

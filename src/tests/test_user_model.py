@@ -184,7 +184,7 @@ def test_get_user_when_table_not_exists():
     assert test_db.table_exists('users') == False
     assert 'Tabela users não existe' in str(error.value)
 
-def test_user_create_user_when_table_not_exists():
+def test_create_user_when_table_not_exists():
 
     test_db = setupTestDatabase()
     
@@ -200,7 +200,7 @@ def test_user_create_user_when_table_not_exists():
     assert test_db.table_exists('users') == False
     assert 'Tabela users não existe' in str(error.value)
 
-def test_user_update_user_when_table_not_exists():
+def test_update_user_when_table_not_exists():
 
     test_db = setupTestDatabase()
     
@@ -219,7 +219,7 @@ def test_user_update_user_when_table_not_exists():
     assert test_db.table_exists('users') == False
     assert 'Tabela users não existe' in str(error.value)
 
-def test_user_delete_user_when_table_not_exists():
+def test_delete_user_when_table_not_exists():
 
     test_db = setupTestDatabase()
     
@@ -233,7 +233,7 @@ def test_user_delete_user_when_table_not_exists():
     assert test_db.table_exists('users') == False
     assert 'Tabela users não existe' in str(error.value)
 
-def test_user_get_user_when_user_not_exists():
+def test_get_user_when_user_not_exists():
 
     test_db = setupTestDatabase()
     

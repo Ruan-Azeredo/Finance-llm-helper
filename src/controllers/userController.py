@@ -25,8 +25,11 @@ async def get_user(user_id: int):
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return {"user": user.to_dict()}
+    
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, message=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 @user_router.post("/")
 async def create_user(user_input: UserInput):
@@ -38,30 +41,34 @@ async def create_user(user_input: UserInput):
         )
         return {"message": "User created", "user": str(user)}
     except Exception as e:
-        raise HTTPException(status_code=500, message=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 @user_router.put("/{user_id}")
 async def update_user(user_id: int, user_input: UserInput):
     try:
         user = User.from_id(user_id)
         if not user:
-            raise HTTPException(status_code=404, message="User not found")
+            raise HTTPException(status_code=404, detail="User not found")
         user.update(
             name = user_input.name,
             email = user_input.email,
             password = user_input.password
         )
         return {"message": "User updated", "user": str(user)}
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, message=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 @user_router.delete("/{user_id}")
 async def delete_user(user_id: int):
     try:
         user = User.from_id(user_id)
         if not user:
-            raise HTTPException(status_code=404, message="User not found")
+            raise HTTPException(status_code=404, detail="User not found")
         user.delete()
         return {"message": "User deleted"}
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, message=str(e))
+        raise HTTPException(status_code=500, detail=str(e))

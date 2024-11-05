@@ -1,4 +1,4 @@
-from peewee import Model, DoesNotExist, OperationalError
+from peewee import Model, DoesNotExist, OperationalError, IntegrityError
 from typing import Type, TypeVar, List, Callable
 from database import db
 
@@ -15,6 +15,8 @@ def handle_database_error(method: Callable[..., T]) -> Callable[..., T] | None:
                 raise Exception(f"Erro interno: {error}")
         except DoesNotExist:
             return None
+        except IntegrityError as error:
+            raise IntegrityError(error.args[0])
         except Exception as error:
             raise Exception(f"Erro interno: {error}")
     return wrapper

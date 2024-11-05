@@ -25,6 +25,69 @@ def test_create_user_model():
     assert user.__str__() == 'User: 1, name, email@email.com'
     assert user.password == hash('password')
 
+def test_create_user_model_with_id():
+
+    test_db = setupTestDatabase()
+    
+    test_db.connect()
+    test_db.create_tables([User])
+    
+    user = User.create(
+        id = 1,
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+    
+    assert user.__str__() == 'User: 1, name, email@email.com'
+    assert user.password == hash('password')
+
+def test_create_user_model_with_existing_email():
+
+    test_db = setupTestDatabase()
+    
+    test_db.connect()
+    test_db.create_tables([User])
+
+    User.create(
+            name = 'Ruan',
+            email = 'email@email.com',
+            password = '1234'
+        )
+    
+    with pytest.raises(Exception) as error:
+        User.create(
+            name = 'name',
+            email = 'email@email.com',
+            password = 'password'
+        )
+    
+    assert 'Chave duplicada: email já existente' in str(error.value)
+
+def test_create_user_model_with_existing_id():
+
+    test_db = setupTestDatabase()
+    
+    test_db.connect()
+    test_db.create_tables([User])
+
+    User.create(
+        id = 1,
+        name = 'Ruan',
+        email = 'email@email.com',
+        password = '1234'
+    )   
+    
+    with pytest.raises(Exception) as error:
+        User.create(
+            id = 1,
+            name = 'name',
+            email = 'email@email.com',
+            password = 'password'
+        )
+    
+    assert 'Chave duplicada: id já existente' in str(error.value)
+
 def test_get_user_model():
 
     test_db = setupTestDatabase()

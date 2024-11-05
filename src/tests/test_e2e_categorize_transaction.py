@@ -4,6 +4,7 @@ from src.server import app
 
 client = TestClient(app)
 
+@pytest.mark.llm
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_categorize_transaction_e2e_csv():
@@ -20,6 +21,7 @@ async def test_categorize_transaction_e2e_csv():
     assert len(response.json()['transactions'][0]['amount']) > 0
     assert len(response.json()['transactions'][0]['date']) > 0
 
+@pytest.mark.llm
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_categorize_transaction_e2e_ofx():

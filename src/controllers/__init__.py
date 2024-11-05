@@ -1,1 +1,1 @@
-from .userController import user_router
+from .userController import user_router, UserInput

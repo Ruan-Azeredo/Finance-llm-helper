@@ -21,16 +21,16 @@ def handle_HTTPException_error(method: Callable[..., User]) -> dict:
             raise HTTPException(status_code = 500, detail = str(error))
     return wrapper
 
-@user_router.get("/")
 @handle_HTTPException_error
+@user_router.get("/")
 async def get_users():
 
     users = User.all()
     return {"users": [user.to_dict() for user in users]}
 
 
-@user_router.get("/{user_id}")
 @handle_HTTPException_error
+@user_router.get("/{user_id}")
 async def get_user(user_id: int):
 
     user = User.from_id(user_id)
@@ -40,8 +40,8 @@ async def get_user(user_id: int):
     
     return {"user": user.to_dict()}
 
-@user_router.post("/")
 @handle_HTTPException_error
+@user_router.post("/")
 async def create_user(user_input: UserInput):
 
     user = User.create(
@@ -50,10 +50,10 @@ async def create_user(user_input: UserInput):
         password = user_input.password
     )
 
-    return {"message": "User created", "user": str(user)}
+    return {"message": "User created", "user": user.to_dict()}
 
-@user_router.put("/{user_id}")
 @handle_HTTPException_error
+@user_router.put("/{user_id}")
 async def update_user(user_id: int, user_input: UserInput):
 
     user = User.from_id(user_id)
@@ -67,8 +67,11 @@ async def update_user(user_id: int, user_input: UserInput):
         password = user_input.password
     )
 
-    return {"message": "User updated", "user": str(user)}
+    updated_user = User.from_id(user_id)
 
+    return {"message": "User updated", "user": updated_user.to_dict()}
+
+@handle_HTTPException_error
 @user_router.delete("/{user_id}")
 async def delete_user(user_id: int):
 

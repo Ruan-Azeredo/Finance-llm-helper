@@ -2,7 +2,7 @@ install:
 	@pip install -r requirements.txt
 
 test:
-	@cd src && pytest -m "not e2e"
+	@cd src && pytest -m "not llm"
 
 init_db:
 	@cd src && python initialize_db.py

@@ -55,6 +55,8 @@ Para executar os testes e2e, execute:
     pytest -m e2e
 ```
 
+##### O mesmo vale para a tag `llm`, que é ainda mais delicada de ser testada por dependencias externas  mais fortes.
+
 ## To do
 
 - [x] Melhorar arquitetura (adicionado ./src)

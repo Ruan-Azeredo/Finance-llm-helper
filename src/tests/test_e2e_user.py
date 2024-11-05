@@ -8,17 +8,6 @@ from models import User
 
 client = TestClient(app)
 
-""" def setupTestDatabase():
-    test_db = SqliteDatabase('test.db')
-    User._meta.database = test_db
-    test_db.connect()
-    test_db.create_tables([User])
-
-    return test_db
-
-setupTestDatabase() """
-
-
 @pytest.fixture(scope="session", autouse=True)
 def setup_and_teardown_database():
     test_db = SqliteDatabase('test.db')
@@ -47,7 +36,8 @@ async def test_create_user_e2e():
 
     assert response.status_code == 200
     assert response.json()['message'] == "User created"
-    assert response.json()['user'] == "User: 1, Ruan, ruan@gmail"
+    assert response.json()['user']['name'] == "Ruan"
+    assert response.json()['user']['email'] == "ruan@gmail"
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
@@ -63,7 +53,8 @@ async def test_get_user_e2e():
 
     assert response.status_code == 200
     assert response.json()['message'] == "User created"
-    assert response.json()['user'] == "User: 2, Ruan, ruan11@gmail"
+    assert response.json()['user']['name'] == "Ruan"
+    assert response.json()['user']['email'] == "ruan11@gmail"
 
     response = client.get('/user/2')
 
@@ -86,7 +77,8 @@ async def test_update_user_e2e():
 
     assert response.status_code == 200
     assert response.json()['message'] == "User created"
-    assert response.json()['user'] == "User: 3, Ruan, ruan22@gmail"
+    assert response.json()['user']['name'] == "Ruan"
+    assert response.json()['user']['email'] == "ruan22@gmail"
 
     update_user_data = {
         "name": "Ruan Azeredo",
@@ -98,7 +90,8 @@ async def test_update_user_e2e():
 
     assert response.status_code == 200
     assert response.json()['message'] == "User updated"
-    assert response.json()['user'] == "User: 3, Ruan Azeredo, ruan22@gmail"
+    assert response.json()['user']['name'] == "Ruan Azeredo"
+    assert response.json()['user']['email'] == "ruan22@gmail"
 
 
 @pytest.mark.e2e
@@ -115,9 +108,10 @@ async def test_delete_user_e2e():
 
     assert response.status_code == 200
     assert response.json()['message'] == "User created"
-    assert response.json()['user'] == "User: 4, Ruan, ruan33@gmail"
+    assert response.json()['user']['name'] == "Ruan"
+    assert response.json()['user']['email'] == "ruan33@gmail"
 
-    response = client.delete('/user/1')
+    response = client.delete(f'/user/{response.json()["user"]["id"]}')
 
     assert response.status_code == 200
     assert response.json()['message'] == "User deleted"

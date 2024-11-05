@@ -17,9 +17,6 @@ def setupTestDatabase():
 def test_user_table_exists():
 
     test_db = setupTestDatabase()
-
-    """ if not test_db.table_exists('user'):
-        test_db.create_tables([User]) """
     
     assert test_db.table_exists('users') == True
 
@@ -46,7 +43,9 @@ async def test_create_user():
 
     response = await create_user(user_input = user_data)
 
-    assert response == {'message': 'User created', 'user': 'User: 1, Ruan, ruan@gmail.com'}
+    assert response["message"] == "User created"
+    assert response["user"]["name"] == "Ruan"
+    assert response["user"]["email"] == "ruan@gmail.com"
 
 @pytest.mark.asyncio
 async def test_get_user():

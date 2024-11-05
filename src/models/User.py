@@ -1,8 +1,27 @@
-from peewee import CharField, IntegerField, DateTimeField
+from peewee import CharField, IntegerField, DateTimeField, IntegrityError
 from datetime import datetime
+from typing import Callable, Any
 
 from models import BaseModel
 from database import db
+
+def handle_database_error(method: Callable[..., Any]) -> Callable[..., Any] | None:
+    def wrapper(*args, **kwargs):
+
+        unique_fields = ['id', 'email']
+
+        try:
+            return method(*args, **kwargs)
+        except IntegrityError as error:
+            if 'UNIQUE constraint failed' in str(error):
+                for field in unique_fields:
+                    if field in str(error):
+                        raise Exception(f"Chave duplicada: {field} já existente")
+            else:
+                raise Exception(f"Erro interno de integridade: {error}")
+        except Exception as error:
+            raise Exception(f"Erro interno: {error}")
+    return wrapper
 
 class User(BaseModel):
     id = IntegerField(unique = True, primary_key = True)
@@ -21,6 +40,7 @@ class User(BaseModel):
 
         return f'User: {self.id}, {self.name}, {self.email}'
     
+    @handle_database_error
     def create(**kwargs) -> 'User':
 
         if 'password' in kwargs:
@@ -28,6 +48,7 @@ class User(BaseModel):
 
         return super(User, User).create(**kwargs)
     
+    @handle_database_error
     def update(self, **kwargs) -> None:
 
         if 'password' in kwargs:

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Callable
 
+from auth import get_current_user
 from models import User
 
 class UserInput(BaseModel):
@@ -83,3 +84,7 @@ async def delete_user(user_id: int):
     user.delete()
 
     return {"message": "User deleted"}
+
+@user_router.get("/me")
+async def protected_route(current_user: User = Depends(get_current_user)):
+    return f'Hello {current_user.name}, this route is protected'

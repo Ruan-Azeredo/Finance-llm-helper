@@ -55,4 +55,10 @@ class User(BaseModel):
             kwargs['password'] = hash(kwargs['password'])
 
         super(User, self).update(**kwargs)
+
+    def get_user_by_email(email: str) -> 'User':
+        try:
+            return User.get(User.email == email)
+        except Exception as error:
+            raise Exception(f"Email inválido: {error}")
         

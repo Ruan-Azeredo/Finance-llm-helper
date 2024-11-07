@@ -1,4 +1,4 @@
-from peewee import CharField, IntegerField, DateTimeField, IntegrityError
+from peewee import CharField, IntegerField, DateTimeField, IntegrityError, DoesNotExist
 from datetime import datetime
 from typing import Callable, Any
 
@@ -59,6 +59,8 @@ class User(BaseModel):
     def get_user_by_email(email: str) -> 'User':
         try:
             return User.get(User.email == email)
+        except DoesNotExist:
+            raise DoesNotExist(f"Email inválido")
         except Exception as error:
-            raise Exception(f"Email inválido: {error}")
+            raise Exception(f"Não foi possivel identificar o usuario atravez deste email: {error}")
         

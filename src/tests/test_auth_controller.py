@@ -36,3 +36,27 @@ async def test_login():
     assert user["token_type"] == "bearer"
 
     test_db.close()
+
+@pytest.mark.asyncio
+async def test_failed_to_login():
+    test_db = setupTestDatabase()
+    
+    user = User.create(
+        id = 1,
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    user_input = UserInput(
+        email = 'wrong_email@email.com',
+        password = 'password'
+    )
+
+    with pytest.raises(HTTPException) as error:
+        await login(user_input)
+
+    assert error.value.status_code == 400
+    assert error.value.detail == 'Email ou senha inválido'
+
+    test_db.close()

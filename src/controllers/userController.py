@@ -31,7 +31,7 @@ async def get_users():
 
 
 @handle_HTTPException_error
-@user_router.get("/{user_id}")
+@user_router.get("/user/{user_id}")
 async def get_user(user_id: int):
 
     user = User.from_id(user_id)
@@ -85,6 +85,8 @@ async def delete_user(user_id: int):
 
     return {"message": "User deleted"}
 
-@user_router.get("/me")
+@user_router.get("/protected-route")
 async def protected_route(current_user: User = Depends(get_current_user)):
+    if current_user is None:
+        raise HTTPException(status_code = 401, detail = "Not authenticated")
     return f'Hello {current_user.name}, this route is protected'

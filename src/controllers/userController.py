@@ -23,7 +23,7 @@ def handle_HTTPException_error(method: Callable[..., User]) -> dict:
     return wrapper
 
 @handle_HTTPException_error
-@user_router.get("/")
+@user_router.get("/ops")
 async def get_users():
 
     users = User.all()
@@ -31,7 +31,7 @@ async def get_users():
 
 
 @handle_HTTPException_error
-@user_router.get("/user/{user_id}")
+@user_router.get("/ops/{user_id}")
 async def get_user(user_id: int):
 
     user = User.from_id(user_id)
@@ -42,7 +42,7 @@ async def get_user(user_id: int):
     return {"user": user.to_dict()}
 
 @handle_HTTPException_error
-@user_router.post("/")
+@user_router.post("/ops")
 async def create_user(user_input: UserInput):
 
     user = User.create(
@@ -54,7 +54,7 @@ async def create_user(user_input: UserInput):
     return {"message": "User created", "user": user.to_dict()}
 
 @handle_HTTPException_error
-@user_router.put("/{user_id}")
+@user_router.put("/ops/{user_id}")
 async def update_user(user_id: int, user_input: UserInput):
 
     user = User.from_id(user_id)
@@ -73,7 +73,7 @@ async def update_user(user_id: int, user_input: UserInput):
     return {"message": "User updated", "user": updated_user.to_dict()}
 
 @handle_HTTPException_error
-@user_router.delete("/{user_id}")
+@user_router.delete("/ops/{user_id}")
 async def delete_user(user_id: int):
 
     user = User.from_id(user_id)

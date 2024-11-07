@@ -27,7 +27,7 @@ def setup_and_teardown_database():
 @pytest.mark.asyncio
 async def test_access_to_protected_route():
 
-    client.post('/user', json={"name": "test", "email": "test", "password": "test"})
+    client.post('/user/ops', json={"name": "test", "email": "test", "password": "test"})
 
     response = client.get('/user/protected-route')
     print('resp.json', response.json())

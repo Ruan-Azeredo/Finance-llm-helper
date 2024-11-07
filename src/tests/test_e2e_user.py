@@ -32,7 +32,7 @@ async def test_create_user_e2e():
         "password": "1234"
     }
 
-    response = client.post('/user', json = user_data)
+    response = client.post('/user/ops', json = user_data)
 
     assert response.status_code == 200
     assert response.json()['message'] == "User created"
@@ -49,17 +49,16 @@ async def test_get_user_e2e():
         "password": "1234"
     }
 
-    response = client.post('/user', json = user_data)
+    response = client.post('/user/ops', json = user_data)
 
     assert response.status_code == 200
     assert response.json()['message'] == "User created"
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan11@gmail"
 
-    response = client.get('/user/2')
+    response = client.get(f'/user/ops/{response.json()["user"]["id"]}')
 
     assert response.status_code == 200
-    assert response.json()['user']['id'] == 2
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan11@gmail"
 
@@ -73,7 +72,7 @@ async def test_update_user_e2e():
         "password": "1234"
     }
 
-    response = client.post('/user', json = user_data)
+    response = client.post('/user/ops', json = user_data)
 
     assert response.status_code == 200
     assert response.json()['message'] == "User created"
@@ -86,7 +85,7 @@ async def test_update_user_e2e():
         "password": "1234"
     }
 
-    response = client.put('/user/3', json = update_user_data)
+    response = client.put(f'/user/ops/{response.json()["user"]["id"]}', json = update_user_data)
 
     assert response.status_code == 200
     assert response.json()['message'] == "User updated"
@@ -104,14 +103,14 @@ async def test_delete_user_e2e():
         "password": "1234"
     }
 
-    response = client.post('/user', json = user_data)
+    response = client.post('/user/ops', json = user_data)
 
     assert response.status_code == 200
     assert response.json()['message'] == "User created"
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan33@gmail"
 
-    response = client.delete(f'/user/{response.json()["user"]["id"]}')
+    response = client.delete(f'/user/ops/{response.json()["user"]["id"]}')
 
     assert response.status_code == 200
     assert response.json()['message'] == "User deleted"

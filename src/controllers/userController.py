@@ -13,16 +13,6 @@ class UserInput(BaseModel):
 
 user_router = APIRouter()
 
-def handle_HTTPException_error(method: Callable[..., User]) -> dict:
-    async def wrapper(*args, **kwargs):
-        try:
-            return await method(*args, **kwargs)
-        except HTTPException as http_error:
-            raise http_error
-        except Exception as error:
-            raise HTTPException(status_code = 500, detail = str(error))
-    return wrapper
-
 @user_router.get("/ops")
 async def get_users():
 
@@ -32,8 +22,6 @@ async def get_users():
         content = {"users": [user.to_dict() for user in users]}
     )
 
-
-@handle_HTTPException_error
 @user_router.get("/ops/{user_id}")
 async def get_user(user_id: int):
 
@@ -44,7 +32,6 @@ async def get_user(user_id: int):
     
     return {"user": user.to_dict()}
 
-@handle_HTTPException_error
 @user_router.post("/ops")
 async def create_user(user_input: UserInput):
 
@@ -56,7 +43,6 @@ async def create_user(user_input: UserInput):
 
     return {"message": "User created", "user": user.to_dict()}
 
-@handle_HTTPException_error
 @user_router.put("/ops/{user_id}")
 async def update_user(user_id: int, user_input: UserInput):
 
@@ -75,7 +61,6 @@ async def update_user(user_id: int, user_input: UserInput):
 
     return {"message": "User updated", "user": updated_user.to_dict()}
 
-@handle_HTTPException_error
 @user_router.delete("/ops/{user_id}")
 async def delete_user(user_id: int):
 

@@ -5,7 +5,7 @@ from useCases import generateReport
 from controllers import user_router, auth_router
 
 import uvicorn
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.responses import JSONResponse
 import os
 
@@ -21,6 +21,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except HTTPException as http_error:
+        return JSONResponse(
+            status_code=http_error.status_code,
+            content={"detail": http_error.detail},
+        )
+    except Exception as error:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(error)},
+        )
 
 app.include_router(user_router, prefix="/user")
 app.include_router(auth_router, prefix="/auth")

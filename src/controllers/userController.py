@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Callable
 
@@ -13,21 +14,23 @@ class UserInput(BaseModel):
 user_router = APIRouter()
 
 def handle_HTTPException_error(method: Callable[..., User]) -> dict:
-    def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs):
         try:
-            return method(*args, **kwargs)
+            return await method(*args, **kwargs)
         except HTTPException as http_error:
             raise http_error
         except Exception as error:
             raise HTTPException(status_code = 500, detail = str(error))
     return wrapper
 
-@handle_HTTPException_error
 @user_router.get("/ops")
 async def get_users():
 
     users = User.all()
-    return {"users": [user.to_dict() for user in users]}
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {"users": [user.to_dict() for user in users]}
+    )
 
 
 @handle_HTTPException_error

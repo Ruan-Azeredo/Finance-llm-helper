@@ -18,42 +18,11 @@ user_router = APIRouter()
 @user_router.get("/ops")
 async def get_users():
 
-    def model_to_dict(user: User) -> dict:
-        user_dict = {}
-
-        for name, value in user.__data__.items():
-            if isinstance(value, datetime):
-                user_dict[name] = value.strftime("%Y-%m-%d %H:%M:%S")
-            else:
-                user_dict[name] = value
-            print('n: ', name, value, type(value))
-
-        print('user_dict: ', user_dict)
-        return user_dict
-
     users = User.all()
-    users_data_1 = [
-        {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            # Adicione outros campos conforme necessário
-        }
-        for user in users
-    ]
-
-    users_data = []
-
-    #print('type users_data_1: ', [type(user) for user in users_data_1] , 'type users_data: ', [type(user) for user in users_data])
-
-    for user in users:
-        #print('type(model_to_dict(user))', type(model_to_dict(user)))
-        users_data.append(model_to_dict(user))
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"users": users_data}
+        content = {"users": [user.to_dict()for user in users]}
     )
 
 @user_router.get("/ops/{user_id}")
@@ -78,19 +47,10 @@ async def create_user(user_input: UserInput):
         password = user_input.password
     )
 
-    json_user = json.dumps(user.to_dict())
-
-    """ print(json_user)
-
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
-        content = {"message": "User created", "user": json_user}
-    ) """
-
-    return {
-        "message": "User created",
-        "user": user.to_dict()
-    }
+        content = {"message": "User created", "user": user.to_dict()}
+    )
 
 @user_router.put("/ops/{user_id}")
 async def update_user(user_id: int, user_input: UserInput):

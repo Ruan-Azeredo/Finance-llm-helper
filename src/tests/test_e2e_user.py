@@ -34,7 +34,7 @@ async def test_create_user_e2e():
 
     response = client.post('/user/ops', json = user_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json()['message'] == "User created"
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan@gmail"
@@ -51,7 +51,7 @@ async def test_get_user_e2e():
 
     response = client.post('/user/ops', json = user_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json()['message'] == "User created"
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan11@gmail"
@@ -74,7 +74,7 @@ async def test_update_user_e2e():
 
     response = client.post('/user/ops', json = user_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json()['message'] == "User created"
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan22@gmail"
@@ -105,7 +105,7 @@ async def test_delete_user_e2e():
 
     response = client.post('/user/ops', json = user_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json()['message'] == "User created"
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan33@gmail"

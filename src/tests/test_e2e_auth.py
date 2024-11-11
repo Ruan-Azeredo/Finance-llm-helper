@@ -1,10 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
 from peewee import SqliteDatabase
+from datetime import timedelta
 import os
 
 from src.server import app
 from models import User
+from auth import create_access_token
 
 client = TestClient(app)
 
@@ -50,3 +52,38 @@ async def test_access_to_protected_route():
 
     print('resp.json', response.json())
     assert response.status_code == 200
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_access_to_protected_route_with_invalid_token():
+
+    response = client.get('/user/protected-route', headers={"Authorization": "Bearer invalid_token"})
+
+    assert response.status_code == 401
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_access_to_protected_route_without_token():
+
+    response = client.get('/user/protected-route')
+
+    assert response.status_code == 401
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_access_to_protected_route_with_expired_token():
+
+    response = client.post('/auth/login', json={"email": "test", "password": "test"})
+
+    assert response.status_code == 200
+
+    token = response.json()
+
+    assert token["access_token"] != None
+    assert token["token_type"] == "bearer"
+
+    expired_token = create_access_token({"sub": "test"}, expires_delta=timedelta(seconds=-10))
+
+    response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {expired_token}"})
+
+    assert response.status_code == 401

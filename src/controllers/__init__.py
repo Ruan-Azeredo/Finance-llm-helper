@@ -1,2 +1,2 @@
-from .userController import user_router, UserInput
+from .userController import user_router
 from .authController import auth_router

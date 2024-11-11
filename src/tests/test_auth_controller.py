@@ -1,5 +1,6 @@
 from models import User
-from src.controllers.authController import UserInput, login
+from src.controllers.authController import login
+from schemas import LoginInput
 
 import pytest
 from peewee import SqliteDatabase
@@ -25,7 +26,7 @@ async def test_login():
         password = 'password'
     )
 
-    user_input = UserInput(
+    user_input = LoginInput(
         email = 'email@email.com',
         password = 'password'
     )
@@ -48,7 +49,7 @@ async def test_failed_to_login():
         password = 'password'
     )
 
-    user_input = UserInput(
+    user_input = LoginInput(
         email = 'wrong_email@email.com',
         password = 'password'
     )

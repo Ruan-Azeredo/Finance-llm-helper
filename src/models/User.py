@@ -1,6 +1,6 @@
 from peewee import CharField, IntegerField, DateTimeField, IntegrityError, DoesNotExist
 from datetime import datetime
-from typing import Callable, Any
+from typing import Callable, Any, Type
 
 from models import BaseModel
 from database import db
@@ -39,6 +39,12 @@ class User(BaseModel):
     def __str__(self) -> str:
 
         return f'User: {self.id}, {self.name}, {self.email}'
+    
+    def to_dict(self) -> dict:
+        user = super().to_dict()
+        if 'password' in user:
+            del user['password']
+        return user
     
     @handle_database_error
     def create(**kwargs) -> 'User':

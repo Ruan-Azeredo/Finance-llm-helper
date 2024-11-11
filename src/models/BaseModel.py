@@ -1,5 +1,7 @@
-from peewee import Model, DoesNotExist, OperationalError, IntegrityError
+from peewee import Model, DoesNotExist, OperationalError, IntegrityError, IntegerField
 from typing import Type, TypeVar, List, Callable
+from datetime import datetime
+
 from database import db
 
 T = TypeVar('T', bound='BaseModel')
@@ -10,7 +12,8 @@ def handle_database_error(method: Callable[..., T]) -> Callable[..., T] | None:
             return method(*args, **kwargs)
         except OperationalError as error:
             if 'no such table' in str(error):
-                raise Exception(f"Tabela {args[0]._meta.table_name} não existe")
+                existent_tables = args[0]._meta.database.get_tables()
+                raise Exception(f"Tabela '{args[0]._meta.table_name}' não existe, as unicas tabelas existentes são: {existent_tables}")
             else:
                 raise Exception(f"Erro interno: {error}")
         except DoesNotExist:
@@ -22,11 +25,19 @@ def handle_database_error(method: Callable[..., T]) -> Callable[..., T] | None:
     return wrapper
 
 class BaseModel(Model):
-    class Meta:
+    class Meta: 
         database = db
 
-    def to_dict(self) -> dict:
-        return {field.name: getattr(self, field.name) for field in self._meta.sorted_fields}
+    def to_dict(cls: Type[T]) -> dict:
+        data = {}
+        for field in cls._meta.sorted_fields:
+            value = getattr(cls, field.name)
+
+            if isinstance(value, datetime):
+                data[field.name] = value.isoformat()
+            else:
+                data[field.name] = value
+        return data
     
     @classmethod
     @handle_database_error

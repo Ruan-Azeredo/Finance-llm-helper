@@ -4,6 +4,7 @@ from src.controllers.userController import UserInput, get_users, get_user, creat
 import pytest
 from peewee import SqliteDatabase
 from fastapi import HTTPException
+import json
 
 def setupTestDatabase():
     test_db = SqliteDatabase(':memory:')
@@ -27,8 +28,10 @@ async def test_get_users():
 
     response = await get_users()
 
+    response_body_json = json.loads(response.body)
+
     assert test_db.table_exists('users') == True
-    assert response == {"users": []}
+    assert response_body_json == {"users": []}
 
 @pytest.mark.asyncio
 async def test_create_user():
@@ -43,9 +46,11 @@ async def test_create_user():
 
     response = await create_user(user_input = user_data)
 
-    assert response["message"] == "User created"
-    assert response["user"]["name"] == "Ruan"
-    assert response["user"]["email"] == "ruan@gmail.com"
+    response_body_json = json.loads(response.body)
+
+    assert response_body_json["message"] == "User created"
+    assert response_body_json["user"]["name"] == "Ruan"
+    assert response_body_json["user"]["email"] == "ruan@gmail.com"
 
 @pytest.mark.asyncio
 async def test_get_user():
@@ -62,9 +67,11 @@ async def test_get_user():
 
     response = await get_user(user_id = 1)
 
-    assert response["user"]["id"] == 1
-    assert response["user"]["name"] == "Ruan"
-    assert response["user"]["email"] == "ruan@gmail.com"
+    response_body_json = json.loads(response.body)
+
+    assert response_body_json["user"]["id"] == 1
+    assert response_body_json["user"]["name"] == "Ruan"
+    assert response_body_json["user"]["email"] == "ruan@gmail.com"
 
 @pytest.mark.asyncio
 async def test_update_user():
@@ -89,7 +96,9 @@ async def test_update_user():
 
     response = await get_user(user_id = 1)
 
-    assert response["user"]["name"] == "Ruan Azeredo"
+    response_body_json = json.loads(response.body)
+
+    assert response_body_json["user"]["name"] == "Ruan Azeredo"
 
 @pytest.mark.asyncio
 async def test_user_not_found():
@@ -117,10 +126,12 @@ async def test_delete_user():
 
     response = await delete_user(user_id = 1)
 
+    response_body_json = json.loads(response.body)
+
     with pytest.raises(HTTPException) as error:
         await get_user(user_id = 1)
 
-    assert response["message"] == "User deleted"
+    assert response_body_json["message"] == "User deleted"
     assert error.value.detail == "User not found"
     assert error.value.status_code == 404
 

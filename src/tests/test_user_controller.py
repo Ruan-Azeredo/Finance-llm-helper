@@ -1,5 +1,6 @@
 from models import User
-from src.controllers.userController import UserInput, get_users, get_user, create_user, update_user, delete_user
+from src.controllers.userController import get_users, get_user, create_user, update_user, delete_user
+from schemas import UserCRUDInput
 
 import pytest
 from peewee import SqliteDatabase
@@ -38,7 +39,7 @@ async def test_create_user():
 
     setupTestDatabase()
 
-    user_data = UserInput(
+    user_data = UserCRUDInput(
         name = "Ruan",
         email = "ruan@gmail.com",
         password = "1234"
@@ -48,7 +49,7 @@ async def test_create_user():
 
     response_body_json = json.loads(response.body)
 
-    assert response_body_json["message"] == "User created"
+    assert response_body_json["message"] == "Usuário criado"
     assert response_body_json["user"]["name"] == "Ruan"
     assert response_body_json["user"]["email"] == "ruan@gmail.com"
 
@@ -57,7 +58,7 @@ async def test_get_user():
 
     setupTestDatabase()
 
-    user_data = UserInput(
+    user_data = UserCRUDInput(
         name = "Ruan",
         email = "ruan@gmail.com",
         password = "1234"
@@ -78,7 +79,7 @@ async def test_update_user():
 
     setupTestDatabase()
 
-    user_data = UserInput(
+    user_data = UserCRUDInput(
         name = "Ruan",
         email = "ruan@gmail.com",
         password = "1234"
@@ -86,7 +87,7 @@ async def test_update_user():
 
     await create_user(user_input = user_data)
 
-    update_user_data = UserInput(
+    update_user_data = UserCRUDInput(
         name = "Ruan Azeredo",
         email = "ruan@gmail.com",
         password = "1234"
@@ -108,7 +109,7 @@ async def test_user_not_found():
     with pytest.raises(HTTPException) as error:
         await get_user(user_id = 1)
 
-    assert error.value.detail == "User not found"
+    assert error.value.detail == "Usuário não encontrado"
     assert error.value.status_code == 404
 
 @pytest.mark.asyncio
@@ -116,7 +117,7 @@ async def test_delete_user():
 
     setupTestDatabase()
 
-    user_data = UserInput(
+    user_data = UserCRUDInput(
         name = "Ruan",
         email = "ruan@gmail.com",
         password = "1234"
@@ -131,8 +132,8 @@ async def test_delete_user():
     with pytest.raises(HTTPException) as error:
         await get_user(user_id = 1)
 
-    assert response_body_json["message"] == "User deleted"
-    assert error.value.detail == "User not found"
+    assert response_body_json["message"] == "Usuário deletado"
+    assert error.value.detail == "Usuário não encontrado"
     assert error.value.status_code == 404
 
 @pytest.mark.asyncio
@@ -143,7 +144,7 @@ async def test_delete_user_not_found():
     with pytest.raises(HTTPException) as error:
         await delete_user(user_id = 1)
 
-    assert error.value.detail == "User not found"
+    assert error.value.detail == "Usuário não encontrado"
     assert error.value.status_code == 404
 
 @pytest.mark.asyncio
@@ -151,7 +152,7 @@ async def test_update_user_not_found():
 
     setupTestDatabase()
 
-    update_user_data = UserInput(
+    update_user_data = UserCRUDInput(
         name = "Ruan Azeredo",
         email = "ruan@gmail.com",
         password = "1234"
@@ -160,5 +161,5 @@ async def test_update_user_not_found():
     with pytest.raises(HTTPException) as error:
         await update_user(user_id = 1, user_input = update_user_data)
 
-    assert error.value.detail == "User not found"
+    assert error.value.detail == "Usuário não encontrado"
     assert error.value.status_code == 404

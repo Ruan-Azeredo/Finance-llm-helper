@@ -1,17 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
-from typing import Callable
-from datetime import datetime
-import json
 
 from auth import get_current_user
 from models import User
-
-class UserInput(BaseModel):
-    name: str
-    email: str
-    password: str
+from schemas import UserCRUDInput
 
 user_router = APIRouter()
 
@@ -31,7 +23,7 @@ async def get_user(user_id: int):
     user = User.from_id(user_id)
 
     if not user:
-        raise HTTPException(status_code = 404, detail = "User not found")
+        raise HTTPException(status_code = 404, detail = "Usuário não encontrado")
     
     return JSONResponse(
         status_code = status.HTTP_200_OK,
@@ -39,7 +31,7 @@ async def get_user(user_id: int):
     )
 
 @user_router.post("/ops")
-async def create_user(user_input: UserInput):
+async def create_user(user_input: UserCRUDInput):
 
     user = User.create(
         name = user_input.name,
@@ -49,16 +41,16 @@ async def create_user(user_input: UserInput):
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
-        content = {"message": "User created", "user": user.to_dict()}
+        content = {"message": "Usuário criado", "user": user.to_dict()}
     )
 
 @user_router.put("/ops/{user_id}")
-async def update_user(user_id: int, user_input: UserInput):
+async def update_user(user_id: int, user_input: UserCRUDInput):
 
     user = User.from_id(user_id)
 
     if not user:
-        raise HTTPException(status_code = 404, detail = "User not found")
+        raise HTTPException(status_code = 404, detail = "Usuário não encontrado")
     
     user.update(
         name = user_input.name,
@@ -79,13 +71,13 @@ async def delete_user(user_id: int):
     user = User.from_id(user_id)
 
     if not user:
-        raise HTTPException(status_code = 404, detail = "User not found")
+        raise HTTPException(status_code = 404, detail = "Usuário não encontrado")
     
     user.delete()
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"message": "User deleted"}
+        content = {"message": "Usuário deletado"}
     )
 
 @user_router.get("/protected-route")

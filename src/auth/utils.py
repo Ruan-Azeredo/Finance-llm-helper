@@ -9,7 +9,7 @@ from jwt import PyJWTError
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Could not validate credentials",
+    detail="Não foi possivel validar as credenciais",
     headers={"WWW-Authenticate": "Bearer"},
 )
 

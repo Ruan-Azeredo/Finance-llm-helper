@@ -33,6 +33,7 @@ async def test_access_to_protected_route():
     print('resp.json', response.json())
 
     assert response.status_code == 401
+    assert response.json()['detail'] == "Não foi possivel validar as credenciais"
 
     response = client.post('/auth/login', json={"email": "test", "password": "test"})
 

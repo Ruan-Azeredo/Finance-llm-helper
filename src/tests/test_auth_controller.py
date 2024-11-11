@@ -42,7 +42,7 @@ async def test_login():
 async def test_failed_to_login():
     test_db = setupTestDatabase()
     
-    user = User.create(
+    User.create(
         id = 1,
         name = 'name',
         email = 'email@email.com',

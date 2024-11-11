@@ -1,26 +1,26 @@
 from peewee import DoesNotExist
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 
-from auth import verify_password, create_access_token
+from auth import create_access_token, verify_password
 from models import User
+from schemas import LoginInput
 
 auth_router = APIRouter()
 
-class UserInput(BaseModel):
-    email: str
-    password: str
-
+email_or_password_invalid = HTTPException(status_code = 400, detail = "Email ou senha inválido")
 
 @auth_router.post("/login")
-async def login(user_input: UserInput):
+async def login(user_input: LoginInput):
     try:
         user = User.get_user_by_email(user_input.email)
     except DoesNotExist:
-        raise HTTPException(status_code = 400, detail = "Email ou senha inválido")
+        raise email_or_password_invalid
 
-    if not user or not user.password == str(hash(user_input.password)):
-        raise HTTPException(status_code = 400, detail = "Email ou senha inválido")
+    if not user or not verify_password(
+        plain_password = user_input.password,
+        hashed_password = user.password
+    ):
+        raise email_or_password_invalid
 
     access_token = create_access_token(data = {"sub": user.email})
 

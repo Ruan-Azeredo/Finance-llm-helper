@@ -6,7 +6,9 @@ from .config import JWT_SECRET, JWT_ALGORITHM, JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    if hashed_password == str(hash(plain_password)):
+        return True
+    return False
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()

@@ -30,7 +30,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
 
     except PyJWTError:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Sua sessão expirou, faca login novamente",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     user = User.get_user_by_email(email)
     if user is None:

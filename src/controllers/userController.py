@@ -18,7 +18,7 @@ async def get_users():
     )
 
 @user_router.get("/ops/{user_id}")
-async def get_user(user_id: int):
+async def get_user(user_id: int, current_user: User = Depends(get_current_user)):
 
     user = User.from_id(user_id)
 
@@ -31,7 +31,7 @@ async def get_user(user_id: int):
     )
 
 @user_router.post("/ops")
-async def create_user(user_input: UserCRUDInput):
+async def create_user(user_input: UserCRUDInput, current_user: User = Depends(get_current_user)):
 
     user = User.create(
         name = user_input.name,
@@ -45,7 +45,7 @@ async def create_user(user_input: UserCRUDInput):
     )
 
 @user_router.put("/ops/{user_id}")
-async def update_user(user_id: int, user_input: UserCRUDInput):
+async def update_user(user_id: int, user_input: UserCRUDInput, current_user: User = Depends(get_current_user)):
 
     user = User.from_id(user_id)
 
@@ -66,7 +66,7 @@ async def update_user(user_id: int, user_input: UserCRUDInput):
     )
 
 @user_router.delete("/ops/{user_id}")
-async def delete_user(user_id: int):
+async def delete_user(user_id: int, current_user: User = Depends(get_current_user)):
 
     user = User.from_id(user_id)
 

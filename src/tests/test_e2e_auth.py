@@ -29,20 +29,22 @@ def setup_and_teardown_database():
 @pytest.mark.asyncio
 async def test_access_to_protected_route():
 
-    client.post('/user/ops', json={"name": "test", "email": "test", "password": "test"})
+    User.create(
+        name = 'test1',
+        email = 'test1',
+        password = 'test1'
+    )
 
     response = client.get('/user/protected-route')
-    print('resp.json', response.json())
 
     assert response.status_code == 401
     assert response.json()['detail'] == "Não foi possivel validar as credenciais"
 
-    response = client.post('/auth/login', json={"email": "test", "password": "test"})
+    response = client.post('/auth/login', json={"email": "test1", "password": "test1"})
 
     assert response.status_code == 200
 
     token = response.json()
-    print(token)
 
     assert token["access_token"] != None
     assert token["token_type"] == "bearer"
@@ -73,7 +75,13 @@ async def test_access_to_protected_route_without_token():
 @pytest.mark.asyncio
 async def test_access_to_protected_route_with_expired_token():
 
-    response = client.post('/auth/login', json={"email": "test", "password": "test"})
+    User.create(
+        name = 'test2',
+        email = 'test2',
+        password = 'test2'
+    )
+
+    response = client.post('/auth/login', json={"email": "test2", "password": "test2"})
 
     assert response.status_code == 200
 
@@ -82,7 +90,7 @@ async def test_access_to_protected_route_with_expired_token():
     assert token["access_token"] != None
     assert token["token_type"] == "bearer"
 
-    expired_token = create_access_token({"sub": "test"}, expires_delta=timedelta(seconds=-10))
+    expired_token = create_access_token({"sub": "test2"}, expires_delta=timedelta(seconds=-10))
 
     response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {expired_token}"})
 

@@ -6,17 +6,37 @@ import os
 from src.server import app
 from models import User
 
+
 client = TestClient(app)
+
+def defineLogedUser():
+
+    User.create(
+        name = 'test',
+        email = 'test',
+        password = 'test'
+    )
+
+    response = client.post('/auth/login', json={
+        "email": "test",
+        "password": "test"
+    })
+
+    token = response.json()
+    print(token)
+
+    client.headers = {"Authorization": f"Bearer {token['access_token']}"}
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_and_teardown_database():
     test_db = SqliteDatabase('test.db')
-    # Configuração do banco de dados
     User._meta.database = test_db
     test_db.connect()
     test_db.create_tables([User])
+
+    defineLogedUser()
+
     yield
-    # Teardown - Fecha a conexão e remove o arquivo do banco de dados
     test_db.drop_tables([User])
     test_db.close()
     if os.path.exists('test.db'):

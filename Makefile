@@ -10,8 +10,12 @@ init_db:
 start:
 	@cd src && uvicorn server:app --host 0.0.0.0 --port 8000
 
+devstart:
+	@cd src && uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+
+migrate:
+	@cd src && PYTHONPATH=./ python database/migrations/$(file).py
+
 build: install init_db start
 
 #run: make build
-
-# still not finished

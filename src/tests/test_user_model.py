@@ -22,7 +22,7 @@ def test_create_user_model():
         password = 'password'
     )
     
-    assert user.__str__() == 'User: 1, name, email@email.com'
+    assert user.__str__() == 'User: 1, name, email@email.com, free'
     assert user.password == hash('password')
 
 def test_create_user_model_with_id():
@@ -39,7 +39,7 @@ def test_create_user_model_with_id():
         password = 'password'
     )
     
-    assert user.__str__() == 'User: 1, name, email@email.com'
+    assert user.__str__() == 'User: 1, name, email@email.com, free'
     assert user.password == hash('password')
 
 def test_create_user_model_with_existing_email():
@@ -104,7 +104,7 @@ def test_get_user_model():
 
     user_from_db = User.from_id(id = 1)
     
-    assert user_from_db.__str__() == 'User: 1, name, email@email.com'
+    assert user_from_db.__str__() == 'User: 1, name, email@email.com, free'
     assert user_from_db.name == 'name'
     assert user_from_db.email == 'email@email.com'
     assert int(user_from_db.password) == hash('password')
@@ -133,8 +133,8 @@ def test_get_all_users_model():
     users_from_db = User.all()
     
     assert len(users_from_db) == 2
-    assert users_from_db[0].__str__() == 'User: 1, name, email@email.com'
-    assert users_from_db[1].__str__() == 'User: 2, name, email@gmail.com'
+    assert users_from_db[0].__str__() == 'User: 1, name, email@email.com, free'
+    assert users_from_db[1].__str__() == 'User: 2, name, email@gmail.com, free'
 
 def test_update_user_model():
 
@@ -159,7 +159,7 @@ def test_update_user_model():
 
     user = User.select().where(User.id == 1).get()
     
-    assert user.__str__() == 'User: 1, Ruan, email@email.com'
+    assert user.__str__() == 'User: 1, Ruan, email@email.com, free'
     assert user.name == 'Ruan'
 
 def test_update_few_fields_user_model():
@@ -182,7 +182,7 @@ def test_update_few_fields_user_model():
 
     user = User.select().where(User.id == 12).get()
     
-    assert user.__str__() == 'User: 12, Ruan, email@email.com'
+    assert user.__str__() == 'User: 12, Ruan, email@email.com, free'
 
 def test_delete_user_model():
 

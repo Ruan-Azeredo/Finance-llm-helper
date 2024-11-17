@@ -1,7 +1,6 @@
 from peewee import CharField, IntegerField, DateTimeField, IntegrityError, DoesNotExist
 from datetime import datetime
 from typing import Callable, Any
-from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 import jwt
 from jwt import PyJWTError
@@ -69,7 +68,6 @@ class User(BaseModel):
 
         super(User, self).update(**kwargs)
 
-    @handle_database_error
     def get_user_by_email(email: str) -> 'User':
         try:
             return User.get(User.email == email)
@@ -78,7 +76,6 @@ class User(BaseModel):
         except Exception as error:
             raise Exception(f"Não foi possivel identificar o usuario atravez deste email: {error}")
 
-    @handle_database_error  
     def get_current_user(token: str = Depends(oauth2_scheme)):
 
         credentials_exception = HTTPException(

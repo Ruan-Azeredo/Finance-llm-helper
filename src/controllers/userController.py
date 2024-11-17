@@ -1,24 +1,48 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Path
+from typing import Optional
 from fastapi.responses import JSONResponse
+from functools import wraps
 
-from auth import get_current_user
 from models import User
 from schemas import UserCRUDInput
 
 user_router = APIRouter()
 
-@user_router.get("/ops")
+def verify_only_self_access_user(current_user: User = Depends(User.get_current_user), user_id: Optional[int] = None) -> bool:
+
+    if current_user.role != "admin" and user_id is not None and current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado: não possui permissão para acessar esse usuário"
+        )
+
+    return True
+
+def verify_admin_access_user(current_user: User = Depends(User.get_current_user)) -> bool:
+
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado: nível de permissão insuficiente"
+        )
+
+    return True
+
+user_router_auth = APIRouter(dependencies = [Depends(verify_only_self_access_user)])
+user_router_admin = APIRouter(dependencies = [Depends(verify_admin_access_user)])
+
+@user_router_admin.get("/ops")
 async def get_users():
 
-    users = User.all()
+    users: list[User] = User.all()
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"users": [user.to_dict()for user in users]}
+        content = {"users": [user.to_dict() for user in users]}
     )
 
-@user_router.get("/ops/{user_id}")
-async def get_user(user_id: int, current_user: User = Depends(get_current_user)):
+@user_router_auth.get("/ops/{user_id}")
+async def get_user(user_id: int):
 
     user = User.from_id(user_id)
 
@@ -31,7 +55,7 @@ async def get_user(user_id: int, current_user: User = Depends(get_current_user))
     )
 
 @user_router.post("/ops")
-async def create_user(user_input: UserCRUDInput, current_user: User = Depends(get_current_user)):
+async def create_user(user_input: UserCRUDInput):
 
     user = User.create(
         name = user_input.name,
@@ -44,8 +68,8 @@ async def create_user(user_input: UserCRUDInput, current_user: User = Depends(ge
         content = {"message": "Usuário criado", "user": user.to_dict()}
     )
 
-@user_router.put("/ops/{user_id}")
-async def update_user(user_id: int, user_input: UserCRUDInput, current_user: User = Depends(get_current_user)):
+@user_router_auth.put("/ops/{user_id}")
+async def update_user(user_id: int, user_input: UserCRUDInput):
 
     user = User.from_id(user_id)
 
@@ -65,8 +89,8 @@ async def update_user(user_id: int, user_input: UserCRUDInput, current_user: Use
         content = {"message": "User updated", "user": updated_user.to_dict()}
     )
 
-@user_router.delete("/ops/{user_id}")
-async def delete_user(user_id: int, current_user: User = Depends(get_current_user)):
+@user_router_auth.delete("/ops/{user_id}")
+async def delete_user(*, user_id: int):
 
     user = User.from_id(user_id)
 
@@ -80,8 +104,11 @@ async def delete_user(user_id: int, current_user: User = Depends(get_current_use
         content = {"message": "Usuário deletado"}
     )
 
-@user_router.get("/protected-route")
-async def protected_route(current_user: User = Depends(get_current_user)):
+@user_router_auth.get("/protected-route")
+async def protected_route(current_user: User = Depends(User.get_current_user)):
     if current_user is None:
         raise HTTPException(status_code = 401, detail = "Not authenticated")
     return f'Hello {current_user.name}, this route is protected'
+
+user_router.include_router(user_router_auth)
+user_router.include_router(user_router_admin)

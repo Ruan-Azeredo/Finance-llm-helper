@@ -1,8 +1,14 @@
 from peewee import CharField, IntegerField, DateTimeField, IntegrityError, DoesNotExist
 from datetime import datetime
-from typing import Callable, Any, Type
+from typing import Callable, Any
+from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
+import jwt
+from jwt import PyJWTError
 
+from auth import JWT_SECRET, JWT_ALGORITHM
 from models import BaseModel
+from auth import Security, oauth2_scheme
 from database import db
 
 def handle_database_error(method: Callable[..., Any]) -> Callable[..., Any] | None:
@@ -28,6 +34,7 @@ class User(BaseModel):
     name = CharField()
     email = CharField(unique = True)
     password = CharField()
+    role = CharField(default = "free")
     created_at = DateTimeField(default = datetime.now())
     updated_at = DateTimeField(default = datetime.now())
 
@@ -38,7 +45,7 @@ class User(BaseModel):
 
     def __str__(self) -> str:
 
-        return f'User: {self.id}, {self.name}, {self.email}'
+        return f'User: {self.id}, {self.name}, {self.email}, {self.role}'
     
     def to_dict(self) -> dict:
         user = super().to_dict()
@@ -50,7 +57,7 @@ class User(BaseModel):
     def create(**kwargs) -> 'User':
 
         if 'password' in kwargs:
-            kwargs['password'] = hash(kwargs['password'])
+            kwargs['password'] = Security.encrypt_password(kwargs['password'])
 
         return super(User, User).create(**kwargs)
     
@@ -58,10 +65,11 @@ class User(BaseModel):
     def update(self, **kwargs) -> None:
 
         if 'password' in kwargs:
-            kwargs['password'] = hash(kwargs['password'])
+            kwargs['password'] = Security.encrypt_password(kwargs['password'])
 
         super(User, self).update(**kwargs)
 
+    @handle_database_error
     def get_user_by_email(email: str) -> 'User':
         try:
             return User.get(User.email == email)
@@ -69,4 +77,35 @@ class User(BaseModel):
             raise DoesNotExist(f"Email inválido")
         except Exception as error:
             raise Exception(f"Não foi possivel identificar o usuario atravez deste email: {error}")
+
+    @handle_database_error  
+    def get_current_user(token: str = Depends(oauth2_scheme)):
+
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Não foi possivel validar as credenciais",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            email: str = payload.get("sub")
+            if email is None:
+                raise credentials_exception
+
+        except PyJWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Sua sessão expirou, faca login novamente",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        except Exception as error:
+            raise Exception(f"Erro ao decodificar o token: {error}")
+        
+        user = User.get_user_by_email(email)
+        if user is None:
+            print('user is none')
+            raise credentials_exception
+        return user
         

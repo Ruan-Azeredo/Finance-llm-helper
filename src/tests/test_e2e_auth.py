@@ -6,7 +6,7 @@ import os
 
 from src.server import app
 from models import User
-from auth import create_access_token
+from auth import Security
 
 client = TestClient(app)
 
@@ -90,7 +90,7 @@ async def test_access_to_protected_route_with_expired_token():
     assert token["access_token"] != None
     assert token["token_type"] == "bearer"
 
-    expired_token = create_access_token({"sub": "test2"}, expires_delta=timedelta(seconds=-10))
+    expired_token = Security.create_access_token({"sub": "test2"}, expires_delta=timedelta(seconds=-10))
 
     response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {expired_token}"})
 

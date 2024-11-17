@@ -1,55 +1,20 @@
 import pytest
 from fastapi.testclient import TestClient
-from peewee import SqliteDatabase
-import os
 
+from utils import setupDatabaseFileWithUserTable
 from src.server import app
-from models import User
 
-
-client = TestClient(app)
-
-def defineLogedUser():
-
-    User.create(
-        name = 'test',
-        email = 'test',
-        password = 'test'
-    )
-
-    response = client.post('/auth/login', json={
-        "email": "test",
-        "password": "test"
-    })
-
-    token = response.json()
-    print(token)
-
-    client.headers = {"Authorization": f"Bearer {token['access_token']}"}
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_and_teardown_database():
-    test_db = SqliteDatabase('test.db')
-    User._meta.database = test_db
-    test_db.connect()
-    test_db.create_tables([User])
-
-    defineLogedUser()
-
-    yield
-    test_db.drop_tables([User])
-    test_db.close()
-    if os.path.exists('test.db'):
-        os.remove('test.db')
+clienttest = TestClient(app)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_create_user_e2e():
+@setupDatabaseFileWithUserTable(clienttest = clienttest)
+async def test_create_user_e2e(client: TestClient):
 
     user_data = {
         "name": "Ruan",
         "email": "ruan@gmail",
-        "password": "1234"
+        "password": "1234",
     }
 
     response = client.post('/user/ops', json = user_data)
@@ -61,7 +26,10 @@ async def test_create_user_e2e():
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_get_user_e2e():
+@setupDatabaseFileWithUserTable(clienttest = clienttest)
+async def test_get_user_e2e(client):
+    print('clienttest: ', clienttest.headers.get('Authorization'))
+    print(client.headers.get('Authorization'))
 
     user_data = {
         "name": "Ruan",
@@ -77,6 +45,7 @@ async def test_get_user_e2e():
     assert response.json()['user']['email'] == "ruan11@gmail"
 
     response = client.get(f'/user/ops/{response.json()["user"]["id"]}')
+    print(response.json())
 
     assert response.status_code == 200
     assert response.json()['user']['name'] == "Ruan"
@@ -84,7 +53,8 @@ async def test_get_user_e2e():
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_update_user_e2e():
+@setupDatabaseFileWithUserTable(clienttest = clienttest)
+async def test_update_user_e2e(client):
 
     user_data = {
         "name": "Ruan",
@@ -115,7 +85,8 @@ async def test_update_user_e2e():
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_delete_user_e2e():
+@setupDatabaseFileWithUserTable(clienttest = clienttest)
+async def test_delete_user_e2e(client):
 
     user_data = {
         "name": "Ruan",
@@ -130,7 +101,8 @@ async def test_delete_user_e2e():
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan33@gmail"
 
-    response = client.delete(f'/user/ops/{response.json()["user"]["id"]}')
 
+    response = client.delete(f'/user/ops/{response.json()["user"]["id"]}')
+    
     assert response.status_code == 200
     assert response.json()['message'] == "Usuário deletado"

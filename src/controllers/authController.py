@@ -1,7 +1,7 @@
 from peewee import DoesNotExist
 from fastapi import APIRouter, HTTPException
 
-from auth import create_access_token, verify_password
+from auth import Security
 from models import User
 from schemas import LoginInput
 
@@ -12,16 +12,16 @@ email_or_password_invalid = HTTPException(status_code = 400, detail = "Email ou 
 @auth_router.post("/login")
 async def login(user_input: LoginInput):
     try:
-        user = User.get_user_by_email(user_input.email)
+        user: User = User.get_user_by_email(user_input.email)
     except DoesNotExist:
         raise email_or_password_invalid
 
-    if not user or not verify_password(
+    if not user or not Security.verify_password(
         plain_password = user_input.password,
         hashed_password = user.password
     ):
         raise email_or_password_invalid
 
-    access_token = create_access_token(data = {"sub": user.email})
+    access_token = Security.create_access_token(data = {"sub": user.email})
 
     return {"access_token": access_token, "token_type": "bearer"}

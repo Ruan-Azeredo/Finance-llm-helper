@@ -4,12 +4,12 @@ from fastapi.testclient import TestClient
 from utils import setupDatabaseFileWithUserTable
 from src.server import app
 
-clienttest = TestClient(app)
+client_test = TestClient(app)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithUserTable(clienttest = clienttest)
-async def test_create_user_e2e(client: TestClient):
+@setupDatabaseFileWithUserTable(client_test = client_test, is_admin = True)
+async def test_create_user_e2e(authenticated_client: TestClient):
 
     user_data = {
         "name": "Ruan",
@@ -17,7 +17,7 @@ async def test_create_user_e2e(client: TestClient):
         "password": "1234",
     }
 
-    response = client.post('/user/ops', json = user_data)
+    response = authenticated_client.post('/user/ops', json = user_data)
 
     assert response.status_code == 201
     assert response.json()['message'] == "Usuário criado"
@@ -26,10 +26,8 @@ async def test_create_user_e2e(client: TestClient):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithUserTable(clienttest = clienttest)
-async def test_get_user_e2e(client):
-    print('clienttest: ', clienttest.headers.get('Authorization'))
-    print(client.headers.get('Authorization'))
+@setupDatabaseFileWithUserTable(client_test = client_test, is_admin = True)
+async def test_get_user_e2e(authenticated_client):
 
     user_data = {
         "name": "Ruan",
@@ -37,14 +35,14 @@ async def test_get_user_e2e(client):
         "password": "1234"
     }
 
-    response = client.post('/user/ops', json = user_data)
+    response = authenticated_client.post('/user/ops', json = user_data)
 
     assert response.status_code == 201
     assert response.json()['message'] == "Usuário criado"
     assert response.json()['user']['name'] == "Ruan"
     assert response.json()['user']['email'] == "ruan11@gmail"
 
-    response = client.get(f'/user/ops/{response.json()["user"]["id"]}')
+    response = authenticated_client.get(f'/user/ops/{response.json()["user"]["id"]}')
     print(response.json())
 
     assert response.status_code == 200
@@ -53,8 +51,8 @@ async def test_get_user_e2e(client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithUserTable(clienttest = clienttest)
-async def test_update_user_e2e(client):
+@setupDatabaseFileWithUserTable(client_test = client_test, is_admin = True)
+async def test_update_user_e2e(authenticated_client):
 
     user_data = {
         "name": "Ruan",
@@ -62,7 +60,7 @@ async def test_update_user_e2e(client):
         "password": "1234"
     }
 
-    response = client.post('/user/ops', json = user_data)
+    response = authenticated_client.post('/user/ops', json = user_data)
 
     assert response.status_code == 201
     assert response.json()['message'] == "Usuário criado"
@@ -75,7 +73,7 @@ async def test_update_user_e2e(client):
         "password": "1234"
     }
 
-    response = client.put(f'/user/ops/{response.json()["user"]["id"]}', json = update_user_data)
+    response = authenticated_client.put(f'/user/ops/{response.json()["user"]["id"]}', json = update_user_data)
 
     assert response.status_code == 200
     assert response.json()['message'] == "User updated"
@@ -85,8 +83,8 @@ async def test_update_user_e2e(client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithUserTable(clienttest = clienttest)
-async def test_delete_user_e2e(client):
+@setupDatabaseFileWithUserTable(client_test = client_test, is_admin = True)
+async def test_delete_user_e2e(authenticated_client):
 
     user_data = {
         "name": "Ruan",
@@ -94,7 +92,7 @@ async def test_delete_user_e2e(client):
         "password": "1234"
     }
 
-    response = client.post('/user/ops', json = user_data)
+    response = authenticated_client.post('/user/ops', json = user_data)
 
     assert response.status_code == 201
     assert response.json()['message'] == "Usuário criado"
@@ -102,7 +100,7 @@ async def test_delete_user_e2e(client):
     assert response.json()['user']['email'] == "ruan33@gmail"
 
 
-    response = client.delete(f'/user/ops/{response.json()["user"]["id"]}')
+    response = authenticated_client.delete(f'/user/ops/{response.json()["user"]["id"]}')
     
     assert response.status_code == 200
     assert response.json()['message'] == "Usuário deletado"

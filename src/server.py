@@ -7,7 +7,7 @@ from controllers import user_router, auth_router
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.responses import JSONResponse
-import os
+import traceback
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -32,9 +32,18 @@ async def catch_exceptions_middleware(request: Request, call_next):
             content={"detail": http_error.detail},
         )
     except Exception as error:
+
+        tb_lines = traceback.format_exception(type(error), error, error.__traceback__)
+        organized_traceback = "".join(tb_lines)
+
+        print(organized_traceback)
+
         return JSONResponse(
             status_code=500,
-            content={"detail": str(error)},
+            content={
+                "detail": str(error),
+                "traceback": organized_traceback
+            },
         )
 
 app.include_router(user_router, prefix="/user")

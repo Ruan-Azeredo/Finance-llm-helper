@@ -40,6 +40,10 @@ Crie um arquivo .env e adicione as seguintes variáveis:
 
 ```bash
 GROQ_API_KEY=YOUR_API_KEY
+
+JWT_ACCESS_TOKEN_SECRET= 
+JWT_REFRESH_TOKEN_SECRET=
+JWT_ALGORITHM=
 ```
 
 

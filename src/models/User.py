@@ -93,13 +93,13 @@ class User(BaseModel):
             print("Erro: Token expirado")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token expirado.",
+                detail="Token expirado",
             )
         except jwt.InvalidTokenError as error:
             print(f"Erro: Token inválido. Detalhes: {error}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token inválido.",
+                detail="Token inválido",
             )
         except Exception as error:
             print(f"Erro inesperado: {error}")

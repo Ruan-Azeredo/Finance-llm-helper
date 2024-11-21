@@ -37,8 +37,8 @@ async def test_access_to_protected_route():
 
     response = client.get('/user/protected-route')
 
+    assert response.json()['detail'] == "Erro ao obter token"
     assert response.status_code == 401
-    assert response.json()['detail'] == "Não foi possivel validar as credenciais"
 
     response = client.post('/auth/login', json={"email": "test1", "password": "test1"})
 
@@ -61,6 +61,7 @@ async def test_access_to_protected_route_with_invalid_token():
 
     response = client.get('/user/protected-route', headers={"Authorization": "Bearer invalid_token"})
 
+    assert response.json()["detail"] == "Token inválido"
     assert response.status_code == 401
 
 @pytest.mark.e2e
@@ -69,6 +70,7 @@ async def test_access_to_protected_route_without_token():
 
     response = client.get('/user/protected-route')
 
+    assert response.json()["detail"] == "Erro ao obter token"
     assert response.status_code == 401
 
 @pytest.mark.e2e
@@ -94,4 +96,15 @@ async def test_access_to_protected_route_with_expired_token():
 
     response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {expired_token}"})
 
+    assert response.json()["detail"] == "Token expirado"
     assert response.status_code == 401
+
+""" 
+async def test_request_access_token_with_refresh_token():
+
+async def test_request_access_token_with_invalid_refresh_token():
+
+async def test_request_access_token_without_refresh_token():
+
+async def test_request_access_token_with_expired_refresh_token():
+"""

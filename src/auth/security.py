@@ -24,7 +24,6 @@ class Security:
         return Security.pwd_context.verify(plain_password, hashed_password)
 
     def _load_env_environment():
-        from dotenv import load_dotenv
 
         load_dotenv()
 
@@ -50,11 +49,11 @@ class Security:
         to_encode = data.copy()
         if type == "access":
             expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=JWT_ACCESS_TOKEN_EXPIRE_MINUTES))
-            to_encode.update({"exp": expire})  # Adiciona o campo de expiração no payload
+            to_encode.update({"exp": expire})
             encoded_jwt = jwt.encode(to_encode, JWT_ACCESS_TOKEN_SECRET, algorithm=JWT_ALGORITHM)
         elif type == "refresh":
             expire = datetime.now(timezone.utc) + (expires_delta or timedelta(days=JWT_REFRESH_TOKEN_EXPIRE_DAYS))
-            to_encode.update({"exp": expire})  # Adiciona o campo de expiração no payload
+            to_encode.update({"exp": expire})
             encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_TOKEN_SECRET, algorithm=JWT_ALGORITHM)
 
         return encoded_jwt
@@ -76,6 +75,9 @@ class Security:
                 payload = jwt.decode(token, JWT_REFRESH_TOKEN_SECRET, algorithms=[JWT_ALGORITHM])
             return payload
         except jwt.ExpiredSignatureError:
-            raise jwt.ExpiredSignatureError("Token expirado.")
+            print("Erro: Token expirado")
+            raise jwt.ExpiredSignatureError("Token expirado")
         except jwt.InvalidTokenError as error:
+            print(f"Erro: Token inválido. Detalhes: {error}")
             raise jwt.InvalidTokenError(f"Token inválido: {error}")
+

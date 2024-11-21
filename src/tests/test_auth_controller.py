@@ -31,10 +31,10 @@ async def test_login():
         password = 'password'
     )
 
-    user = await login(user_input)
+    resp = await login(user_input)
 
-    assert user["access_token"] != None
-    assert user["token_type"] == "bearer"
+    assert resp["access_token"]["token"] != None
+    assert resp["access_token"]["token_type"] == "bearer"
 
     test_db.close()
 

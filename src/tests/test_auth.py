@@ -15,7 +15,7 @@ def setupTestDatabase():
 
 
 def test_create_access_token():
-    token = Security.create_access_token(data={"sub": "test"})
+    token = Security.create_jwt_token(data={"sub": "test"}, type="access")
     assert token
     assert isinstance(token, str)
 
@@ -30,7 +30,7 @@ def test_get_current_user():
 
 
     with pytest.raises(Exception) as error:
-        token = Security.create_access_token(data={"sub": "test"})
+        token = Security.create_jwt_token(data={"sub": "test"})
         user = User.get_current_user(token)
 
         assert user is None
@@ -48,7 +48,7 @@ def test_get_current_user():
         password = 'password'
     )
 
-    token = Security.create_access_token(data={"sub": "email@email.com"})
+    token = Security.create_jwt_token(data={"sub": "email@email.com"})
     user = User.get_current_user(token)
     
     assert user

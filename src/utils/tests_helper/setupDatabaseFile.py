@@ -42,9 +42,9 @@ def defineAuthUser(client_test: TestClient, is_admin: bool):
 
     assert response.status_code == 200
 
-    token = response.json()
+    json_resp = response.json()
 
-    client_test.headers = {"Authorization": f"Bearer {token['access_token']}"}
+    client_test.headers = {"Authorization": f"Bearer {json_resp["access_token"]["token"]}"}
 
     return client_test
 

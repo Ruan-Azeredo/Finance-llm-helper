@@ -44,13 +44,13 @@ async def test_access_to_protected_route():
 
     assert response.status_code == 200
 
-    token = response.json()
+    resp = response.json()
 
-    assert token["access_token"] != None
-    assert token["token_type"] == "bearer"
+    assert resp["access_token"]["token"] != None
+    assert resp["access_token"]["token_type"] == "bearer"
 
 
-    response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {token['access_token']}"})
+    response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {resp['access_token']["token"]}"})
 
     print('resp.json', response.json())
     assert response.status_code == 200
@@ -85,12 +85,12 @@ async def test_access_to_protected_route_with_expired_token():
 
     assert response.status_code == 200
 
-    token = response.json()
+    resp = response.json()
 
-    assert token["access_token"] != None
-    assert token["token_type"] == "bearer"
+    assert resp["access_token"]["token"] != None
+    assert resp["access_token"]["token_type"] == "bearer"
 
-    expired_token = Security.create_access_token({"sub": "test2"}, expires_delta=timedelta(seconds=-10))
+    expired_token = Security.create_jwt_token({"sub": "test2"}, type="access", expires_delta=timedelta(seconds=-10))
 
     response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {expired_token}"})
 

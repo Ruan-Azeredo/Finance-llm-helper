@@ -10,7 +10,7 @@ class CustomOAuth2PasswordBearer(OAuth2PasswordBearer):
             print(f"Erro ao obter token: {error}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Não foi possivel validar as credenciais",
+                detail="Erro ao obter token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 

@@ -5,7 +5,6 @@ from fastapi import Depends, HTTPException, status
 import jwt
 from jwt import PyJWTError
 
-from auth import JWT_SECRET, JWT_ALGORITHM
 from models import BaseModel
 from auth import Security, oauth2_scheme
 from database import db
@@ -85,24 +84,34 @@ class User(BaseModel):
         )
 
         try:
-            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            payload = Security.validate_token(token = token, type = "access")
             email: str = payload.get("sub")
             if email is None:
                 raise credentials_exception
 
-        except PyJWTError:
+        except jwt.ExpiredSignatureError:
+            print("Erro: Token expirado")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Sua sessão expirou, faca login novamente",
-                headers={"WWW-Authenticate": "Bearer"},
+                detail="Token expirado.",
+            )
+        except jwt.InvalidTokenError as error:
+            print(f"Erro: Token inválido. Detalhes: {error}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token inválido.",
+            )
+        except Exception as error:
+            print(f"Erro inesperado: {error}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Erro interno na validação do token: {error}",
             )
         
-        except Exception as error:
-            raise Exception(f"Erro ao decodificar o token: {error}")
-        
         user = User.get_user_by_email(email)
+
         if user is None:
-            print('user is none')
             raise credentials_exception
+        
         return user
         

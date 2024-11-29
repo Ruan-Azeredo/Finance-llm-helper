@@ -1,9 +1,8 @@
-from peewee import CharField, IntegerField, DateTimeField, IntegrityError, DoesNotExist
+from peewee import CharField, IntegerField, DateTimeField, IntegrityError, AutoField, DoesNotExist
 from datetime import datetime
 from typing import Callable, Any
 from fastapi import Depends, HTTPException, status
 import jwt
-from jwt import PyJWTError
 
 from models import BaseModel
 from auth import Security, oauth2_scheme
@@ -28,7 +27,7 @@ def handle_database_error(method: Callable[..., Any]) -> Callable[..., Any] | No
     return wrapper
 
 class User(BaseModel):
-    id = IntegerField(unique = True, primary_key = True)
+    id = AutoField(unique = True, primary_key = True)
     name = CharField()
     email = CharField(unique = True)
     password = CharField()

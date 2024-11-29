@@ -36,8 +36,6 @@ async def catch_exceptions_middleware(request: Request, call_next):
         tb_lines = traceback.format_exception(type(error), error, error.__traceback__)
         organized_traceback = "".join(tb_lines)
 
-        print(organized_traceback)
-
         return JSONResponse(
             status_code=500,
             content={

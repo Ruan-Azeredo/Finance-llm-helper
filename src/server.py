@@ -51,14 +51,12 @@ app.include_router(auth_router, prefix="/auth")
 async def root():
     return {'message': 'Hello World'}
 
-@app.post("/categorize-transaction")
-async def categorize_transaction(file: UploadFile = File(...)) -> None:
+@app.post("/categorize-transactions-by-file")
+async def categorize_transactions_by_file(file: UploadFile = File(...)) -> None:
     print('Recebido arquivo: ', file.filename, ' Iniciando processamento para definição da categoria...')
 
     try:
-        data: dict = await dataProcessingService(file = file)
-        transactions = data["processed_transaction_list"]
-        raw_transactions = data["transactions_params_list"]
+        transactions, raw_transactions = await dataProcessingService(file = file)
 
         categorized_transactions: list = []
         for i, transaction in enumerate(transactions):

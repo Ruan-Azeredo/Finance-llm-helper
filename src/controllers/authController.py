@@ -1,12 +1,14 @@
 from peewee import DoesNotExist
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request, status, Depends
 
 from auth import Security
 from models import User
 from schemas import LoginInput
+from .utils.router_dependencies import verify_only_self_access_user
 
 auth_router = APIRouter()
 
+auth_router_auth = APIRouter(dependencies = [Depends(verify_only_self_access_user)])
 
 @auth_router.post("/login")
 async def login(user_input: LoginInput):
@@ -32,7 +34,7 @@ async def login(user_input: LoginInput):
         "refresh_token": { "token": refresh_token, "token_type": "bearer" }
     }
 
-@auth_router.get("/get-access-token")
+@auth_router_auth.get("/get-access-token")
 async def get_access_token(request: Request):
 
     try:
@@ -53,3 +55,4 @@ async def get_access_token(request: Request):
             detail = str(error)
         )
     
+auth_router.include_router(auth_router_auth)

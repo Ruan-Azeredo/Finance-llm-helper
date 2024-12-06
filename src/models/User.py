@@ -20,6 +20,9 @@ def handle_database_error(method: Callable[..., Any]) -> Callable[..., Any] | No
                 for field in unique_fields:
                     if field in str(error):
                         raise Exception(f"Chave duplicada: {field} já existente")
+            elif 'NOT NULL constraint failed' in str(error):
+                missing_field = str(error).split("NOT NULL constraint failed: ")[1]
+                raise Exception(f"Erro: O campo obrigatório '{missing_field}' está ausente ou é nulo.")
             else:
                 raise Exception(f"Erro interno de integridade: {error}")
         except Exception as error:
@@ -53,18 +56,28 @@ class User(BaseModel):
     @handle_database_error
     def create(**kwargs) -> 'User':
 
-        if 'password' in kwargs:
-            kwargs['password'] = Security.encrypt_password(kwargs['password'])
+        values = {}
+        for key, value in kwargs.items():
+            if value is not None:
+                values[key] = value
 
-        return super(User, User).create(**kwargs)
+        if 'password' in values:
+            values['password'] = Security.encrypt_password(values['password'])
+
+        return super(User, User).create(**values)
     
     @handle_database_error
     def update(self, **kwargs) -> None:
 
-        if 'password' in kwargs:
-            kwargs['password'] = Security.encrypt_password(kwargs['password'])
+        values = {}
+        for key, value in kwargs.items():
+            if value is not None:
+                values[key] = value
 
-        super(User, self).update(**kwargs)
+        if 'password' in values:
+            values['password'] = Security.encrypt_password(values['password'])
+
+        super(User, self).update(**values)
 
     def get_user_by_email(email: str) -> 'User':
         try:

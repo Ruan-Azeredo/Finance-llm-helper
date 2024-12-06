@@ -7,6 +7,7 @@ import jwt
 from models import BaseModel
 from auth import Security, oauth2_scheme
 from database import db
+from .utils import handle_values
 
 def handle_database_error(method: Callable[..., Any]) -> Callable[..., Any] | None:
     def wrapper(*args, **kwargs):
@@ -56,10 +57,7 @@ class User(BaseModel):
     @handle_database_error
     def create(**kwargs) -> 'User':
 
-        values = {}
-        for key, value in kwargs.items():
-            if value is not None:
-                values[key] = value
+        values = handle_values(kwargs)
 
         if 'password' in values:
             values['password'] = Security.encrypt_password(values['password'])
@@ -69,10 +67,7 @@ class User(BaseModel):
     @handle_database_error
     def update(self, **kwargs) -> None:
 
-        values = {}
-        for key, value in kwargs.items():
-            if value is not None:
-                values[key] = value
+        values = handle_values(kwargs)
 
         if 'password' in values:
             values['password'] = Security.encrypt_password(values['password'])

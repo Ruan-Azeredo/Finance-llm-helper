@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Path
 from typing import Optional
 from fastapi.responses import JSONResponse
 from functools import wraps
+from pydantic import BaseModel
 
 from models import User
 from schemas import UserCRUDInput
@@ -39,9 +40,7 @@ async def get_user(user_id: int):
 async def create_user(user_input: UserCRUDInput):
 
     user = User.create(
-        name = user_input.name,
-        email = user_input.email,
-        password = user_input.password
+        **user_input.to_dict()
     )
 
     return JSONResponse(
@@ -58,16 +57,14 @@ async def update_user(user_id: int, user_input: UserCRUDInput):
         raise HTTPException(status_code = 404, detail = "Usuário não encontrado")
     
     user.update(
-        name = user_input.name,
-        email = user_input.email,
-        password = user_input.password
+        **user_input.to_dict()
     )
 
     updated_user = User.from_id(user_id)
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"message": "User updated", "user": updated_user.to_dict()}
+        content = {"message": "Usuário atualizado", "user": updated_user.to_dict()}
     )
 
 @user_router_auth.delete("/ops/{user_id}")

@@ -4,13 +4,10 @@ from playhouse.reflection import Introspector
 from pathlib import Path
 from typing import Any
 
-from models import User
+from models import models
 from database import db
 
 def initialize_db() -> None:
-
-    # Muito importante adicionar os modelos aqui
-    models = [User]
 
     if not Path('database.db').exists():
         db.connect()
@@ -22,7 +19,6 @@ def initialize_db() -> None:
         
         if db.is_connection_usable():
             print('Banco de dados ja existe!')
-
 
             for model in models:
                 update_database(model = model)
@@ -40,7 +36,13 @@ def _handle_table_model(model: Model) -> tuple[str, dict[str, Any]]:
 
         # Verifica se a tabela existe no banco
         if table_name not in database_schema:
-            raise ValueError(f"A tabela '{table_name}' não foi encontrada no banco de dados.")
+            print(f"A tabela '{table_name}' não foi encontrada. Criando a tabela...")
+            with db:
+                db.create_tables([model])  # Cria a tabela associada ao modelo
+            print(f"Tabela '{table_name}' criada com sucesso.")
+
+        # Atualiza o schema após criação (caso necessário)
+        database_schema = introspector.generate_models()
         
         # Recupera o modelo da tabela
         table_model = database_schema[table_name]
@@ -49,7 +51,7 @@ def _handle_table_model(model: Model) -> tuple[str, dict[str, Any]]:
         return table_name, table_columns
         
     except Exception as error:
-        raise Exception(f"Erro ao acessaar modelo da tabela {table_name}: {error}")
+        raise Exception(f"Erro ao acessar modelo da tabela {table_name}: {error}")
     
 def _verify_table_missing_columns(model_columns: dict[str, Any], table_columns: dict[str, Any], table_name: str) -> None:
     for column_name in table_columns:

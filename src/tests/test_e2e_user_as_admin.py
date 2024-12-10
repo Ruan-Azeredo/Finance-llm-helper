@@ -76,7 +76,7 @@ async def test_update_user_e2e(authenticated_client):
     response = authenticated_client.put(f'/user/ops/{response.json()["user"]["id"]}', json = update_user_data)
 
     assert response.status_code == 200
-    assert response.json()['message'] == "User updated"
+    assert response.json()['message'] == "Usuário atualizado"
     assert response.json()['user']['name'] == "Ruan Azeredo"
     assert response.json()['user']['email'] == "ruan22@gmail"
 

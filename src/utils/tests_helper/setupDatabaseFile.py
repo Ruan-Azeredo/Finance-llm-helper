@@ -4,6 +4,9 @@ import os
 
 from models import User
 
+EMAIL = 'test@gmail.com'
+PASSWORD = 'test'
+
 def _createUser(is_admin: bool):
     if is_admin:
         role = 'admin'
@@ -12,8 +15,8 @@ def _createUser(is_admin: bool):
 
     User.create(
         name = 'test',
-        email = 'test',
-        password = 'test',
+        email = EMAIL,
+        password = PASSWORD,
         role = role
     )
 
@@ -36,8 +39,8 @@ def defineAuthUser(client_test: TestClient, is_admin: bool):
     _createUser(is_admin = is_admin)
     
     response = client_test.post('/auth/login', json={
-        "email": "test",
-        "password": "test"
+        "email": EMAIL,
+        "password": PASSWORD
     })
 
     assert response.status_code == 200
@@ -46,7 +49,7 @@ def defineAuthUser(client_test: TestClient, is_admin: bool):
 
     client_test.headers = {"Authorization": f"Bearer {json_resp["access_token"]["token"]}"}
 
-    return client_test
+    return client_test, { "email": EMAIL, "password": PASSWORD }
 
 """ 
 Essa função define um client para testes e cria um banco de dados temporario para cada test,
@@ -62,9 +65,30 @@ def setupDatabaseFileWithUserTable(client_test: TestClient, is_admin: bool = Fal
      
             test_db = _setupUserDb(func_name = func.__name__)
             
-            authenticated_client = defineAuthUser(client_test = client_test, is_admin = is_admin)
+            authenticated_client, _ = defineAuthUser(client_test = client_test, is_admin = is_admin)
 
             kwargs['authenticated_client'] = authenticated_client
+
+            try:
+                test = await func(*args, **kwargs)
+                return test
+            finally:
+                _deleteUserDb(test_db = test_db, func_name = func.__name__)
+
+        return wrapper
+    return decorator
+
+def setupDatabaseHandleLoggedUser(client_test: TestClient, is_admin: bool = False):
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+     
+            test_db = _setupUserDb(func_name = func.__name__)
+            
+            authenticated_client, user_credentials = defineAuthUser(client_test = client_test, is_admin = is_admin)
+
+            kwargs['authenticated_client'] = authenticated_client
+            kwargs['user_credentials'] = user_credentials
+            
             try:
                 test = await func(*args, **kwargs)
                 return test

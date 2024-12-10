@@ -1,34 +1,12 @@
-from peewee import CharField, IntegerField, DateTimeField, IntegrityError, AutoField, DoesNotExist
+from peewee import CharField, DateTimeField, AutoField, DoesNotExist
 from datetime import datetime
-from typing import Callable, Any
 from fastapi import Depends, HTTPException, status
 import jwt
 
-from models import BaseModel
+from .BaseModel import BaseModel
 from auth import Security, oauth2_scheme
 from database import db
-from .utils import handle_values
-
-def handle_database_error(method: Callable[..., Any]) -> Callable[..., Any] | None:
-    def wrapper(*args, **kwargs):
-
-        unique_fields = ['id', 'email']
-
-        try:
-            return method(*args, **kwargs)
-        except IntegrityError as error:
-            if 'UNIQUE constraint failed' in str(error):
-                for field in unique_fields:
-                    if field in str(error):
-                        raise Exception(f"Chave duplicada: {field} já existente")
-            elif 'NOT NULL constraint failed' in str(error):
-                missing_field = str(error).split("NOT NULL constraint failed: ")[1]
-                raise Exception(f"Erro: O campo obrigatório '{missing_field}' está ausente ou é nulo.")
-            else:
-                raise Exception(f"Erro interno de integridade: {error}")
-        except Exception as error:
-            raise Exception(f"Erro interno: {error}")
-    return wrapper
+from .utils import handle_values, handle_database_error
 
 class User(BaseModel):
     id = AutoField(unique = True, primary_key = True)

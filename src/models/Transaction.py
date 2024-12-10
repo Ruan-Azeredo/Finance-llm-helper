@@ -2,7 +2,8 @@ from peewee import CharField, DateTimeField, ForeignKeyField, DoesNotExist
 from datetime import datetime
 import uuid
 
-from models import BaseModel, User
+from .BaseModel import BaseModel
+from models import User
 from database import db
 from  .utils import handle_values, handle_database_error
 

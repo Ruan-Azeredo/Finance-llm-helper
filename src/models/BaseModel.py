@@ -15,13 +15,13 @@ def handle_database_error(method: Callable[..., T]) -> Callable[..., T] | None:
                 existent_tables = args[0]._meta.database.get_tables()
                 raise Exception(f"Tabela '{args[0]._meta.table_name}' não existe, as unicas tabelas existentes são: {existent_tables}")
             else:
-                raise Exception(f"Erro interno: {error}")
+                raise OperationalError(f"Erro interno Operacional: {error}")
         except DoesNotExist:
             return None
         except IntegrityError as error:
-            raise IntegrityError(error.args[0])
+            raise IntegrityError(f"Erro de integridade do BaseModel: {error.args[0]}")
         except Exception as error:
-            raise Exception(f"Erro interno: {error}")
+            raise Exception(f"Erro interno do BaseModel: {error}")
     return wrapper
 
 class BaseModel(Model):

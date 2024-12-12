@@ -2,9 +2,9 @@ from pydantic import BaseModel
 from typing import Optional
 
 class UserCRUDInput(BaseModel):
-    name: str = None
-    email: str = None
-    password: str = None
+    name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
     role: Optional[str] = None
 
 

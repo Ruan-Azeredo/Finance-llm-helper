@@ -11,7 +11,8 @@ def handle_database_error(method: Callable[..., Any]) -> Callable[..., Any] | No
         except IntegrityError as error:
             if 'UNIQUE constraint failed' in str(error):
                 for field in unique_fields:
-                    if field in str(error):
+                    failed_field = str(error).split("UNIQUE constraint failed: ")[1]
+                    if field in str(failed_field):
                         raise Exception(f"Chave duplicada: {field} já existente")
             elif 'NOT NULL constraint failed' in str(error):
                 missing_field = str(error).split("NOT NULL constraint failed: ")[1]
@@ -25,8 +26,16 @@ def handle_database_error(method: Callable[..., Any]) -> Callable[..., Any] | No
     return wrapper
 
 def handle_values(kwargs):
+    """
+    Para casos de update, quando eu preciso transformar um campo com valor em null, como o bodyTypes
+    Já passa todos os valores que não foram alterados para null by default, para evitar que todos os 
+    campos não referenciados sejam alterados para null, preciso tratar outro valor diferente de Non,
+    Neste caso escolhi o 'null' como str
+    """
     values = {}
     for key, value in kwargs.items():
-        if value is not None:
+        if value == 'null' or value == 'NULL':
+            values[key] = None
+        elif value is not None:
             values[key] = value
     return values

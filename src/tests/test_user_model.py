@@ -51,10 +51,10 @@ def test_create_user_model_with_existing_email():
     test_db.create_tables([User])
 
     User.create(
-            name = 'Ruan',
-            email = 'email@email.com',
-            password = '1234'
-        )
+        name = 'Ruan',
+        email = 'email@email.com',
+        password = '1234'
+    )
     
     with pytest.raises(Exception) as error:
         User.create(

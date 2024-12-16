@@ -35,6 +35,8 @@ class BaseModel(Model):
 
             if isinstance(value, datetime):
                 data[field.name] = value.isoformat()
+            elif hasattr(value, "id"):
+                data[field.name] = value.id
             else:
                 data[field.name] = value
         return data

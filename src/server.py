@@ -2,7 +2,7 @@ from services import dataProcessingService
 from pTypes import FileTransaction
 from services import categorizeTransactionService
 from useCases import generateReport
-from controllers import user_router, auth_router, catTransact_router
+from controllers import user_router, auth_router, transaction_router, catTransact_router
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
@@ -45,6 +45,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
         )
 
 app.include_router(user_router, prefix="/user")
+app.include_router(transaction_router, prefix="/transaction")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(catTransact_router, prefix="/categorize-transaction")
 

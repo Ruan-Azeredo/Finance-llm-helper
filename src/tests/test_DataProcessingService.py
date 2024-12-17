@@ -14,10 +14,7 @@ async def test_data_processing_service_function():
         file_bytes = file.read()
         upload_file = UploadFile(filename="Extrato-01-09-2024.ofx", file=BytesIO(file_bytes))
 
-        data = await dataProcessingService(file = upload_file)
-
-        processed_transaction_list = data["processed_transaction_list"]
-        transactions_params_list = data["transactions_params_list"]
+        processed_transaction_list, transactions_params_list = await dataProcessingService(file = upload_file)
         
         assert processed_transaction_list != None
         assert transactions_params_list != None

@@ -35,7 +35,4 @@ async def dataProcessingService(file: UploadFile = File(...)):
         processed_transaction = formatDescriptionTransaction(transaction)
         processed_transaction_list.append(processed_transaction)
 
-    return {
-        "processed_transaction_list": processed_transaction_list,
-        "transactions_params_list": data_from_file
-    }
+    return processed_transaction_list, data_from_file

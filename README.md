@@ -19,15 +19,18 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-2. **Instale as dependências**: Após ativar o ambiente virtual, instale as dependências listadas no arquivo requirements.txt:
+2. **Inicie o Projeto**:
+
+Este comando abaixo vai:
+- Instalar as dependencias
+- Criar o banco de dados
+- Iniciar o servidor
 
 ```bash
-pip install -r requirements.txt
+make build
 ```
 
-3. **Adicione os extratos**: Adicione extratos  no formato .ofx em uma pasta /extratos no diretorio do projeto.
-
-4. **Execute o projeto**: Após a instalação, você poderá rodar os scripts disponíveis no projeto, como o `llm_finance.py`.
+Caso queira realizar as ações do `make build` separadamente é possivel também, de uma olhada no Makefile.
 
 ## Adicionando Dependências
 Se você adicionar uma nova dependência ao projeto, não se esqueça de atualizar o arquivo requirements.txt com o seguinte comando:
@@ -35,17 +38,23 @@ Se você adicionar uma nova dependência ao projeto, não se esqueça de atualiz
 ```bash
 pip freeze > requirements.txt
 ```
+## Crie .Env
+Crie um arquivo .env e adicione as seguintes variáveis:
 
-## Testes
-O comando `pytest` executa todos os testes do projeto. Incluind testes e2e que podem ser demorados e dependem de dependecias externas.
-Para executar os testes excluindo os que são e2e, execute:
 ```bash
-    pytest -m "not e2e"
+GROQ_API_KEY=YOUR_API_KEY
+
+JWT_ACCESS_TOKEN_SECRET= 
+JWT_REFRESH_TOKEN_SECRET=
+JWT_ALGORITHM=
 ```
 
-Para executar os testes e2e, execute:
+
+## Testes
+O comando `pytest` executa todos os testes do projeto. Incluind testes que batem na API do LLM que podem ser demorados e dependem de dependecias externas.
+Para executar os testes excluindo os que são 'llm', execute:
 ```bash
-    pytest -m e2e
+    make test
 ```
 
 ## To do
@@ -59,6 +68,6 @@ Para executar os testes e2e, execute:
 - [x] Transformar em api
 - [x] Fazer testes de integração com o LLM
 - [ ] Garantir que o id de cada transação seja unico
-- [ ] Adicionar DB
-- [ ] Criar contas p/ cada usuario
+- [x] Adicionar DB
+- [x] Criar contas p/ cada usuario
 - [ ] Salvar as transações

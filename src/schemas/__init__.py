@@ -1,1 +1,1 @@
-from .bodyTypes import UserCRUDInput, LoginInput
+from .bodyTypes import *

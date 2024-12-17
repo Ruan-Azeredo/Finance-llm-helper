@@ -46,7 +46,7 @@ async def test_get_user_e2e_as_free(authenticated_client):
 
     response: HTTPException = authenticated_client.get(f'/user/ops/{response.json()["user"]["id"]}')
 
-    assert response.json()['detail'] == 'Acesso negado: não possui permissão para acessar esse usuário'
+    assert response.json()['detail'] == 'Acesso negado: não possui permissão para acessar esse dados de outro usuário'
     assert response.status_code == 403
 
 @pytest.mark.e2e
@@ -75,7 +75,7 @@ async def test_update_user_e2e_as_free(authenticated_client):
 
     response = authenticated_client.put(f'/user/ops/{response.json()["user"]["id"]}', json = update_user_data)
 
-    assert response.json()['detail'] == 'Acesso negado: não possui permissão para acessar esse usuário'
+    assert response.json()['detail'] == 'Acesso negado: não possui permissão para acessar esse dados de outro usuário'
     assert response.status_code == 403
 
 
@@ -99,7 +99,7 @@ async def test_delete_user_e2e_as_free(authenticated_client):
 
     response = authenticated_client.delete(f'/user/ops/{response.json()["user"]["id"]}')
 
-    assert response.json()['detail'] == 'Acesso negado: não possui permissão para acessar esse usuário'
+    assert response.json()['detail'] == 'Acesso negado: não possui permissão para acessar esse dados de outro usuário'
     assert response.status_code == 403
 
 # Test operations as free and self user

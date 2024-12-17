@@ -1,14 +1,14 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from utils import setupDatabaseFileWithUserTable
+from utils import setupDatabaseFileWithTables
 from src.server import app
 
 client_test = TestClient(app)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithUserTable(client_test = client_test, is_admin = True)
+@setupDatabaseFileWithTables(client_test = client_test, is_admin = True)
 async def test_create_user_e2e(authenticated_client: TestClient):
 
     user_data = {
@@ -26,7 +26,7 @@ async def test_create_user_e2e(authenticated_client: TestClient):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithUserTable(client_test = client_test, is_admin = True)
+@setupDatabaseFileWithTables(client_test = client_test, is_admin = True)
 async def test_get_user_e2e(authenticated_client):
 
     user_data = {
@@ -51,7 +51,7 @@ async def test_get_user_e2e(authenticated_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithUserTable(client_test = client_test, is_admin = True)
+@setupDatabaseFileWithTables(client_test = client_test, is_admin = True)
 async def test_update_user_e2e(authenticated_client):
 
     user_data = {
@@ -83,7 +83,7 @@ async def test_update_user_e2e(authenticated_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithUserTable(client_test = client_test, is_admin = True)
+@setupDatabaseFileWithTables(client_test = client_test, is_admin = True)
 async def test_delete_user_e2e(authenticated_client):
 
     user_data = {

@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from peewee import SqliteDatabase
+from peewee import SqliteDatabase, Model
 import os
 
 from models import User
@@ -20,11 +20,12 @@ def _createUser(is_admin: bool):
         role = role
     )
 
-def _setupUserDb(func_name):
+def _setupDb(func_name, models: list[Model] = [User]):
     test_db = SqliteDatabase(f'{func_name}.db')
-    User._meta.database = test_db
+    for model in models:
+        model._meta.database = test_db
     test_db.connect()
-    test_db.create_tables([User])
+    test_db.create_tables(models)
 
     return test_db
 
@@ -59,11 +60,11 @@ Utilize essa função como decorator, passando os parametros necessarios para a 
 É de suma importancia a função de test receber o authenticated_client como parametro!
 """
 
-def setupDatabaseFileWithUserTable(client_test: TestClient, is_admin: bool = False):
+def setupDatabaseFileWithTables(client_test: TestClient, is_admin: bool = False, models: list[Model] = [User]):
     def decorator(func):
         async def wrapper(*args, **kwargs):
      
-            test_db = _setupUserDb(func_name = func.__name__)
+            test_db = _setupDb(func_name = func.__name__, models = models)
             
             authenticated_client, _ = defineAuthUser(client_test = client_test, is_admin = is_admin)
 
@@ -78,11 +79,11 @@ def setupDatabaseFileWithUserTable(client_test: TestClient, is_admin: bool = Fal
         return wrapper
     return decorator
 
-def setupDatabaseHandleLoggedUser(client_test: TestClient, is_admin: bool = False):
+def setupDatabaseHandleLoggedUser(client_test: TestClient, is_admin: bool = False, models: list[Model] = [User]):
     def decorator(func):
         async def wrapper(*args, **kwargs):
      
-            test_db = _setupUserDb(func_name = func.__name__)
+            test_db = _setupDb(func_name = func.__name__, models = models)
             
             authenticated_client, user_credentials = defineAuthUser(client_test = client_test, is_admin = is_admin)
 

@@ -48,7 +48,7 @@ def defineAuthUser(client_test: TestClient, is_admin: bool):
 
     json_resp = response.json()
 
-    client_test.headers = {"Authorization": f"Bearer {json_resp["access_token"]["token"]}"}
+    client_test.headers = {"Authorization": f"Bearer {json_resp['access_token']['token']}"}
 
     return client_test, { "email": EMAIL, "password": PASSWORD }
 

@@ -52,7 +52,7 @@ def test_create_transaction_model_with_nonexistent_user():
     with pytest.raises(Exception) as error:
         Transaction.create(
             user_id = 1,
-            amount = '12.34',
+            amount = '12,34',
             date = '2024-12-09',
             memo = 'Test memo'
         )
@@ -258,3 +258,83 @@ def test_update_tag_transaction_model():
     transaction_updated = Transaction.from_id(transaction.id)
 
     assert transaction_updated.tag == 'tag'
+
+def test_create_transaction_with_wrong_amount_format():
+
+    test_db = setupTestDatabase()
+    
+    test_db.connect()
+    
+    test_db.create_tables([User, Transaction])
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    with pytest.raises(Exception) as error:
+        Transaction.create(
+            user_id = user.id,
+            amount = '12.34',
+            date = 'date',
+            memo = 'memo'
+        )
+
+        assert 'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: 12.34' in str(error.value)
+
+    with pytest.raises(Exception) as error:
+        Transaction.create(
+            user_id = user.id,
+            amount = '12,3',
+            date = 'date',
+            memo = 'memo'
+        )
+    
+        assert 'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: 12,3' in str(error.value)
+
+    with pytest.raises(Exception) as error:
+        Transaction.create(
+            user_id = user.id,
+            amount = '-12,35',
+            date = 'date',
+            memo = 'memo'
+        )
+
+        assert 'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: -12,35' in str(error.value)
+
+def test_create_transaction_with_wrong_type_format():
+
+    test_db = setupTestDatabase()
+    
+    test_db.connect()
+    
+    test_db.create_tables([User, Transaction])
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    with pytest.raises(Exception) as error:
+        Transaction.create(
+            user_id = user.id,
+            amount = '12,34',
+            date = 'date',
+            memo = 'memo',
+            type = 'wrong'
+        )
+
+    assert 'Formato de type está incorreto, type deve ser "expense" ou "income". O type recebido foi: wrong' in str(error.value)
+
+    with pytest.raises(Exception) as other_error:
+        Transaction.create(
+            user_id = user.id,
+            amount = '12,34',
+            date = 'date',
+            memo = 'memo',
+            type = 12
+        )
+
+    assert 'Formato de type está incorreto, type deve ser "expense" ou "income". O type recebido foi: 12' in str(other_error.value)

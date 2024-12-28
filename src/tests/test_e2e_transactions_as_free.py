@@ -97,6 +97,7 @@ async def test_delete_transaction_e2e_as_free(authenticated_client: TestClient, 
 
     transaction_data = {
         "amount": "12,34",
+        "type": "expense",
         "date": "date",
         "memo": "memo"
     }

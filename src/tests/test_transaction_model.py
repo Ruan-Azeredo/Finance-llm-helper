@@ -303,7 +303,7 @@ def test_create_transaction_with_wrong_amount_format():
 
         assert 'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: -12,35' in str(error.value)
 
-def test_create_transaction_with_wrong_type_format():
+def test_create_transaction_with_wrong_direction_format():
 
     test_db = setupTestDatabase()
     
@@ -323,10 +323,10 @@ def test_create_transaction_with_wrong_type_format():
             amount = '12,34',
             date = 'date',
             memo = 'memo',
-            type = 'wrong'
+            direction = 'wrong'
         )
 
-    assert 'Formato de type está incorreto, type deve ser "expense" ou "income". O type recebido foi: wrong' in str(error.value)
+    assert 'Formato de direction está incorreto, direction deve ser "expense" ou "income". O direction recebido foi: wrong' in str(error.value)
 
     with pytest.raises(Exception) as other_error:
         Transaction.create(
@@ -334,7 +334,7 @@ def test_create_transaction_with_wrong_type_format():
             amount = '12,34',
             date = 'date',
             memo = 'memo',
-            type = 12
+            direction = 12
         )
 
-    assert 'Formato de type está incorreto, type deve ser "expense" ou "income". O type recebido foi: 12' in str(other_error.value)
+    assert 'Formato de direction está incorreto, direction deve ser "expense" ou "income". O direction recebido foi: 12' in str(other_error.value)

@@ -1,15 +1,17 @@
-from peewee import CharField, DateTimeField, ForeignKeyField, DoesNotExist
+from peewee import CharField, DateTimeField, ForeignKeyField, DoesNotExist, FloatField
 from datetime import datetime
 import uuid
 
 from .BaseModel import BaseModel
 from models import User
 from database import db
-from  .utils import handle_values, handle_database_error
+from .handles import handle_values, handle_database_error
+from utils import is_valid_amount_format, is_valid_type_format
 
 class Transaction(BaseModel):
     id = CharField(unique = True, primary_key = True)
     date = CharField()
+    direction = CharField(default = "expense")
     amount = CharField()
     memo = CharField()
     user_id = ForeignKeyField(User, field='id', backref='transactions', on_delete='CASCADE')
@@ -28,7 +30,7 @@ class Transaction(BaseModel):
     def create(user_id: int, **kwargs) -> 'Transaction':
 
         try:
-            User.get_by_id(user_id)
+            User.get_by_id(user_id) 
         except Exception:
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
 
@@ -39,6 +41,12 @@ class Transaction(BaseModel):
 
         values = handle_values(kwargs)
         values['user_id'] = user_id
+
+        if 'direction' in values and is_valid_type_format(values['direction']) is False:
+            raise Exception(f'Formato de direction está incorreto, direction deve ser "expense" ou "income". O direction recebido foi: {values["direction"]}')
+        
+        if 'amount' in values and is_valid_amount_format(values['amount']) is False:
+            raise Exception(f'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: {values["amount"]}')
 
         created_transaction = super(Transaction, Transaction).create(**values)
 

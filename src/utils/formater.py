@@ -1,11 +1,12 @@
 from datetime import datetime
 
 def formatAmount(amount: float) -> str:
-        if amount < 0:
-            return '- R$ ' + f"{abs(amount):.2f}".replace('.', ',')
-        else:
-            return 'R$ ' + f"{abs(amount):.2f}".replace('.', ',')
+    return f"{abs(amount):.2f}".replace('.', ',')
 
+def formatDirection(amount: float) -> str:
+    if amount < 0:
+        return 'expense'
+    return 'income'
 
 def formatDate(date: str) -> str:
     if date is None:

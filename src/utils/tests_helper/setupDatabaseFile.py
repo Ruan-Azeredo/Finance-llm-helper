@@ -53,7 +53,9 @@ def defineAuthUser(client_test: TestClient, is_admin: bool):
     return client_test, { "email": EMAIL, "password": PASSWORD }
 
 """ 
-Essa função define um client para testes e cria um banco de dados temporario para cada test,
+- - - - - - - Dependencia para testes e2e!!!! - - - - - - -
+
+Essas funçoes definem um client para testes e cria um banco de dados temporario para cada test,
 
 Utilize essa função como decorator, passando os parametros necessarios para a funcao que deseja testar
 

@@ -1,22 +1,26 @@
-from peewee import SqliteDatabase, IntegrityError
+from peewee import PostgresqlDatabase, IntegrityError, SqliteDatabase
 import pytest
+from pytest_postgresql import factories
+from pytest_postgresql.janitor import DatabaseJanitor
+import logging
 
 from models import Transaction, User
+from utils import db_session
+#from database import db
 
-def setupTestDatabase():
-    test_db = SqliteDatabase(':memory:')
-    Transaction._meta.database = test_db
-    User._meta.database = test_db
+""" logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG) """
 
-    return test_db
+#test_db = factories.postgresql_proc(port=None, dbname="test_db")
+pg_user = "test"
+pg_host = "localhost"
+pg_port = 5432
+pg_db = "t"
+pg_password = "postgres"
 
-def test_create_transaction_model():
 
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_create_transaction_model(db_session):
 
     user: User = User.create(
         name = 'name',
@@ -39,13 +43,7 @@ def test_create_transaction_model():
     # transaction.user_id automatically get the User, to get just the id, use transaction.user_id_id
     assert transaction.user_id_id == user.id
 
-def test_create_transaction_model_with_nonexistent_user():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_create_transaction_model_with_nonexistent_user(db_session):
     
     assert User.select().count() == 0
 
@@ -59,13 +57,7 @@ def test_create_transaction_model_with_nonexistent_user():
 
     assert 'Registro não encontrado: Usuario com id 1 nao encontrado' in str(error.value)
 
-def test_update_transaction_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_update_transaction_model(db_session):
 
     user: User = User.create(
         name = 'name',
@@ -93,13 +85,7 @@ def test_update_transaction_model():
     assert updaded_transaction.date == 'date'
     assert updaded_transaction.memo == 'password'
 
-def test_update_transaction_model_with_wrong_type_properties_null():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_update_transaction_model_with_wrong_type_properties_null(db_session):
 
     user: User = User.create(
         name = 'name',
@@ -122,13 +108,7 @@ def test_update_transaction_model_with_wrong_type_properties_null():
 
     assert "O campo obrigatório 'transactions.amount' está ausente ou é nulo" in str(error.value)
 
-def test_update_transaction_model_with_right_type_properties_null():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_update_transaction_model_with_right_type_properties_null(db_session):
 
     user: User = User.create(
         name = 'name',
@@ -152,13 +132,7 @@ def test_update_transaction_model_with_right_type_properties_null():
 
     assert updaded_transaction.tag == None
 
-def test_get_transactions_by_user_id_transaction_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_get_transactions_by_user_id_transaction_model(db_session):
 
     user: User = User.create(
         name = 'name',
@@ -221,24 +195,12 @@ def test_get_transactions_by_user_id_transaction_model():
 
 def test_get_transactions_by_user_id_transaction_model_with_nonexistent_user_id():
 
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
-
     with pytest.raises(Exception) as error:
         Transaction.get_transactions_by_user_id(14)
 
     assert 'Usuario com id 14 nao encontrado' in str(error.value)
 
-def test_update_tag_transaction_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_update_tag_transaction_model(db_session):
 
     user: User = User.create(
         name = 'name',
@@ -259,13 +221,7 @@ def test_update_tag_transaction_model():
 
     assert transaction_updated.tag == 'tag'
 
-def test_create_transaction_with_wrong_amount_format():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_create_transaction_with_wrong_amount_format(db_session):
 
     user: User = User.create(
         name = 'name',
@@ -303,13 +259,7 @@ def test_create_transaction_with_wrong_amount_format():
 
         assert 'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: -12,35' in str(error.value)
 
-def test_create_transaction_with_wrong_direction_format():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    test_db.create_tables([User, Transaction])
+def test_create_transaction_with_wrong_direction_format(db_session):
 
     user: User = User.create(
         name = 'name',

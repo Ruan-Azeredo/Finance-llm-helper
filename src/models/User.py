@@ -6,7 +6,7 @@ import jwt
 from .BaseModel import BaseModel
 from auth import Security, oauth2_scheme
 from database import db
-from .utils import handle_values, handle_database_error
+from .handles import handle_values, handle_database_error
 
 class User(BaseModel):
     id = AutoField(unique = True, primary_key = True)

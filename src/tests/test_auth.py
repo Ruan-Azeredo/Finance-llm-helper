@@ -1,32 +1,24 @@
 from models import User
 from auth import Security
+from testUtils import db_session
 
 import pytest
-from peewee import SqliteDatabase
+from peewee import PostgresqlDatabase
 
 
-
-def setupTestDatabase():
-    test_db = SqliteDatabase(':memory:')
-    User._meta.database = test_db
-
-    return test_db
-
-
-
-def test_create_access_token():
+def test_create_access_token(db_session):
     token = Security.create_jwt_token(data={"sub": "test"}, type="access")
     assert token
     assert isinstance(token, str)
 
-def test_verify_password():
+def test_verify_password(db_session):
 
     hashes_pass = Security.encrypt_password("password")
 
     assert Security.verify_password(plain_password = "password", hashed_password = hashes_pass)
     assert not Security.verify_password(plain_password = "password1", hashed_password = hashes_pass)
 
-def test_get_current_user():
+def test_get_current_user(db_session):
 
 
     with pytest.raises(Exception) as error:
@@ -36,11 +28,6 @@ def test_get_current_user():
         assert user is None
     
     assert "Email inválido" in str(error.value)
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
     
     user = User.create(
         name = 'name',

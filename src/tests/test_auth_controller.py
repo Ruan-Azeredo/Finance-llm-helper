@@ -1,24 +1,15 @@
 from models import User
 from src.controllers.authController import login
 from schemas import LoginInput
+from testUtils import db_session
 
 import pytest
 from peewee import SqliteDatabase
 from fastapi import HTTPException
 
-def setupTestDatabase():
-    test_db = SqliteDatabase(':memory:')
-    User._meta.database = test_db
-
-    test_db.connect()
-    test_db.create_tables([User])
-
-    return test_db
-
 @pytest.mark.asyncio
-async def test_login():
-    test_db = setupTestDatabase()
-    
+async def test_login(db_session):
+
     user = User.create(
         id = 1,
         name = 'name',
@@ -36,11 +27,8 @@ async def test_login():
     assert resp["access_token"]["token"] != None
     assert resp["access_token"]["token_type"] == "bearer"
 
-    test_db.close()
-
 @pytest.mark.asyncio
-async def test_failed_to_login():
-    test_db = setupTestDatabase()
+async def test_failed_to_login(db_session):
     
     User.create(
         id = 1,
@@ -59,5 +47,3 @@ async def test_failed_to_login():
 
     assert error.value.status_code == 400
     assert error.value.detail == 'Email ou senha inválido'
-
-    test_db.close()

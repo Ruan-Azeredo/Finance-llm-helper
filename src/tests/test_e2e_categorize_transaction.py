@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.server import app
-from utils import setupDatabaseFileWithTables
+from testUtils import setupDatabaseFileWithTables
 
 client = TestClient(app)
 

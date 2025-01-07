@@ -4,7 +4,7 @@ from fastapi import HTTPException
 
 from src.server import app
 from models import User, Transaction
-from utils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser
+from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser
 
 client_test = TestClient(app)
 

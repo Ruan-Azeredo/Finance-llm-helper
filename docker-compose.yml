@@ -9,9 +9,10 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres"
+      POSTGRES_HOST: "db"
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -24,3 +25,9 @@ volumes:
 
 # stop the services:
 # docker-compose down
+
+# --------------------------------------------
+
+# For current development, I suggest just run the db into docker, and run the web server locally.
+# To do that, you can run the following command:
+# ``` docker-compose up db -d ```

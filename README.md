@@ -19,27 +19,9 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-2. **Inicie o Projeto**:
-
-Este comando abaixo vai:
-- Instalar as dependencias
-- Criar o banco de dados
-- Iniciar o servidor
-
-```bash
-make build
-```
-
-Caso queira realizar as ações do `make build` separadamente é possivel também, de uma olhada no Makefile.
-
-## Adicionando Dependências
-Se você adicionar uma nova dependência ao projeto, não se esqueça de atualizar o arquivo requirements.txt com o seguinte comando:
-
-```bash
-pip freeze > requirements.txt
-```
-## Crie .Env
+2. .Env
 Crie um arquivo .env e adicione as seguintes variáveis:
+> Utilize .env.example, no entanto é muiito importante lembrar de adicionar a chave de API da GROQ
 
 ```bash
 GROQ_API_KEY=YOUR_API_KEY
@@ -49,25 +31,49 @@ JWT_REFRESH_TOKEN_SECRET=
 JWT_ALGORITHM=
 ```
 
+3. **Inicie o Projeto**:
+
+3.1 **Docker**
+
+Execute a imagem da aplicação e a do banco de dados atavez do docker compose:
+
+```bash
+docker-compose up
+```
+
+A aplicação está pronta!
+
+> Caso esteja desenvolvendo, indicamos executar apenas a imagem do postgres atravez do comando abaixo, e rodar a aplicação atravez dos comandos do *Makefile*
+
+```bash
+docker-compose up db -d
+```
+
+3.2 **Makefile**
+
+Este comando abaixo vai:
+- Instalar as dependencias
+- Iniciar o banco de dados
+- Iniciar o servidor
+
+```bash
+make build
+```
+
+> É importante ter o banco postgres criado e com as credenciais devidamente configuradas, caso não esteja utilizando o docker compose, adicione as variaveis presentes no arquivo *src/database/PostgreSQL.py* no seu .env
+
+Caso queira realizar as ações do `make build` separadamente é possivel também, de uma olhada no Makefile.
+
+## Adicionando Dependências
+Se você adicionar uma nova dependência ao projeto, não se esqueça de atualizar o arquivo requirements.txt com o seguinte comando:
+
+```bash
+pip freeze > requirements.txt
+```
 
 ## Testes
-O comando `pytest` executa todos os testes do projeto. Incluind testes que batem na API do LLM que podem ser demorados e dependem de dependecias externas.
+O comando `pytest` executa todos os testes do projeto. Incluindo testes que batem na API do LLM que podem ser demorados e dependem de dependecias externas.
 Para executar os testes excluindo os que são 'llm', execute:
 ```bash
     make test
 ```
-
-## To do
-
-- [x] Melhorar arquitetura (adicionado ./src)
-- [x] Criar class para file
-- [x] Maior cobertura de gerenciamento de erros
-- [x] Implementar testes unitarios e de integração
-- [x] Realocar defs da main
-- [x] Flexibilizar leitura de .csv de acordo com padrões de outros bancos
-- [x] Transformar em api
-- [x] Fazer testes de integração com o LLM
-- [ ] Garantir que o id de cada transação seja unico
-- [x] Adicionar DB
-- [x] Criar contas p/ cada usuario
-- [ ] Salvar as transações

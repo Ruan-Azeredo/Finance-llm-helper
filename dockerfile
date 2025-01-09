@@ -21,6 +21,13 @@ WORKDIR /app/src
 # Exponha a porta que o FastAPI usará
 EXPOSE 8000
 
+# Cria um script de inicialização para rodar o `verifyDbConnection.py` antes do servidor
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Usa o script de inicialização como ponto de entrada
+ENTRYPOINT ["/start.sh"]
+
 # Comando para iniciar o servidor FastAPI
 CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
 

@@ -1,3 +1,0 @@
-from database.migrations.create_users_table import create_users_table
-
-create_users_table()

@@ -5,21 +5,7 @@ O projeto Finance LLM Helper é um sistema de limpeza de dados de extratos banc�
 ## Instalação
 Siga os passos abaixo para configurar e executar o projeto corretamente:
 
-1. **Crie um ambiente virtual** (recomendado):
-
-- No Windows:
-```bash
-python -m venv venv
-.\venv\Scripts\activate
-```
-
-- No Linux/macOS:
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-2. .Env
+1. .Env
 Crie um arquivo .env e adicione as seguintes variáveis:
 > Utilize .env.example, no entanto é muiito importante lembrar de adicionar a chave de API da GROQ
 
@@ -31,9 +17,9 @@ JWT_REFRESH_TOKEN_SECRET=
 JWT_ALGORITHM=
 ```
 
-3. **Inicie o Projeto**:
+2. **Inicie o Projeto**:
 
-3.1 **Docker**
+2.1 **Docker**
 
 Execute a imagem da aplicação e a do banco de dados atavez do docker compose:
 
@@ -49,7 +35,24 @@ A aplicação está pronta!
 docker-compose up db -d
 ```
 
-3.2 **Makefile**
+2.2 **Makefile**
+
+### venv (recomendado)
+É recomendado utilizar um ambiente virtual
+
+- No Windows:
+```bash
+python -m venv venv
+.\venv\Scripts\activate
+```
+
+- No Linux/macOS:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### Rodar app
 
 Este comando abaixo vai:
 - Instalar as dependencias
@@ -75,5 +78,5 @@ pip freeze > requirements.txt
 O comando `pytest` executa todos os testes do projeto. Incluindo testes que batem na API do LLM que podem ser demorados e dependem de dependecias externas.
 Para executar os testes excluindo os que são 'llm', execute:
 ```bash
-    make test
+make test
 ```

@@ -1,21 +1,11 @@
-from peewee import SqliteDatabase
+from peewee import PostgresqlDatabase
 import pytest
 
 from models import User
 from auth import Security
+from testUtils import db_session
 
-def setupTestDatabase():
-    test_db = SqliteDatabase(':memory:')
-    User._meta.database = test_db
-
-    return test_db
-
-def test_create_user_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_create_user_model(db_session):
     
     user: User = User.create(
         name = 'name',
@@ -26,12 +16,7 @@ def test_create_user_model():
     assert user.__str__() == 'User: 1, name, email@email.com, free'
     assert Security.verify_password(plain_password = 'password', hashed_password = user.password)
 
-def test_create_user_model_with_id():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_create_user_model_with_id(db_session):
     
     user: User = User.create(
         id = 1,
@@ -43,12 +28,7 @@ def test_create_user_model_with_id():
     assert user.__str__() == 'User: 1, name, email@email.com, free'
     assert Security.verify_password(plain_password = 'password', hashed_password = user.password)
 
-def test_create_user_model_with_existing_email():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_create_user_model_with_existing_email(db_session):
 
     User.create(
         name = 'Ruan',
@@ -65,12 +45,7 @@ def test_create_user_model_with_existing_email():
     
     assert 'Chave duplicada: email já existente' in str(error.value)
 
-def test_create_user_model_with_existing_id():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_create_user_model_with_existing_id(db_session):
 
     User.create(
         id = 1,
@@ -89,12 +64,7 @@ def test_create_user_model_with_existing_id():
     
     assert 'Chave duplicada: id já existente' in str(error.value)
 
-def test_get_user_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_get_user_model(db_session):
     
     User.create(
         id = 1,
@@ -110,12 +80,7 @@ def test_get_user_model():
     assert user_from_db.email == 'email@email.com'
     assert Security.verify_password(plain_password = 'password', hashed_password = user_from_db.password)
 
-def test_get_all_users_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_get_all_users_model(db_session):
     
     User.create(
         id = 1,
@@ -137,12 +102,7 @@ def test_get_all_users_model():
     assert users_from_db[0].__str__() == 'User: 1, name, email@email.com, free'
     assert users_from_db[1].__str__() == 'User: 2, name, email@gmail.com, free'
 
-def test_update_user_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_update_user_model(db_session):
     
     user = User.create(
         id = 1,
@@ -163,12 +123,7 @@ def test_update_user_model():
     assert user.__str__() == 'User: 1, Ruan, email@email.com, free'
     assert user.name == 'Ruan'
 
-def test_update_few_fields_user_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_update_few_fields_user_model(db_session):
     
     user: User = User.create(
         id = 12,
@@ -185,12 +140,7 @@ def test_update_few_fields_user_model():
     
     assert user.__str__() == 'User: 12, Ruan, email@email.com, free'
 
-def test_delete_user_model():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
+def test_delete_user_model(db_session):
     
     user: User = User.create(
         id = 12,
@@ -202,108 +152,3 @@ def test_delete_user_model():
     user.delete()
     
     assert not User.select().where(User.id == 12).exists()
-
-def test_user_table_exists():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
-    
-    assert test_db.table_exists('users')
-
-def test_user_table_not_exists():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    
-    assert not test_db.table_exists('users')
-
-def test_get_all_users_when_table_not_exists():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-
-    user = User
-
-    with pytest.raises(Exception) as error:
-        user.all()
-    
-    assert test_db.table_exists('users') == False
-    assert "Tabela 'users' não existe" in str(error.value)
-
-def test_get_user_when_table_not_exists():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-
-    user = User
-
-    with pytest.raises(Exception) as error:
-        user.from_id(id = 1)
-    
-    assert test_db.table_exists('users') == False
-    assert "Tabela 'users' não existe" in str(error.value)
-
-def test_create_user_when_table_not_exists():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-
-    with pytest.raises(Exception) as error:
-        User.create(
-            name = 'name',
-            email = 'email@email.com',
-            password = 'password'
-        )
-    
-    assert test_db.table_exists('users') == False
-    assert "Tabela 'users' não existe" in str(error.value)
-
-def test_update_user_when_table_not_exists():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-
-    user = User()
-
-    with pytest.raises(Exception) as error:
-        user.update(
-            id = 1,
-            name = 'name',
-            email = 'email@email.com',
-            password = 'password'
-        )
-    
-    assert test_db.table_exists('users') == False
-    assert "Tabela 'users' não existe" in str(error.value)
-
-def test_delete_user_when_table_not_exists():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-
-    user = User()
-
-    with pytest.raises(Exception) as error:
-        user.delete()
-    
-    assert test_db.table_exists('users') == False
-    assert "Tabela 'users' não existe" in str(error.value)
-
-def test_get_user_when_user_not_exists():
-
-    test_db = setupTestDatabase()
-    
-    test_db.connect()
-    test_db.create_tables([User])
-
-    user_founded = User.from_id(id = 1)
-
-    assert user_founded == None

@@ -1,24 +1,7 @@
-from peewee import PostgresqlDatabase, IntegrityError, SqliteDatabase
 import pytest
-from pytest_postgresql import factories
-from pytest_postgresql.janitor import DatabaseJanitor
-import logging
 
 from models import Transaction, User
-from utils import db_session
-#from database import db
-
-""" logging.basicConfig()
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG) """
-
-#test_db = factories.postgresql_proc(port=None, dbname="test_db")
-pg_user = "test"
-pg_host = "localhost"
-pg_port = 5432
-pg_db = "t"
-pg_password = "postgres"
-
+from testUtils import db_session
 
 def test_create_transaction_model(db_session):
 

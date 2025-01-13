@@ -75,8 +75,8 @@ pip freeze > requirements.txt
 ```
 
 ## Testes
-O comando `pytest` executa todos os testes do projeto. Incluindo testes que batem na API do LLM que podem ser demorados e dependem de dependecias externas.
-Para executar os testes excluindo os que são 'llm', execute:
+O comando `pytest` executa todos os testes do projeto. Incluindo testes que batem na API do LLM ou no DB postgres que podem ser demorados e dependem de dependecias externas.
+Para executar os testes excluindo os que são 'llm' e 'db', execute:
 ```bash
 make test
 ```

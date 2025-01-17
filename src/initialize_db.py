@@ -1,5 +1,5 @@
 from peewee import Model
-from playhouse.migrate import SqliteMigrator, migrate
+from playhouse.migrate import PostgresqlDatabase, migrate
 from playhouse.reflection import Introspector
 from pathlib import Path
 from typing import Any
@@ -7,21 +7,31 @@ from typing import Any
 from models import models
 from database import db
 
+migrator = PostgresqlDatabase(db)
+
 def initialize_db() -> None:
 
-    if not Path('database.db').exists():
+    try:
         db.connect()
-        db.create_tables(models)
+        print("Conexão com o banco de dados bem-sucedida!")
 
-        print('Banco de dados criado com sucesso!')
-    else:
-        db.connect()
-        
-        if db.is_connection_usable():
-            print('Banco de dados ja existe!')
+        for model in models:
+            if not db.table_exists(model._meta.table_name):
+                print(f"Criando tabelas para o modelo: {model.__name__}")
+                db.create_tables([model])
+            else:
+                print(f"Tabela do modelo {model.__name__} já existe. Checkando atualizações...")
+                update_database(model)
 
-            for model in models:
-                update_database(model = model)
+        print("Setup do banco de dados concluído com sucesso!")
+
+    except Exception as e:
+        print(f"Erro ao conectar ao banco ou na geração/atualização de tabelas: {e}")
+
+    finally:
+        if not db.is_closed():
+            db.close()
+            print("Conexão com o banco de dados terminada.")
 
 def _handle_table_model(model: Model) -> tuple[str, dict[str, Any]]:
 
@@ -62,7 +72,7 @@ def _verify_table_missing_columns(model_columns: dict[str, Any], table_columns: 
             if make_change:
                 try:
                     migrate(
-                        SqliteMigrator(db).drop_column(table_name, column_name, table_columns[column_name])
+                        migrator.drop_column(table_name, column_name, table_columns[column_name])
                     )
                     print('Operaçao concluida com sucesso')
                 except Exception as e:
@@ -77,13 +87,13 @@ def _verify_table_leftover_columns(model_columns: dict[str, Any], table_columns:
             if make_change:
                 try:
                     migrate(
-                        SqliteMigrator(db).add_column(table_name, column_name, model_columns[column_name])
+                        migrator.add_column(table_name, column_name, model_columns[column_name])
                     )
                     print('Operaçao concluida com sucesso')
                 except Exception as e:
                     print(f"Erro ao adicionar campo da tabela: {e}")
 
-def _verify_fields_type_and_attributes(model_columns: dict[str, Any], table_columns: dict[str, Any]) -> None:
+def _verify_fields_type_and_attributes(model_columns: dict[str, Any], table_columns: dict[str, Any], table_name: str) -> None:
     for column_name in table_columns:
         if column_name in model_columns:
             table_field = table_columns[column_name]
@@ -127,7 +137,7 @@ def update_database(model: Model) -> None:
         
         _verify_table_leftover_columns(model_columns, table_columns, table_name)
 
-        _verify_fields_type_and_attributes(model_columns, table_columns)
+        _verify_fields_type_and_attributes(model_columns, table_columns, table_name)
 
         print("\nComparação concluída.")
     except Exception as e:

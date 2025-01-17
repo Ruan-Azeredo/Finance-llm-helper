@@ -5,7 +5,7 @@ test:
 	@cd src && pytest -m "not llm and not db"
 
 init_db:
-	@cd src && python initialize_db.py
+	@cd src && POSTGRES_HOST=localhost python initialize_db.py
 
 start:
 	@cd src && POSTGRES_HOST=localhost uvicorn server:app --host 0.0.0.0 --port 8000

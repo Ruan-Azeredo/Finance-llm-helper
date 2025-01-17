@@ -12,9 +12,6 @@ RUN pip install -r requirements.txt
 # Copia o restante do código para o container
 COPY . .
 
-# Roda o script de inicialização do banco de dados
-RUN python src/initialize_db.py
-
 # Define o diretório de trabalho para o código da aplicação
 WORKDIR /app/src
 

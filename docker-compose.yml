@@ -7,7 +7,7 @@ services:
     depends_on:
       - db
   db:
-    image: postgres:9.6
+    image: postgres:13
     ports:
       - "5432:5432"
     environment:
@@ -17,6 +17,17 @@ services:
       POSTGRES_HOST: "db"
     volumes:
       - db_data:/var/lib/postgresql/data
+
+  migrations:
+    build: .
+    command: python initialize_db.py
+    depends_on:
+      - db
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres"
+      POSTGRES_HOST: "db" 
 
 volumes:
   db_data:

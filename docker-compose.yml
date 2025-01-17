@@ -17,17 +17,11 @@ services:
       POSTGRES_HOST: "db"
     volumes:
       - db_data:/var/lib/postgresql/data
-
-  migrations:
+  match-schemas:
     build: .
     command: python initialize_db.py
     depends_on:
       - db
-    environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: "postgres"
-      POSTGRES_HOST: "db" 
 
 volumes:
   db_data:

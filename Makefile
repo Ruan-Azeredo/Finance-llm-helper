@@ -11,7 +11,7 @@ start:
 	@cd src && POSTGRES_HOST=localhost uvicorn server:app --host 0.0.0.0 --port 8000
 
 devstart:
-	@cd src && POSTGRES_HOST=localhost uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+	@set POSTGRES_HOST=localhost && cd src && uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 
 migrate:
 	@cd src && PYTHONPATH=./ python database/migrations/$(file).py

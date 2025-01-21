@@ -5,9 +5,14 @@ O projeto Finance LLM Helper é um sistema de limpeza de dados de extratos banc�
 ## Instalação
 Siga os passos abaixo para configurar e executar o projeto corretamente:
 
+### Dependencias para o projeto
+- Python
+- Docker
+- Make
+
 1. .Env
 Crie um arquivo .env e adicione as seguintes variáveis:
-> Utilize .env.example, no entanto é muiito importante lembrar de adicionar a chave de API da GROQ
+> Utilize .env.example, no entanto é muito importante lembrar de adicionar a chave de API da GROQ
 
 ```bash
 GROQ_API_KEY=YOUR_API_KEY

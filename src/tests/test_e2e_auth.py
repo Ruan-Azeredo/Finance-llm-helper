@@ -50,7 +50,7 @@ async def test_access_to_protected_route():
     assert resp["access_token"]["token_type"] == "bearer"
 
 
-    response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {resp['access_token']["token"]}"})
+    response = client.get('/user/protected-route', headers={"Authorization": f"Bearer {resp['access_token']['token']}"})
 
     print('resp.json', response.json())
     assert response.status_code == 200

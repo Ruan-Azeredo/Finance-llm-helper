@@ -78,7 +78,7 @@ async def test_update_transaction_e2e_as_free(authenticated_client: TestClient, 
         "amount": "32,34"
     }
 
-    update_response = authenticated_client.put(f'/transaction/ops/{response.json()['transaction']['id']}', json = update_transaction_data)
+    update_response = authenticated_client.put(f"/transaction/ops/{response.json()['transaction']['id']}", json = update_transaction_data)
 
     print(response.json())
     assert update_response.status_code == 200

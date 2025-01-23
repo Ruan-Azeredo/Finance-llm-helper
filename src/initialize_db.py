@@ -66,7 +66,7 @@ def _handle_table_model(model: Model) -> tuple[str, dict[str, Any]]:
 def _verify_table_missing_columns(model_columns: dict[str, Any], table_columns: dict[str, Any], table_name: str) -> None:
     for column_name in table_columns:
         if column_name not in model_columns:
-            print(f"Campo '{column_name}' está presente na TABELA, mas ausente no MODELO.")
+            print(f"Campo '{column_name}' está presente na TABELA {table_name}, mas ausente no MODELO.")
 
             make_change: bool = input("Deseja remover este campo da tabela? (S = enter /N = n): ").lower() == ""
             if make_change:
@@ -81,7 +81,7 @@ def _verify_table_missing_columns(model_columns: dict[str, Any], table_columns: 
 def _verify_table_leftover_columns(model_columns: dict[str, Any], table_columns: dict[str, Any], table_name: str) -> None:
     for column_name in model_columns:
         if column_name not in table_columns:
-            print(f"Campo '{column_name}' está presente no MODELO, mas ausente na TABELA.")
+            print(f"Campo '{column_name}' está presente no MODELO, mas ausente na TABELA {table_name}.")
 
             make_change: bool = input("Deseja adicionar este campo a tabela? (S = enter /N = n): ").lower() == ""
             if make_change:
@@ -107,8 +107,8 @@ def _verify_fields_type_and_attributes(model_columns: dict[str, Any], table_colu
 
             rows_atributes = [
                 'null',
-                #'unique', # O SQLite nao suporta este atrbuto na tabela, como o modelo garante o correto funcionamento nao é preciso se preocupar.
-                #'default', # O SQLite nao suporta este atrbuto na tabela, como o modelo garante o correto funcionamento nao é preciso se preocupar.
+                'unique',
+                'default',
                 'primary_key'
             ]
 

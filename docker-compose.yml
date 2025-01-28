@@ -17,9 +17,10 @@ services:
       POSTGRES_HOST: "db"
     volumes:
       - db_data:/var/lib/postgresql/data
-  match-schemas:
+  migrate:
     build: .
-    command: python initialize_db.py
+    command: >
+      sh -c "cd /app/src && pw-migrate migrate --database postgresql://postgres:postgres@db:5432/postgres"
     depends_on:
       - db
 

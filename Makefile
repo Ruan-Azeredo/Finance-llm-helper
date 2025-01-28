@@ -33,13 +33,14 @@ else
 	@set POSTGRES_HOST=localhost && cd src && uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 endif
 
-migrate:
+# make script file=script_name
+script:
 ifeq ($(OS), Linux)
-	@cd src && POSTGRES_HOST=localhost PYTHONPATH=./ python database/migrations/$(file).py
+	@cd src && POSTGRES_HOST=localhost PYTHONPATH=./ python scripts/$(file).py
 else ifeq ($(OS), Darwin)
-	@cd src && POSTGRES_HOST=localhost PYTHONPATH=./ python database/migrations/$(file).py
+	@cd src && POSTGRES_HOST=localhost PYTHONPATH=./ python scripts/$(file).py
 else
-	@set POSTGRES_HOST=localhost && cd src && set PYTHONPATH=./ && python database/migrations/$(file).py
+	@set POSTGRES_HOST=localhost && cd src && set PYTHONPATH=./ && python scripts/$(file).py
 endif
 
 

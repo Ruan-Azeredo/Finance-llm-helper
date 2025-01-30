@@ -1,4 +1,4 @@
-from peewee import CharField, DateTimeField, ForeignKeyField, DoesNotExist, FloatField
+from peewee import CharField, DateTimeField, ForeignKeyField, DoesNotExist, FloatField, IntegerField
 from datetime import datetime
 import uuid
 
@@ -6,13 +6,13 @@ from .BaseModel import BaseModel
 from models import User
 from database import db
 from .handles import handle_values, handle_database_error
-from utils import is_valid_amount_format, is_valid_type_format
+from utils import formatAmountToFloat, validate_transaction_input
 
 class Transaction(BaseModel):
     id = CharField(unique = True, primary_key = True)
     date = CharField()
     direction = CharField(default = "expense")
-    amount = CharField()
+    amount = FloatField()
     memo = CharField()
     user_id = ForeignKeyField(User, field='id', backref='transactions', on_delete='CASCADE')
     tag = CharField(default = None, null = True)
@@ -29,6 +29,8 @@ class Transaction(BaseModel):
     @handle_database_error
     def create(user_id: int, **kwargs) -> 'Transaction':
 
+        validate_transaction_input(kwargs)
+
         try:
             User.get_by_id(user_id) 
         except Exception:
@@ -42,11 +44,8 @@ class Transaction(BaseModel):
         values = handle_values(kwargs)
         values['user_id'] = user_id
 
-        if 'direction' in values and is_valid_type_format(values['direction']) is False:
-            raise Exception(f'Formato de direction está incorreto, direction deve ser "expense" ou "income". O direction recebido foi: {values["direction"]}')
-        
-        if 'amount' in values and is_valid_amount_format(values['amount']) is False:
-            raise Exception(f'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: {values["amount"]}')
+        if 'amount' in values:
+            values['amount'] = formatAmountToFloat(values['amount'])
 
         created_transaction = super(Transaction, Transaction).create(**values)
 
@@ -55,10 +54,15 @@ class Transaction(BaseModel):
     @handle_database_error
     def update(self, **kwargs) -> None:
 
+        validate_transaction_input(kwargs)
+
         if 'user_id' in kwargs:
             raise Exception("O campo 'user_id' não pode ser alterado")
 
         values = handle_values(kwargs)
+
+        if 'amount' in values:
+            values['amount'] = formatAmountToFloat(values['amount'])
 
         super(Transaction, self).update(**values)
 

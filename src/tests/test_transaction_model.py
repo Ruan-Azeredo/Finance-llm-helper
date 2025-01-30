@@ -20,7 +20,7 @@ def test_create_transaction_model(db_session):
     
     assert transaction.id != None
     assert transaction.date == 'date'
-    assert transaction.amount == '12,34'
+    assert transaction.amount == 12.34
     assert transaction.memo == 'password'
 
     # transaction.user_id automatically get the User, to get just the id, use transaction.user_id_id
@@ -63,7 +63,7 @@ def test_update_transaction_model(db_session):
     updaded_transaction: Transaction = Transaction.from_id(transaction.id)
 
     assert updaded_transaction.tag == 'tag'
-    assert updaded_transaction.amount == '22,55'
+    assert updaded_transaction.amount == 22.55
     assert updaded_transaction.user_id_id == user.id
     assert updaded_transaction.date == 'date'
     assert updaded_transaction.memo == 'password'
@@ -89,7 +89,7 @@ def test_update_transaction_model_with_wrong_type_properties_null(db_session):
             amount = 'null'
         )
 
-    assert "O campo obrigatório 'transactions.amount' está ausente ou é nulo" in str(error.value)
+    assert 'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: null' in str(error.value)
 
 def test_update_transaction_model_with_right_type_properties_null(db_session):
 
@@ -134,7 +134,7 @@ def test_get_transactions_by_user_id_transaction_model(db_session):
 
     assert len(transactions) == 1
 
-    assert transactions[0].amount == '12,34'
+    assert transactions[0].amount == 12.34
     assert transactions[0].date == 'date'
     assert transactions[0].memo == 'password'
     assert transactions[0].user_id_id == user.id
@@ -161,17 +161,17 @@ def test_get_transactions_by_user_id_transaction_model(db_session):
         assert transaction.user_id_id == user.id
         assert isinstance(transaction, Transaction)
 
-    assert transactions[0].amount == '12,34'
+    assert transactions[0].amount == 12.34
     assert transactions[0].date == 'date'
     assert transactions[0].memo == 'password'
     assert transactions[0].user_id_id == user.id
 
-    assert transactions[1].amount == '44,22'
+    assert transactions[1].amount == 44.22
     assert transactions[1].date == 'uwu'
     assert transactions[1].memo == 'memo'
     assert transactions[1].user_id_id == user.id
 
-    assert transactions[2].amount == '25,87'
+    assert transactions[2].amount == 25.87
     assert transactions[2].date == 'hihi'
     assert transactions[2].memo == 'xixixi'
     assert transactions[2].user_id_id == user.id

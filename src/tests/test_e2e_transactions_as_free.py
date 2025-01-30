@@ -37,7 +37,7 @@ async def test_create_transaction_e2e_as_free(authenticated_client: TestClient, 
     assert response.status_code == 201
     assert response.json()['message'] == "Transação criada"
     assert response.json()['transaction']['user_id'] == user.id
-    assert response.json()['transaction']['amount'] == "12,34"
+    assert response.json()['transaction']['amount'] == 12.34
     assert response.json()['transaction']['date'] == "date"
     assert response.json()['transaction']['memo'] == "memo"
 
@@ -70,7 +70,7 @@ async def test_update_transaction_e2e_as_free(authenticated_client: TestClient, 
     assert response.status_code == 201
     assert response.json()['message'] == "Transação criada"
     assert response.json()['transaction']['user_id'] == user.id
-    assert response.json()['transaction']['amount'] == "12,34"
+    assert response.json()['transaction']['amount'] == 12.34
     assert response.json()['transaction']['date'] == "date"
     assert response.json()['transaction']['memo'] == "memo"
 
@@ -84,7 +84,7 @@ async def test_update_transaction_e2e_as_free(authenticated_client: TestClient, 
     assert update_response.status_code == 200
     assert update_response.json()['message'] == "Transação atualizada"
     assert update_response.json()['transaction']['user_id'] == user.id
-    assert update_response.json()['transaction']['amount'] == "32,34"
+    assert update_response.json()['transaction']['amount'] == 32.34
     assert update_response.json()['transaction']['date'] == "date"
     assert update_response.json()['transaction']['memo'] == "memo"
 
@@ -107,7 +107,7 @@ async def test_delete_transaction_e2e_as_free(authenticated_client: TestClient, 
     assert response.status_code == 201
     assert response.json()['message'] == "Transação criada"
     assert response.json()['transaction']['user_id'] == user.id
-    assert response.json()['transaction']['amount'] == "12,34"
+    assert response.json()['transaction']['amount'] == 12.34
     assert response.json()['transaction']['date'] == "date"
     assert response.json()['transaction']['memo'] == "memo"
 

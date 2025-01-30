@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from models import Transaction
 from schemas import TransactionCRUDInput
-from .utils.router_dependencies import *
+from .utilsController import *
 
 transaction_router = APIRouter()
 

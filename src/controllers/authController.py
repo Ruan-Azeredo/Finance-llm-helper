@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Request, status, Depends
 from auth import Security
 from models import User
 from schemas import LoginInput
-from .utils.router_dependencies import verify_only_self_access_user
+from .utilsController import *
 
 auth_router = APIRouter()
 

@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from services import dataProcessingService
 from services import categorizeTransactionService
 from useCases import generateReport
-from .utils.router_dependencies import verify_only_self_access_user
+from .utilsController import *
 
 catTransact_router = APIRouter()
 

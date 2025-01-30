@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from models import User
 from schemas import UserCRUDInput
-from .utils.router_dependencies import verify_only_self_access_user, verify_admin_access_user
+from .utilsController import *
 
 user_router = APIRouter()
 

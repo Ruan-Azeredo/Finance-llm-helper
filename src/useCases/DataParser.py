@@ -1,5 +1,5 @@
 from pTypes import Transaction, FileTransaction
-from utils import formatDate, formatAmount
+from utils import formatDate, formatAmountToString
 
 def parsedDataToTransaction(file_transaction: FileTransaction) -> Transaction:
 
@@ -18,4 +18,4 @@ def parsedDataToTransaction(file_transaction: FileTransaction) -> Transaction:
 
 def formatDescriptionTransaction(file_transaction: FileTransaction) -> str:
 
-    return formatDate(file_transaction["date"]) + ' | ' + file_transaction["memo"] + ' | ' + formatAmount(file_transaction["amount"])
+    return formatDate(file_transaction["date"]) + ' | ' + file_transaction["memo"] + ' | R$ ' + formatAmountToString(file_transaction["amount"])

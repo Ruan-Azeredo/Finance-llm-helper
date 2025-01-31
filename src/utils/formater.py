@@ -3,9 +3,6 @@ from datetime import datetime
 def formatAmountToString(amount: float) -> str:
     return f"{abs(amount):.2f}".replace('.', ',')
 
-def formatAmountToFloat(amount: str) -> float:
-    return float(amount.replace(',', '.'))
-
 def formatDate(date: str) -> str:
     if date is None:
         return ''
@@ -26,4 +23,4 @@ def formatDate(date: str) -> str:
 def formatHaderKey(row: dict) -> dict:
     clear_row = {key.replace('\n', ''): value for key, value in row.items()}
     return clear_row
-    
+

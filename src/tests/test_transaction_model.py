@@ -14,12 +14,12 @@ def test_create_transaction_model(db_session):
     transaction: Transaction = Transaction.create(
         user_id = user.id,
         amount = '12,34',
-        date = 'date',
+        date = '12/12/2024',
         memo = 'password'
     )
     
     assert transaction.id != None
-    assert transaction.date == 'date'
+    assert transaction.date == 1733972400
     assert transaction.amount == 12.34
     assert transaction.memo == 'password'
 
@@ -34,7 +34,7 @@ def test_create_transaction_model_with_nonexistent_user(db_session):
         Transaction.create(
             user_id = 1,
             amount = '12,34',
-            date = '2024-12-09',
+            date = '12/12/2024',
             memo = 'Test memo'
         )
 
@@ -51,7 +51,7 @@ def test_update_transaction_model(db_session):
     transaction: Transaction = Transaction.create(
         user_id = user.id,
         amount = '12,34',
-        date = 'date',
+        date = '12/12/2024',
         memo = 'password'
     )
 
@@ -65,7 +65,7 @@ def test_update_transaction_model(db_session):
     assert updaded_transaction.tag == 'tag'
     assert updaded_transaction.amount == 22.55
     assert updaded_transaction.user_id_id == user.id
-    assert updaded_transaction.date == 'date'
+    assert updaded_transaction.date == 1733972400
     assert updaded_transaction.memo == 'password'
 
 def test_update_transaction_model_with_wrong_type_properties_null(db_session):
@@ -79,7 +79,7 @@ def test_update_transaction_model_with_wrong_type_properties_null(db_session):
     transaction: Transaction = Transaction.create(
         user_id = user.id,
         amount = '12,34',
-        date = 'date',
+        date = '12/12/2024',
         memo = 'password',
         tag = 'tag'
     )
@@ -102,7 +102,7 @@ def test_update_transaction_model_with_right_type_properties_null(db_session):
     transaction: Transaction = Transaction.create(
         user_id = user.id,
         amount = '12,34',
-        date = 'date',
+        date = '12/12/2024',
         memo = 'password',
         tag = 'tag'
     )
@@ -126,7 +126,7 @@ def test_get_transactions_by_user_id_transaction_model(db_session):
     Transaction.create(
         user_id = user.id,
         amount = '12,34',
-        date = 'date',
+        date = '12/12/2024',
         memo = 'password'
     )
 
@@ -135,21 +135,21 @@ def test_get_transactions_by_user_id_transaction_model(db_session):
     assert len(transactions) == 1
 
     assert transactions[0].amount == 12.34
-    assert transactions[0].date == 'date'
+    assert transactions[0].date == 1733972400
     assert transactions[0].memo == 'password'
     assert transactions[0].user_id_id == user.id
 
     Transaction.create(
         user_id = user.id,
         amount = '44,22',
-        date = 'uwu',
+        date = '12/12/2024',
         memo = 'memo'
     )
 
     Transaction.create(
         user_id = user.id,
         amount = '25,87',
-        date = 'hihi',
+        date = '12/12/2024',
         memo = 'xixixi'
     )
 
@@ -162,17 +162,17 @@ def test_get_transactions_by_user_id_transaction_model(db_session):
         assert isinstance(transaction, Transaction)
 
     assert transactions[0].amount == 12.34
-    assert transactions[0].date == 'date'
+    assert transactions[0].date == 1733972400
     assert transactions[0].memo == 'password'
     assert transactions[0].user_id_id == user.id
 
     assert transactions[1].amount == 44.22
-    assert transactions[1].date == 'uwu'
+    assert transactions[1].date == 1733972400
     assert transactions[1].memo == 'memo'
     assert transactions[1].user_id_id == user.id
 
     assert transactions[2].amount == 25.87
-    assert transactions[2].date == 'hihi'
+    assert transactions[2].date == 1733972400
     assert transactions[2].memo == 'xixixi'
     assert transactions[2].user_id_id == user.id
 
@@ -194,7 +194,7 @@ def test_update_tag_transaction_model(db_session):
     transaction: Transaction = Transaction.create(
         user_id = user.id,
         amount = '12,34',
-        date = 'date',
+        date = '12/12/2024',
         memo = 'memo'
     )
 
@@ -216,7 +216,7 @@ def test_create_transaction_with_wrong_amount_format(db_session):
         Transaction.create(
             user_id = user.id,
             amount = '12.34',
-            date = 'date',
+            date = '12/12/2024',
             memo = 'memo'
         )
 
@@ -226,7 +226,7 @@ def test_create_transaction_with_wrong_amount_format(db_session):
         Transaction.create(
             user_id = user.id,
             amount = '12,3',
-            date = 'date',
+            date = '12/12/2024',
             memo = 'memo'
         )
     
@@ -236,7 +236,7 @@ def test_create_transaction_with_wrong_amount_format(db_session):
         Transaction.create(
             user_id = user.id,
             amount = '-12,35',
-            date = 'date',
+            date = '12/12/2024',
             memo = 'memo'
         )
 
@@ -254,7 +254,7 @@ def test_create_transaction_with_wrong_direction_format(db_session):
         Transaction.create(
             user_id = user.id,
             amount = '12,34',
-            date = 'date',
+            date = '12/12/2024',
             memo = 'memo',
             direction = 'wrong'
         )
@@ -265,7 +265,7 @@ def test_create_transaction_with_wrong_direction_format(db_session):
         Transaction.create(
             user_id = user.id,
             amount = '12,34',
-            date = 'date',
+            date = '12/12/2024',
             memo = 'memo',
             direction = 12
         )

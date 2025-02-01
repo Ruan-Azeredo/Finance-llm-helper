@@ -60,8 +60,8 @@ class Transaction(BaseModel):
 
     def formatTransactionToClient(self) -> 'Transaction':
         formatedTrasaction = deepcopy(self)
-        formatedTrasaction.amount = self.formatAmountToString(formatedTrasaction.amount)
-        formatedTrasaction.date = self.formatTimestampToDateStr(formatedTrasaction.date)
+        formatedTrasaction.amount = Transaction.formatAmountToString(formatedTrasaction.amount)
+        formatedTrasaction.date = Transaction.formatTimestampToDateStr(formatedTrasaction.date)
 
         return formatedTrasaction
 

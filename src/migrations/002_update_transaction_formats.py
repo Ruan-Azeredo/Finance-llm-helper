@@ -37,11 +37,17 @@ with suppress(ImportError):
 def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your migrations here."""
     
-    migrator.change_fields('transactions', amount=pw.FloatField())
+    migrator.change_fields('transactions',
+                           amount=pw.FloatField(),
+                           date=pw.IntegerField()
+                           )
 
 
 def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your rollback migrations here."""
 
-    migrator.change_fields('transactions', amount=pw.CharField(max_length=255))
+    migrator.change_fields('transactions',
+                           amount=pw.CharField(max_length=255),
+                           date=pw.CharField(max_length=255)
+                           )
     

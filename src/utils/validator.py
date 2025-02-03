@@ -21,11 +21,11 @@ def is_valid_date_format(date: str) -> bool:
     return bool(re.match(r'^\d{1,2}/\d{1,2}/\d{4}$', date))
 
 def validate_transaction_input(transaction: dict):
-    if 'direction' in transaction and is_valid_direction_format(transaction['direction']) is False:
-            raise Exception(f'Formato de direction está incorreto, direction deve ser "expense" ou "income". O direction recebido foi: {transaction["direction"]}')
+    if 'direction' in transaction and transaction['direction'] != None and is_valid_direction_format(transaction['direction']) is False:
+        raise Exception(f'Formato de direction está incorreto, direction deve ser "expense" ou "income". O direction recebido foi: {transaction["direction"]}')
     
-    if 'amount' in transaction and is_valid_amount_input_format(transaction['amount']) is False:
-            raise Exception(f'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: {transaction["amount"]}')
+    if 'amount' in transaction and transaction['amount'] != None and is_valid_amount_input_format(transaction['amount']) is False:
+        raise Exception(f'Formato de amount está incorreto, o formato correto é "9999,99". O formato recebido foi: {transaction["amount"]}')
     
-    if 'date' in transaction and is_valid_date_format(transaction['date']) is False:
-            raise Exception(f'Formato de data inválido. Use dd/mm/aaaa. O formato recebido foi: {transaction["date"]}')
+    if 'date' in transaction and transaction['date'] != None and is_valid_date_format(transaction['date']) is False:
+        raise Exception(f'Formato de data inválido. Use dd/mm/aaaa. O formato recebido foi: {transaction["date"]}')

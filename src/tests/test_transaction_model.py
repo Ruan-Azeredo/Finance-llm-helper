@@ -271,3 +271,23 @@ def test_create_transaction_with_wrong_direction_format(db_session):
         )
 
     assert 'Formato de direction está incorreto, direction deve ser "expense" ou "income". O direction recebido foi: 12' in str(other_error.value)
+
+def test_create_transaction_with_wrong_date_format(db_session):
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    with pytest.raises(Exception) as error:
+        Transaction.create(
+            user_id = user.id,
+            amount = '12,34',
+            date = '12/12/24',
+            memo = 'memo',
+            direction = 'income'
+        )
+
+    print(error.value)
+    assert 'Formato de data inválido. Use dd/mm/aaaa. O formato recebido foi: 12/12/24' in str(error.value)

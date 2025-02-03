@@ -27,16 +27,19 @@ class Transaction(BaseModel):
     def __str__(self):
         return f'Transaction: {self.id}, {self.date}, {self.amount}, {self.memo}, {self.tag}, {self.user_id}'
     
-    def formatedAmount(amount: float) -> str:
-        return formatAmountToString(amount)
+    def formatedAmount(self) -> str:
+        formatedTrasaction = deepcopy(self)
+        print(formatedTrasaction)
+        return formatAmountToString(formatedTrasaction.amount)
     
-    def formatedDate(timestamp: int) -> str:
-        return formatTimestampToDateStr(timestamp)
+    def formatedDate(self) -> str:
+        formatedTrasaction = deepcopy(self)
+        return formatTimestampToDateStr(formatedTrasaction.date)
 
     def formatedTransactionToClient(self) -> 'Transaction':
         formatedTrasaction = deepcopy(self)
-        formatedTrasaction.amount = Transaction.formatedAmount(formatedTrasaction.amount)
-        formatedTrasaction.date = Transaction.formatedDate(formatedTrasaction.date)
+        formatedTrasaction.amount = formatAmountToString(formatedTrasaction.amount)
+        formatedTrasaction.date = formatTimestampToDateStr(formatedTrasaction.date)
 
         return formatedTrasaction
     

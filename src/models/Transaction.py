@@ -39,6 +39,15 @@ class Transaction(BaseModel):
         formatedTrasaction.date = Transaction.formatedDate(formatedTrasaction.date)
 
         return formatedTrasaction
+    
+    def _prepareFormatsToDb(values: dict) -> dict:
+        if 'amount' in values:
+            values['amount'] = formatAmountToFloat(values['amount'])
+
+        if 'date' in values:
+            values['date'] = formatDateStrToTimestamp(values['date'])
+
+        return values
 
     @handle_database_error
     def create(user_id: int, **kwargs) -> 'Transaction':
@@ -58,11 +67,7 @@ class Transaction(BaseModel):
         values = handle_values(kwargs)
         values['user_id'] = user_id
 
-        if 'amount' in values:
-            values['amount'] = formatAmountToFloat(values['amount'])
-
-        if 'date' in values:
-            values['date'] = formatDateStrToTimestamp(values['date'])
+        values = Transaction._prepareFormatsToDb(values)
 
         created_transaction = super(Transaction, Transaction).create(**values)
 
@@ -78,11 +83,7 @@ class Transaction(BaseModel):
 
         values = handle_values(kwargs)
 
-        if 'amount' in values:
-            values['amount'] = formatAmountToFloat(values['amount'])
-
-        if 'date' in values:
-            values['date'] = formatDateStrToTimestamp(values['date'])
+        values = Transaction._prepareFormatsToDb(values)
 
         super(Transaction, self).update(**values)
 

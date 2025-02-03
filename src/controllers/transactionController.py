@@ -24,7 +24,7 @@ async def get_all_transactions():
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"transactions": [transaction.formatTransactionToClient().to_dict() for transaction in transactions]}
+        content = {"transactions": [transaction.formatedTransactionToClient().to_dict() for transaction in transactions]}
     )
 
 @transaction_router_auth.get("/from-user/{user_id}")
@@ -34,7 +34,7 @@ async def get_transactions_by_user_id(user_id: int):
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"transactions": [transaction.formatTransactionToClient().to_dict() for transaction in transactions]}
+        content = {"transactions": [transaction.formatedTransactionToClient().to_dict() for transaction in transactions]}
     )
 
 @transaction_router_auth.post("/ops/{user_id}")
@@ -45,11 +45,11 @@ async def create_transaction(user_id: int, transaction_input: TransactionCRUDInp
         **transaction_input.to_dict()
     )
 
-    print(transaction.formatTransactionToClient().to_dict())
+    print(transaction.formatedTransactionToClient().to_dict())
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
-        content = {"message": "Transação criada", "transaction": transaction.formatTransactionToClient().to_dict()}
+        content = {"message": "Transação criada", "transaction": transaction.formatedTransactionToClient().to_dict()}
     )
 
 @transaction_router_auth.post("/create-many-transactions/{user_id}")
@@ -84,7 +84,7 @@ async def update_transaction(transaction_id: str, transaction_input: Transaction
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"message": "Transação atualizada", "transaction": updated_transaction.formatTransactionToClient().to_dict()}
+        content = {"message": "Transação atualizada", "transaction": updated_transaction.formatedTransactionToClient().to_dict()}
     )
 
 @transaction_router_auth_by_transaction.delete("/ops/{transaction_id}")

@@ -7,7 +7,7 @@ from .BaseModel import BaseModel
 from models import User
 from database import db
 from .handles import handle_values, handle_database_error
-from utils import validate_transaction_input
+from utils import validate_transaction_input, formatAmountToString, formatTimestampToDateStr, formatDateStrToTimestamp, formatAmountToFloat
 
 class Transaction(BaseModel):
     id = CharField(unique = True, primary_key = True)
@@ -27,41 +27,16 @@ class Transaction(BaseModel):
     def __str__(self):
         return f'Transaction: {self.id}, {self.date}, {self.amount}, {self.memo}, {self.tag}, {self.user_id}'
     
-    def formatAmountToString(amount: float) -> str:
-        return f"{abs(amount):.2f}".replace('.', ',')
-
-    def formatAmountToFloat(amount: str) -> float:
-        return float(amount.replace(',', '.'))
+    def formatedAmount(amount: float) -> str:
+        return formatAmountToString(amount)
     
-    def formatTimestampToDateStr(timestamp: int) -> str:
-        """
-        Converte um timestamp para o formato dd/mm/aaaa.
+    def formatedDate(timestamp: int) -> str:
+        return formatTimestampToDateStr(timestamp)
 
-        :param timestamp: Timestamp em segundos.
-        :return: Data no formato dd/mm/aaaa.
-        """
-        data = datetime.fromtimestamp(timestamp)
-        return data.strftime("%d/%m/%Y")
-
-
-
-    def formatDateStrToTimestamp(data: str) -> int:
-        """
-        Converte uma data no formato dd/mm/aaaa para timestamp.
-
-        :param data: Data no formato dd/mm/aaaa.
-        :return: Timestamp correspondente em segundos.
-        """
-        try:
-            data_formatada = datetime.strptime(data, "%d/%m/%Y")
-            return int(data_formatada.timestamp())
-        except ValueError:
-            raise ValueError("Formato de data inválido. Use dd/mm/aaaa.")
-
-    def formatTransactionToClient(self) -> 'Transaction':
+    def formatedTransactionToClient(self) -> 'Transaction':
         formatedTrasaction = deepcopy(self)
-        formatedTrasaction.amount = Transaction.formatAmountToString(formatedTrasaction.amount)
-        formatedTrasaction.date = Transaction.formatTimestampToDateStr(formatedTrasaction.date)
+        formatedTrasaction.amount = Transaction.formatedAmount(formatedTrasaction.amount)
+        formatedTrasaction.date = Transaction.formatedDate(formatedTrasaction.date)
 
         return formatedTrasaction
 
@@ -84,10 +59,10 @@ class Transaction(BaseModel):
         values['user_id'] = user_id
 
         if 'amount' in values:
-            values['amount'] = Transaction.formatAmountToFloat(values['amount'])
+            values['amount'] = formatAmountToFloat(values['amount'])
 
         if 'date' in values:
-            values['date'] = Transaction.formatDateStrToTimestamp(values['date'])
+            values['date'] = formatDateStrToTimestamp(values['date'])
 
         created_transaction = super(Transaction, Transaction).create(**values)
 
@@ -104,10 +79,10 @@ class Transaction(BaseModel):
         values = handle_values(kwargs)
 
         if 'amount' in values:
-            values['amount'] = Transaction.formatAmountToFloat(values['amount'])
+            values['amount'] = formatAmountToFloat(values['amount'])
 
         if 'date' in values:
-            values['date'] = Transaction.formatDateStrToTimestamp(values['date'])
+            values['date'] = formatDateStrToTimestamp(values['date'])
 
         super(Transaction, self).update(**values)
 

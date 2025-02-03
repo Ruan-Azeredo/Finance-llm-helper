@@ -291,3 +291,101 @@ def test_create_transaction_with_wrong_date_format(db_session):
 
     print(error.value)
     assert 'Formato de data inválido. Use dd/mm/aaaa. O formato recebido foi: 12/12/24' in str(error.value)
+
+## test formaters ## ------------------------------- ##
+
+def test_format_date(db_session):
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    transaction: Transaction = Transaction.create(
+        user_id = user.id,
+        amount = '12,34',
+        date = '12/12/2024',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    assert transaction.date == 1733972400
+
+def test_format_amount(db_session):
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    transaction: Transaction = Transaction.create(
+        user_id = user.id,
+        amount = '12,34',
+        date = '12/12/2024',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    assert transaction.amount == 12.34
+
+def test_formated_amount(db_session):
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    transaction: Transaction = Transaction.create(
+        user_id = user.id,
+        amount = '12,34',
+        date = '12/12/2024',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    assert transaction.amount == 12.34
+    assert transaction.formatedAmount() == '12,34'
+
+def test_formated_date(db_session):
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    transaction: Transaction = Transaction.create(
+        user_id = user.id,
+        amount = '12,34',
+        date = '12/12/2024',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    assert transaction.date == 1733972400
+    assert transaction.formatedDate() == '12/12/2024'
+    
+def test_formated_transaction_to_client(db_session):
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    transaction: Transaction = Transaction.create(
+        user_id = user.id,
+        amount = '12,34',
+        date = '12/12/2024',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    assert transaction.formatedTransactionToClient().id == transaction.id
+    assert transaction.formatedTransactionToClient().amount == '12,34'
+    assert transaction.formatedTransactionToClient().date == '12/12/2024'
+    assert transaction.formatedTransactionToClient().memo == 'memo'
+    assert transaction.formatedTransactionToClient().direction == 'income'

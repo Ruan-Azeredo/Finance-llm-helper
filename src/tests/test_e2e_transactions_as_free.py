@@ -29,7 +29,8 @@ async def test_create_transaction_e2e_as_free(authenticated_client: TestClient, 
     transaction_data = {
         "amount": "12,34",
         "date": "12/03/2024",
-        "memo": "memo"
+        "memo": "memo",
+        "direction": "expense"
     }
 
     response = authenticated_client.post(f'/transaction/ops/{user.id}', json = transaction_data)
@@ -42,6 +43,7 @@ async def test_create_transaction_e2e_as_free(authenticated_client: TestClient, 
     assert response.json()['transaction']['amount'] == '12,34'
     assert response.json()['transaction']['date'] == "12/03/2024"
     assert response.json()['transaction']['memo'] == "memo"
+    assert response.json()['transaction']['direction'] == "expense"
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
@@ -64,7 +66,8 @@ async def test_update_transaction_e2e_as_free(authenticated_client: TestClient, 
     transaction_data = {
         "amount": "12,34",
         "date": "12/03/2024",
-        "memo": "memo"
+        "memo": "memo",
+        "direction": "income"
     }
 
     response = authenticated_client.post(f'/transaction/ops/{user.id}', json = transaction_data)
@@ -75,6 +78,7 @@ async def test_update_transaction_e2e_as_free(authenticated_client: TestClient, 
     assert response.json()['transaction']['amount'] == '12,34'
     assert response.json()['transaction']['date'] == "12/03/2024"
     assert response.json()['transaction']['memo'] == "memo"
+    assert response.json()['transaction']['direction'] == "income"
 
     update_transaction_data = {
         "amount": "32,34"
@@ -82,13 +86,14 @@ async def test_update_transaction_e2e_as_free(authenticated_client: TestClient, 
 
     update_response = authenticated_client.put(f"/transaction/ops/{response.json()['transaction']['id']}", json = update_transaction_data)
 
-    print(response.json())
+    print(update_response.json())
     assert update_response.status_code == 200
     assert update_response.json()['message'] == "Transação atualizada"
     assert update_response.json()['transaction']['user_id'] == user.id
     assert update_response.json()['transaction']['amount'] == '32,34'
     assert update_response.json()['transaction']['date'] == "12/03/2024"
     assert update_response.json()['transaction']['memo'] == "memo"
+    assert update_response.json()['transaction']['direction'] == "income"
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
@@ -101,7 +106,8 @@ async def test_delete_transaction_e2e_as_free(authenticated_client: TestClient, 
         "amount": "12,34",
         "type": "expense",
         "date": "12/03/2024",
-        "memo": "memo"
+        "memo": "memo",
+        "direction": "income"
     }
 
     response = authenticated_client.post(f'/transaction/ops/{user.id}', json = transaction_data)
@@ -112,6 +118,7 @@ async def test_delete_transaction_e2e_as_free(authenticated_client: TestClient, 
     assert response.json()['transaction']['amount'] == '12,34'
     assert response.json()['transaction']['date'] == "12/03/2024"
     assert response.json()['transaction']['memo'] == "memo"
+    assert response.json()['transaction']['direction'] == "income"
 
     delete_response = authenticated_client.delete(f'/transaction/ops/{response.json()["transaction"]["id"]}')
 
@@ -184,7 +191,8 @@ async def test_update_transaction_from_other_user_e2e_as_free(authenticated_clie
         user_id = 12,
         amount = "12,34",
         memo = "hsdjagf",
-        date = "12/02/2024"
+        date = "12/02/2024",
+        direction = "expense"
     )
 
     update_transaction_data = {
@@ -213,7 +221,8 @@ async def test_delete_transaction_from_other_user_e2e_as_free(authenticated_clie
         user_id = 12,
         amount = "12,34",
         memo = "hsdjagf",
-        date = "12/03/2024"
+        date = "12/03/2024",
+        direction = "expense"
     )
 
     response = authenticated_client.delete(f'/transaction/ops/{transaction.id}')
@@ -231,7 +240,8 @@ async def test_create_many_transactions_e2e_as_free(authenticated_client: TestCl
     transaction_data = {
         "amount": "12,34",
         "date": "12/03/2024",
-        "memo": "memo"
+        "memo": "memo",
+        "direction": "expense"
     }
 
     many_transaction_data =[
@@ -245,3 +255,28 @@ async def test_create_many_transactions_e2e_as_free(authenticated_client: TestCl
 
     assert response.status_code == 201
     assert response.json()['message'] == "Transações criadas"
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction])
+async def test_create_transaction_with_direction_default_e2e_as_free(authenticated_client: TestClient, user_credentials):
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    transaction_data = {
+        "amount": "12,34",
+        "date": "12/03/2024",
+        "memo": "memo",
+    }
+
+    response = authenticated_client.post(f'/transaction/ops/{user.id}', json = transaction_data)
+
+    print(response.json())
+
+    assert response.status_code == 201
+    assert response.json()['message'] == "Transação criada"
+    assert response.json()['transaction']['user_id'] == user.id
+    assert response.json()['transaction']['amount'] == '12,34'
+    assert response.json()['transaction']['date'] == "12/03/2024"
+    assert response.json()['transaction']['memo'] == "memo"
+    assert response.json()['transaction']['direction'] == "expense"

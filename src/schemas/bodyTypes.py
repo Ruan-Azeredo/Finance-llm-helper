@@ -24,6 +24,7 @@ class TransactionCRUDInput(BaseModel):
     amount: Optional[str] = None
     date: Optional[str] = None
     tag: Optional[str] = None
+    direction: Optional[str] = None
 
     def to_dict(obj) -> dict:
         """

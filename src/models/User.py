@@ -1,4 +1,5 @@
 from peewee import CharField, DateTimeField, AutoField, DoesNotExist
+from playhouse.postgres_ext import JSONField
 from datetime import datetime
 from fastapi import Depends, HTTPException, status
 import jwt
@@ -7,6 +8,7 @@ from .BaseModel import BaseModel
 from auth import Security, oauth2_scheme
 from database import db
 from .handles import handle_values, handle_database_error
+from utils import default_users_tags
 
 class User(BaseModel):
     id = AutoField(unique = True, primary_key = True)
@@ -14,6 +16,7 @@ class User(BaseModel):
     email = CharField(unique = True)
     password = CharField()
     role = CharField(default = "free")
+    tags = JSONField(default = default_users_tags)
     created_at = DateTimeField(default = datetime.now())
     updated_at = DateTimeField(default = datetime.now())
 

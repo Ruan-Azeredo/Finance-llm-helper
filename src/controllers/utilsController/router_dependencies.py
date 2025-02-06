@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from typing import Optional
 
-from models import User, Transaction
+from models import User, Transaction, Tag
 
 def verify_only_self_access_user(current_user: User = Depends(User.get_current_user), user_id: Optional[int] = None) -> bool:
 
@@ -32,6 +32,26 @@ def verify_only_self_access_transaction(current_user: User = Depends(User.get_cu
         )
 
     return True
+
+def verify_only_self_access_tag(current_user: User = Depends(User.get_current_user), tag_id: Optional[str] = None) -> bool:
+    
+        tag: Tag = Tag.from_id(tag_id)
+    
+        if tag is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tag nao encontrada"
+            )
+    
+        user: User = User.from_id(tag.user_id)
+    
+        if current_user.role != "admin" and user.id is not None and current_user.id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Acesso negado: não possui permissão para acessar esse dados de outro usuário"
+            )
+    
+        return True
 
 def verify_admin_access_user(current_user: User = Depends(User.get_current_user)) -> bool:
 

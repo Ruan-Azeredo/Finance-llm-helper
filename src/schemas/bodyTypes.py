@@ -6,7 +6,6 @@ class UserCRUDInput(BaseModel):
     email: Optional[str] = None
     password: Optional[str] = None
     role: Optional[str] = None
-    tags: Optional[list] = None
 
     def to_dict(obj) -> dict:
         """
@@ -25,6 +24,21 @@ class TransactionCRUDInput(BaseModel):
     date: Optional[str] = None
     tag: Optional[str] = None
     direction: Optional[str] = None
+
+    def to_dict(obj) -> dict:
+        """
+        Converte um objeto em dicionário, verificando se ele é uma instância de Pydantic ou uma classe genérica.
+        """
+        if hasattr(obj, 'dict') and callable(getattr(obj, 'dict')):  # Verifica se tem o método `dict()`
+            return obj.model_dump()
+        elif hasattr(obj, '__dict__'):  # Classes Python normais
+            return vars(obj)
+        else:
+            raise ValueError("O objeto não pode ser convertido em um dicionário.")
+
+class TagCRUDInput(BaseModel):
+    name: Optional[str] = None
+    color: Optional[int] = None
 
     def to_dict(obj) -> dict:
         """

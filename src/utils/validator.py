@@ -30,44 +30,26 @@ def validate_transaction_input(transaction: dict):
     if 'date' in transaction and transaction['date'] != None and is_valid_date_format(transaction['date']) is False:
         raise Exception(f'Formato de data inválido. Use dd/mm/aaaa. O formato recebido foi: {transaction["date"]}')
     
-def is_valid_tags_format(tags: list) -> bool | str:
-    # tags = [{'name': 'Alimentação', 'color': 0}, {'name': 'Receitas', 'color': 1}]
-
-    print(tags)
-
-    if tags is None:
-        return False
-    
-    if len(tags) == 0:
-        return 'empty'
-    
-    tag_names = []
-    for tag in tags:
-
-        if 'name' not in tag or 'color' not in tag:
-            return False
-        
-        if type(tag['name']) is not str or type(tag['color']) is not int:
-            return False
-        
-        if tag['name'] == '':
-            return False
-        
-        if tag['name'] in tag_names:
-            # should not have repeated tags
-            return 'duplicate'
-
-        tag_names.append(tag['name'])
-
-    return True
+def is_valid_role_format(role: str) -> bool:
+    return role in ['free', 'admin']
 
 def validate_user_input(user: dict):
+    if 'role' in user and user['role'] != None and is_valid_role_format(user['role']) is False:
+        raise Exception(f'Formato de role está incorreto, role deve ser "free" ou "admin". O role recebido foi: {user["role"]}')
+    
+    # create a test for this
 
-    if 'tags' in user and user['tags'] != None and is_valid_tags_format(user['tags']) is not True:
-        if is_valid_tags_format(user['tags']) == 'duplicate':
-            raise Exception('Formato de tags está incorreto, tags não pode ter tags duplicadas.')
-        elif is_valid_tags_format(user['tags']) == 'empty':
-            raise Exception('Formato de tags está incorreto, tags não pode ser vazio.')
-        
-        raise Exception("Formato de tags está incorreto, tags devem ser do formato [{'name': 'str', 'color': int}]. "
-                        f"O tags recebido foi: {user['tags']}")
+def is_valid_color_format(color: int) -> bool:
+    # Caso mude a quantidade de cores disponiveis para as tags no front, mudar o range
+    return color in range(0, 10)
+
+def is_valid_tag_name(name: str) -> bool:
+    if name == '':
+        return False
+
+def validate_tag_input(tag: dict):
+    if 'color' in tag and tag['color'] != None and is_valid_color_format(tag['color']) is False:
+        raise Exception(f'Formato de color está incorreto, color deve ser um número de 0 a 9. O color recebido foi: {tag["color"]}')
+
+    if 'name' in tag and tag['name'] != None and is_valid_tag_name(tag['name']) is False:
+        raise Exception(f'Formato de name está incorreto, name não pode ser vazio')

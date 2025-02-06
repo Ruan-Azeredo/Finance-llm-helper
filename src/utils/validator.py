@@ -36,8 +36,6 @@ def is_valid_role_format(role: str) -> bool:
 def validate_user_input(user: dict):
     if 'role' in user and user['role'] != None and is_valid_role_format(user['role']) is False:
         raise Exception(f'Formato de role está incorreto, role deve ser "free" ou "admin". O role recebido foi: {user["role"]}')
-    
-    # create a test for this
 
 def is_valid_color_format(color: int) -> bool:
     # Caso mude a quantidade de cores disponiveis para as tags no front, mudar o range

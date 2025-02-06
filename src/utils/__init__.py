@@ -1,3 +1,3 @@
 from .validator import *
-from .constants import default_categories, default_headers
+from .constants import *
 from .formater import *

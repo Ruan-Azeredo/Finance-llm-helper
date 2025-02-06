@@ -1,14 +1,15 @@
 from peewee import CharField, DateTimeField, AutoField, DoesNotExist
-from playhouse.postgres_ext import JSONField
+from playhouse.postgres_ext import JSONField, ArrayField
 from datetime import datetime
 from fastapi import Depends, HTTPException, status
 import jwt
+import json
 
 from .BaseModel import BaseModel
 from auth import Security, oauth2_scheme
 from database import db
 from .handles import handle_values, handle_database_error
-from utils import default_users_tags
+from utils import default_users_tags, validate_user_input
 
 class User(BaseModel):
     id = AutoField(unique = True, primary_key = True)
@@ -16,7 +17,7 @@ class User(BaseModel):
     email = CharField(unique = True)
     password = CharField()
     role = CharField(default = "free")
-    tags = JSONField(default = default_users_tags)
+    tags = ArrayField(default = default_users_tags)
     created_at = DateTimeField(default = datetime.now())
     updated_at = DateTimeField(default = datetime.now())
 
@@ -35,23 +36,31 @@ class User(BaseModel):
             del user['password']
         return user
     
-    @handle_database_error
-    def create(**kwargs) -> 'User':
-
-        values = handle_values(kwargs)
-
+    def _prepareFormatsToDb(values: dict) -> dict:
         if 'password' in values:
             values['password'] = Security.encrypt_password(values['password'])
 
+        return values
+    
+    @handle_database_error
+    def create(**kwargs) -> 'User':
+
+        validate_user_input(kwargs)
+
+        values = handle_values(kwargs)
+
+        values = User._prepareFormatsToDb(values)
+        
         return super(User, User).create(**values)
     
     @handle_database_error
     def update(self, **kwargs) -> None:
 
+        validate_user_input(kwargs)
+
         values = handle_values(kwargs)
 
-        if 'password' in values:
-            values['password'] = Security.encrypt_password(values['password'])
+        values = User._prepareFormatsToDb(values)
 
         super(User, self).update(**values)
 

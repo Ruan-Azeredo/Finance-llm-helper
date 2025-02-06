@@ -6,7 +6,7 @@ class UserCRUDInput(BaseModel):
     email: Optional[str] = None
     password: Optional[str] = None
     role: Optional[str] = None
-
+    tags: Optional[list] = None
 
     def to_dict(obj) -> dict:
         """

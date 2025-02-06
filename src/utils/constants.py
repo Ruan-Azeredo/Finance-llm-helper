@@ -47,7 +47,7 @@ default_users_tags = [
     },
     {
         'name': 'Moradia',
-        'color': 10
+        'color': 0
     }
 ]
 

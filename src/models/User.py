@@ -9,7 +9,7 @@ from .BaseModel import BaseModel
 from auth import Security, oauth2_scheme
 from database import db
 from .handles import handle_values, handle_database_error
-from utils import default_users_tags, validate_user_input
+from utils import validate_user_input
 
 class User(BaseModel):
     id = AutoField(unique = True, primary_key = True)
@@ -17,7 +17,6 @@ class User(BaseModel):
     email = CharField(unique = True)
     password = CharField()
     role = CharField(default = "free")
-    tags = ArrayField(default = default_users_tags)
     created_at = DateTimeField(default = datetime.now())
     updated_at = DateTimeField(default = datetime.now())
 
@@ -72,7 +71,7 @@ class User(BaseModel):
         except Exception as error:
             raise Exception(f"Não foi possivel identificar o usuario atravez deste email: {error}")
 
-    def get_current_user(token: str = Depends(oauth2_scheme)):
+    def get_current_user(token: str = Depends(oauth2_scheme)) -> 'User':
 
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

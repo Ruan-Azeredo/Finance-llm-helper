@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from functools import wraps
 from pydantic import BaseModel
 
-from models import User
+from models import User, Tag
 from schemas import UserCRUDInput
 from .utilsController import *
 
@@ -39,13 +39,34 @@ async def get_user(user_id: int):
 @user_router.post("/ops")
 async def create_user(user_input: UserCRUDInput):
 
-    user = User.create(
+    user: User = User.create(
         **user_input.to_dict()
     )
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
         content = {"message": "Usuário criado", "user": user.to_dict()}
+    )
+
+# Utilizar este endpoint no front
+@user_router.post("/create-user-default-properties")
+async def create_user_default_properties(user_input: UserCRUDInput):
+
+    user: User = User.create(
+        **user_input.to_dict()
+    )
+
+    Tag.create_default_tags(user.id)
+
+    tags: list[Tag] = Tag.get_tags_by_user_id(user.id)
+
+    return JSONResponse(
+        status_code = status.HTTP_201_CREATED,
+        content = {
+            "message": "Usuário criado",
+            "user": user.to_dict(),
+            "tags": [tag.to_dict() for tag in tags]
+        }
     )
 
 @user_router_auth.put("/ops/{user_id}")

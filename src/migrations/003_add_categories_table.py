@@ -1,4 +1,4 @@
-"""Peewee migrations -- 003_add_user_tags.py.
+"""Peewee migrations -- 003_add_user_categories.py.
 
 Some examples (model - class or model name)::
 
@@ -30,7 +30,7 @@ import peewee as pw
 from peewee_migrate import Migrator
 import datetime
 
-from utils import default_users_tags
+from utils import default_users_categories
 
 
 with suppress(ImportError):
@@ -41,7 +41,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your migrations here."""
 
     @migrator.create_model
-    class Tag(pw.Model):
+    class Category(pw.Model):
         id = pw.AutoField(unique = True, primary_key = True)
         name = pw.CharField(max_length=255, unique = True, null = False)
         color = pw.IntegerField(default = 0, null = False)
@@ -57,5 +57,5 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
 def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your rollback migrations here."""
 
-    migrator.remove_fields('users', 'tags')
+    migrator.remove_fields('users', 'categories')
     

@@ -16,7 +16,7 @@ class Transaction(BaseModel):
     amount = FloatField()
     memo = CharField()
     user_id = ForeignKeyField(User, field='id', backref='transactions', on_delete='CASCADE')
-    tag = CharField(default = None, null = True)
+    category = CharField(default = None, null = True)
     created_at = DateTimeField(default = datetime.now())
     updated_at = DateTimeField(default = datetime.now())
 
@@ -25,7 +25,7 @@ class Transaction(BaseModel):
         table_name = 'transactions'
 
     def __str__(self):
-        return f'Transaction: {self.id}, {self.date}, {self.amount}, {self.memo}, {self.tag}, {self.user_id}'
+        return f'Transaction: {self.id}, {self.date}, {self.amount}, {self.memo}, {self.category}, {self.user_id}'
     
     def formatedAmount(self) -> str:
         formatedTrasaction = deepcopy(self)
@@ -101,6 +101,6 @@ class Transaction(BaseModel):
         return Transaction.select().where(Transaction.user_id == user_id)
     
     @handle_database_error
-    def update_tag(self, tag: str) -> None:
-        self.update(tag = tag)
+    def update_category(self, category: str) -> None:
+        self.update(category = category)
     

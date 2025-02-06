@@ -1,6 +1,6 @@
 from .User import User
 from .Transaction import Transaction
-from .Tag import Tag
+from .Category import Category
 
 #Tables that should exists in db
-models = [User, Transaction, Tag]
+models = [User, Transaction, Category]

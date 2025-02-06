@@ -1,7 +1,7 @@
 import re
 
-def category_validator(tags: list, category: str) -> bool:
-    if category in tags and category is not None:
+def category_validator(categories: list, category: str) -> bool:
+    if category in categories and category is not None:
         return True
     else:
         return False
@@ -38,16 +38,16 @@ def validate_user_input(user: dict):
         raise Exception(f'Formato de role está incorreto, role deve ser "free" ou "admin". O role recebido foi: {user["role"]}')
 
 def is_valid_color_format(color: int) -> bool:
-    # Caso mude a quantidade de cores disponiveis para as tags no front, mudar o range
+    # Caso mude a quantidade de cores disponiveis para as categories no front, mudar o range
     return color in range(0, 10)
 
-def is_valid_tag_name(name: str) -> bool:
+def is_valid_category_name(name: str) -> bool:
     if name == '':
         return False
 
-def validate_tag_input(tag: dict):
-    if 'color' in tag and tag['color'] != None and is_valid_color_format(tag['color']) is False:
-        raise Exception(f'Formato de color está incorreto, color deve ser um número de 0 a 9. O color recebido foi: {tag["color"]}')
+def validate_category_input(category: dict):
+    if 'color' in category and category['color'] != None and is_valid_color_format(category['color']) is False:
+        raise Exception(f'Formato de color está incorreto, color deve ser um número de 0 a 9. O color recebido foi: {category["color"]}')
 
-    if 'name' in tag and tag['name'] != None and is_valid_tag_name(tag['name']) is False:
+    if 'name' in category and category['name'] != None and is_valid_category_name(category['name']) is False:
         raise Exception(f'Formato de name está incorreto, name não pode ser vazio')

@@ -57,12 +57,12 @@ def test_update_transaction_model(db_session):
 
     transaction.update(
         amount = '22,55',
-        tag = 'tag'
+        category = 'category'
     )
 
     updaded_transaction: Transaction = Transaction.from_id(transaction.id)
 
-    assert updaded_transaction.tag == 'tag'
+    assert updaded_transaction.category == 'category'
     assert updaded_transaction.amount == 22.55
     assert updaded_transaction.user_id_id == user.id
     assert updaded_transaction.date == 1733972400
@@ -81,7 +81,7 @@ def test_update_transaction_model_with_wrong_type_properties_null(db_session):
         amount = '12,34',
         date = '12/12/2024',
         memo = 'password',
-        tag = 'tag'
+        category = 'category'
     )
 
     with pytest.raises(Exception) as error:
@@ -104,16 +104,16 @@ def test_update_transaction_model_with_right_type_properties_null(db_session):
         amount = '12,34',
         date = '12/12/2024',
         memo = 'password',
-        tag = 'tag'
+        category = 'category'
     )
 
     transaction.update(
-        tag = 'null'
+        category = 'null'
     )
 
     updaded_transaction: Transaction = Transaction.from_id(transaction.id)
 
-    assert updaded_transaction.tag == None
+    assert updaded_transaction.category == None
 
 def test_get_transactions_by_user_id_transaction_model(db_session):
 
@@ -183,7 +183,7 @@ def test_get_transactions_by_user_id_transaction_model_with_nonexistent_user_id(
 
     assert 'Usuario com id 14 nao encontrado' in str(error.value)
 
-def test_update_tag_transaction_model(db_session):
+def test_update_category_transaction_model(db_session):
 
     user: User = User.create(
         name = 'name',
@@ -198,11 +198,11 @@ def test_update_tag_transaction_model(db_session):
         memo = 'memo'
     )
 
-    transaction.update_tag('tag')
+    transaction.update_category('category')
 
     transaction_updated = Transaction.from_id(transaction.id)
 
-    assert transaction_updated.tag == 'tag'
+    assert transaction_updated.category == 'category'
 
 def test_create_transaction_with_wrong_amount_format(db_session):
 

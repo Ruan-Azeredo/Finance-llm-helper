@@ -22,7 +22,7 @@ class TransactionCRUDInput(BaseModel):
     memo: Optional[str] = None
     amount: Optional[str] = None
     date: Optional[str] = None
-    tag: Optional[str] = None
+    category: Optional[str] = None
     direction: Optional[str] = None
 
     def to_dict(obj) -> dict:
@@ -36,7 +36,7 @@ class TransactionCRUDInput(BaseModel):
         else:
             raise ValueError("O objeto não pode ser convertido em um dicionário.")
 
-class TagCRUDInput(BaseModel):
+class CategoryCRUDInput(BaseModel):
     name: Optional[str] = None
     color: Optional[int] = None
 

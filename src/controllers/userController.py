@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from functools import wraps
 from pydantic import BaseModel
 
-from models import User, Tag
+from models import User, Category
 from schemas import UserCRUDInput
 from .utilsController import *
 
@@ -56,16 +56,16 @@ async def create_user_default_properties(user_input: UserCRUDInput):
         **user_input.to_dict()
     )
 
-    Tag.create_default_tags(user.id)
+    Category.create_default_categories(user.id)
 
-    tags: list[Tag] = Tag.get_tags_by_user_id(user.id)
+    categories: list[Category] = Category.get_categories_by_user_id(user.id)
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
         content = {
             "message": "Usuário criado",
             "user": user.to_dict(),
-            "tags": [tag.to_dict() for tag in tags]
+            "categories": [category.to_dict() for category in categories]
         }
     )
 

@@ -58,7 +58,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         amount = pw.CharField(max_length=255)
         memo = pw.CharField(max_length=255)
         user_id = pw.ForeignKeyField(column_name='user_id', field='id', model=migrator.orm['users'], on_delete='CASCADE')
-        tag = pw.CharField(max_length=255, null=True)
+        category = pw.CharField(max_length=255, null=True)
         created_at = pw.DateTimeField(default=datetime.datetime.now())
         updated_at = pw.DateTimeField(default=datetime.datetime.now())
 

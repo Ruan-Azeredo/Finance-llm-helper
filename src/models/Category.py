@@ -5,57 +5,57 @@ from datetime import datetime
 from .handles import handle_values, handle_database_error
 from database import db
 from models import User
-from utils import default_users_tags, validate_tag_input
+from utils import default_users_categories, validate_category_input
 
-class Tag(BaseModel):
+class Category(BaseModel):
     id = AutoField(unique = True, primary_key = True)
     name = CharField(unique = True, null = False)
     color = IntegerField(default = 0, null = False)
-    user_id = ForeignKeyField(User, field='id', backref='tags', on_delete='CASCADE')
+    user_id = ForeignKeyField(User, field='id', backref='categories', on_delete='CASCADE')
     created_at = DateTimeField(default = datetime.now())
     updated_at = DateTimeField(default = datetime.now())
 
     class Meta:
         database = db
-        table_name = 'tags'
+        table_name = 'categories'
 
 
     @handle_database_error
-    def create(user_id: int, **kwargs) -> 'Tag':
+    def create(user_id: int, **kwargs) -> 'Category':
 
         try:
             User.get_by_id(user_id)
         except  Exception:
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
 
-        validate_tag_input(kwargs)
+        validate_category_input(kwargs)
 
         values = handle_values(kwargs)
         values['user_id'] = user_id
 
-        return super(Tag, Tag).create(**values)
+        return super(Category, Category).create(**values)
     
     @handle_database_error
     def update(self, **kwargs) -> None:
 
-        validate_tag_input(kwargs)
+        validate_category_input(kwargs)
 
         values = handle_values(kwargs)
 
-        super(Tag, self).update(**values)
+        super(Category, self).update(**values)
 
     @handle_database_error
     def delete(self) -> None:
 
-        user_tags = Tag.select().where(Tag.user_id == self.user_id)
+        user_categories = Category.select().where(Category.user_id == self.user_id)
 
-        if len(user_tags) == 1:
-            raise Exception("O usuario precisa ter pelo menos uma tag")
+        if len(user_categories) == 1:
+            raise Exception("O usuario precisa ter pelo menos uma category")
 
-        super(Tag, self).delete()
+        super(Category, self).delete()
 
     @handle_database_error
-    def get_tags_by_user_id(user_id: int) -> list['Tag']:
+    def get_categories_by_user_id(user_id: int) -> list['Category']:
 
         try:
             User.get_by_id(user_id)
@@ -63,19 +63,19 @@ class Tag(BaseModel):
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
 
 
-        return Tag.select().where(Tag.user_id == user_id)
+        return Category.select().where(Category.user_id == user_id)
     
     @handle_database_error
-    def create_default_tags(user_id: int) -> None:
+    def create_default_categories(user_id: int) -> None:
 
         try:
             User.get_by_id(user_id)
         except  Exception:
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
 
-        for tag in default_users_tags:
-            print("\n", tag)
-            Tag.create(
+        for category in default_users_categories:
+            print("\n", category)
+            Category.create(
                 user_id = user_id,
-                **tag
+                **category
             )

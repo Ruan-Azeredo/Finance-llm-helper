@@ -2,7 +2,7 @@ from models import User
 from src.controllers.userController import get_users, get_user, create_user, update_user, delete_user, create_user_default_properties
 from schemas import UserCRUDInput
 from testUtils import test_db, db_session
-from utils import default_users_tags
+from utils import default_users_categories
 
 import pytest
 from fastapi import HTTPException
@@ -157,9 +157,9 @@ async def test_create_user_default_properies(db_session):
 
     response_body_json = json.loads(response.body)
 
-    for i, tag in enumerate(response_body_json["tags"]):
-        assert tag['name'] == default_users_tags[i]["name"]
-        assert tag['color']  == default_users_tags[i]["color"]
+    for i, category in enumerate(response_body_json["categories"]):
+        assert category['name'] == default_users_categories[i]["name"]
+        assert category['color']  == default_users_categories[i]["color"]
 
     assert response_body_json["user"]["name"] == "Ruan"
     assert response_body_json["user"]["email"] == "ruan@gmail.com"

@@ -4,7 +4,7 @@ default_categories = [
     "Telefone", "Moradia"
 ]
 
-default_users_tags = [
+default_users_categories = [
     {
         'name': 'Alimentação',
         'color': 0

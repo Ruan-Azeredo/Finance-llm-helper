@@ -4,6 +4,7 @@ import pytest
 from models import User
 from auth import Security
 from testUtils import db_session
+from utils import default_users_tags
 
 def test_create_user_model(db_session):
     
@@ -119,6 +120,8 @@ def test_update_user_model(db_session):
     )
 
     user: User = User.select().where(User.id == 1).get()
+
+    assert user.tags == default_users_tags
     
     assert user.__str__() == 'User: 1, Ruan, email@email.com, free'
     assert user.name == 'Ruan'
@@ -152,3 +155,222 @@ def test_delete_user_model(db_session):
     user.delete()
     
     assert not User.select().where(User.id == 12).exists()
+
+def test_create_user_model_defined_tags(db_session):
+    
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password',
+        tags = [
+            {'name': 'tag1', 'color': 0},
+            {'name': 'tag2', 'color': 1}
+        ]
+    )
+    
+    assert user.tags == [
+        {'name': 'tag1', 'color': 0},
+        {'name': 'tag2', 'color': 1}
+    ]
+
+def test_create_user_model_defined_tags_with_invalid_color(db_session):
+    
+    with pytest.raises(Exception) as error:
+        User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password',
+        tags = [
+            {'name': 'tag1', 'color': 'azul'},
+            {'name': 'tag2', 'color': 1}
+        ]
+    )
+        
+    assert "Formato de tags está incorreto, tags devem ser do formato [{'name': 'str', 'color': int}]. O tags recebido foi: " + str([{'name': 'tag1', 'color': 'azul'}, {'name': 'tag2', 'color': 1}]) in str(error.value)
+        
+def test_create_user_model_defined_tags_with_invalid_name(db_session):
+    
+    with pytest.raises(Exception) as error:
+        User.create(
+            name = 'name',
+            email = 'email@email.com',
+            password = 'password',
+            tags = [
+                {'name': 0, 'color': 0},
+                {'name': 'tag2', 'color': 0}
+            ]
+        )
+
+    assert "Formato de tags está incorreto, tags devem ser do formato [{'name': 'str', 'color': int}]. O tags recebido foi: " + str([{'name': 0, 'color': 0}, {'name': 'tag2', 'color': 0}]) in str(error.value)
+
+        
+def test_create_user_model_defined_tags_with_empty_name(db_session):
+    
+    with pytest.raises(Exception) as error:
+        User.create(
+            name = 'name',
+            email = 'email@email.com',
+            password = 'password',
+            tags = [
+                {'name': '', 'color': 0},
+                {'name': 'tag2', 'color': 0}
+            ]
+        )
+
+    assert "Formato de tags está incorreto, tags devem ser do formato [{'name': 'str', 'color': int}]. O tags recebido foi: " + str([{'name': '', 'color': 0}, {'name': 'tag2', 'color': 0}]) in str(error.value)
+
+def test_create_user_model_defined_tags_with_repeated_name(db_session):
+    
+    with pytest.raises(Exception) as error:
+        User.create(
+            name = 'name',
+            email = 'email@email.com',
+            password = 'password',
+            tags = [
+                {'name': 'tag1', 'color': 0},
+                {'name': 'tag1', 'color': 0}
+            ]
+        )
+
+    assert "Formato de tags está incorreto, tags não pode ter tags duplicadas." in str(error.value)
+
+def test_update_user_model_defined_tags(db_session):
+        
+    user: User = User.create(
+        id = 1,
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password',
+        tags = [
+            {'name': 'tag1', 'color': 0},
+            {'name': 'tag2', 'color': 1}
+        ]
+    )
+
+    print(user, ' - ',user.name, user.tags, type(user.tags), type(user))
+
+    user.update(
+        name = 'ruan',
+    )
+
+    user_updated: User = User.get_user_by_email('email@email.com')
+
+    print(user_updated, ' - - ',user_updated.name, user_updated.tags, type(user_updated.tags))
+
+    assert user_updated.tags == [
+        {'name': 'tag3', 'color': 0},
+        {'name': 'tag4', 'color': 1}
+    ]
+    assert user_updated.__str__() == 'User: 1, name, email@email.com, free'
+
+def test_update_user_model_defined_tags_with_invalid_color(db_session):
+        
+    user: User = User.create(
+        id = 1,
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password',
+        tags = [
+            {'name': 'tag1', 'color': 0},
+            {'name': 'tag2', 'color': 1}
+        ]
+    )
+
+    with pytest.raises(Exception) as error:
+        user.update(
+            tags = [
+                {'name': 'tag3', 'color': 0},
+                {'name': 'tag4', 'color': 'azul'}
+            ]
+        )
+
+    assert "Formato de tags está incorreto, tags devem ser do formato [{'name': 'str', 'color': int}]. O tags recebido foi: " + str([{'name': 'tag3', 'color': 0}, {'name': 'tag4', 'color': 'azul'}]) in str(error.value)
+
+def test_update_user_model_defined_tags_with_invalid_name(db_session):
+        
+    user: User = User.create(
+        id = 1,
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password',
+        tags = [
+            {'name': 'tag1', 'color': 0},
+            {'name': 'tag2', 'color': 1}
+        ]
+    )
+
+    with pytest.raises(Exception) as error:
+        user.update(
+            tags = [
+                {'name': 0, 'color': 0},
+                {'name': 'tag4', 'color': 0}
+            ]
+        )
+
+    assert "Formato de tags está incorreto, tags devem ser do formato [{'name': 'str', 'color': int}]. O tags recebido foi: " + str([{'name': 0, 'color': 0}, {'name': 'tag4', 'color': 0}]) in str(error.value)
+
+def test_update_user_model_defined_tags_with_empty_name(db_session):
+        
+    user: User = User.create(
+        id = 1,
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password',
+        tags = [
+            {'name': 'tag1', 'color': 0},
+            {'name': 'tag2', 'color': 1}
+        ]
+    )
+
+    with pytest.raises(Exception) as error:
+        user.update(
+            tags = [
+                {'name': '', 'color': 0},
+                {'name': 'tag4', 'color': 0}
+            ]
+        )
+
+    assert "Formato de tags está incorreto, tags devem ser do formato [{'name': 'str', 'color': int}]. O tags recebido foi: " + str([{'name': '', 'color': 0}, {'name': 'tag4', 'color': 0}]) in str(error.value)
+
+def test_update_user_model_defined_tags_with_repeated_name(db_session):
+
+    user: User = User.create(
+        id = 1,
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password',
+        tags = [
+            {'name': 'tag1', 'color': 0},
+            {'name': 'tag2', 'color': 1}
+        ]
+    )
+
+    with pytest.raises(Exception) as error:
+        user.update(
+            tags = [
+                {'name': 'tag3', 'color': 0},
+                {'name': 'tag3', 'color': 0}
+            ]
+        )
+
+    assert "Formato de tags está incorreto, tags não pode ter tags duplicadas." in str(error.value)
+
+def test_update_user_model_defined_tags_with_empty_list(db_session):
+
+    user: User = User.create(
+        id = 1,
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password',
+        tags = [
+            {'name': 'tag1', 'color': 0},
+            {'name': 'tag2', 'color': 1}
+        ]
+    )
+
+    with pytest.raises(Exception) as error:
+        user.update(
+            tags = []
+        )
+
+    assert "Formato de tags está incorreto, tags não pode ser vazio" in str(error.value)

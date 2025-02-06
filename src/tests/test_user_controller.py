@@ -142,3 +142,27 @@ async def test_update_user_not_found(db_session):
 
     assert error.value.detail == "Usuário não encontrado"
     assert error.value.status_code == 404
+
+@pytest.mark.asyncio
+async def test_create_user_with_defined_tags(db_session):
+
+    user_data = UserCRUDInput(
+        name = "Ruan",
+        email = "ruan@gmail.com",
+        password = "1234",
+        tags = [
+            {"name": "tag1", "color": 0},
+            {"name": "tag2", "color": 1}
+        ]
+    )
+
+    response = await create_user(user_input = user_data)
+
+    response_body_json = json.loads(response.body)
+
+    assert response_body_json["user"]["tags"] == [
+        {"name": "tag1", "color": 0},
+        {"name": "tag2", "color": 1}
+    ]
+    assert response_body_json["user"]["name"] == "Ruan"
+    assert response_body_json["user"]["email"] == "ruan@gmail.com"

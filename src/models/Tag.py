@@ -1,5 +1,5 @@
 from .BaseModel import BaseModel
-from peewee import CharField, IntegerField, ForeignKeyField, DoesNotExist, DateTimeField
+from peewee import CharField, IntegerField, ForeignKeyField, DoesNotExist, DateTimeField, AutoField
 from datetime import datetime
 
 from .handles import handle_values, handle_database_error
@@ -8,7 +8,7 @@ from models import User
 from utils import default_users_tags, validate_tag_input
 
 class Tag(BaseModel):
-    id = IntegerField(unique = True, primary_key = True)
+    id = AutoField(unique = True, primary_key = True)
     name = CharField(unique = True, null = False)
     color = IntegerField(default = 0, null = False)
     user_id = ForeignKeyField(User, field='id', backref='tags', on_delete='CASCADE')

@@ -28,6 +28,7 @@ from contextlib import suppress
 
 import peewee as pw
 from peewee_migrate import Migrator
+import datetime
 
 from utils import default_users_tags
 
@@ -39,7 +40,17 @@ with suppress(ImportError):
 def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your migrations here."""
 
-    migrator.add_fields('users', tags=pw_pext.JSONField(default=default_users_tags))
+    @migrator.create_model
+    class Tag(pw.Model):
+        id = pw.AutoField(unique = True, primary_key = True)
+        name = pw.CharField(max_length=255, unique = True, null = False)
+        color = pw.IntegerField(default = 0, null = False)
+        user_id = pw.ForeignKeyField(column_name='user_id', field='id', model=migrator.orm['users'], on_delete='CASCADE')
+        created_at = pw.DateTimeField(default = datetime.datetime.now())
+        updated_at = pw.DateTimeField(default = datetime.datetime.now())
+
+        class Meta:
+            table_name = "users"
     
 
 

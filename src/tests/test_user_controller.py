@@ -1,7 +1,8 @@
 from models import User
-from src.controllers.userController import get_users, get_user, create_user, update_user, delete_user
+from src.controllers.userController import get_users, get_user, create_user, update_user, delete_user, create_user_default_properties
 from schemas import UserCRUDInput
 from testUtils import test_db, db_session
+from utils import default_users_tags
 
 import pytest
 from fastapi import HTTPException
@@ -144,25 +145,21 @@ async def test_update_user_not_found(db_session):
     assert error.value.status_code == 404
 
 @pytest.mark.asyncio
-async def test_create_user_with_defined_tags(db_session):
+async def test_create_user_default_properies(db_session):
 
     user_data = UserCRUDInput(
         name = "Ruan",
         email = "ruan@gmail.com",
-        password = "1234",
-        tags = [
-            {"name": "tag1", "color": 0},
-            {"name": "tag2", "color": 1}
-        ]
+        password = "1234"
     )
 
-    response = await create_user(user_input = user_data)
+    response = await create_user_default_properties(user_input = user_data)
 
     response_body_json = json.loads(response.body)
 
-    assert response_body_json["user"]["tags"] == [
-        {"name": "tag1", "color": 0},
-        {"name": "tag2", "color": 1}
-    ]
+    for i, tag in enumerate(response_body_json["tags"]):
+        assert tag['name'] == default_users_tags[i]["name"]
+        assert tag['color']  == default_users_tags[i]["color"]
+
     assert response_body_json["user"]["name"] == "Ruan"
     assert response_body_json["user"]["email"] == "ruan@gmail.com"

@@ -28,9 +28,8 @@ from contextlib import suppress
 
 import peewee as pw
 from peewee_migrate import Migrator
-import datetime
 
-from utils import default_users_categories
+import datetime
 
 
 with suppress(ImportError):
@@ -50,12 +49,12 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         updated_at = pw.DateTimeField(default = datetime.datetime.now())
 
         class Meta:
-            table_name = "users"
+            table_name = "categories"
     
 
 
 def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your rollback migrations here."""
 
-    migrator.remove_fields('users', 'categories')
+    migrator.remove_model('categories')
     

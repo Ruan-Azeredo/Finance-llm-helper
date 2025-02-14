@@ -1,5 +1,11 @@
 from datetime import datetime
 
+def formatDirectionByAmount(amount: float) -> str:
+    if amount > 0:
+        return 'income'
+    
+    return 'expense'
+
 def formatAmountToString(amount: float) -> str:
     return f"{abs(amount):.2f}".replace('.', ',')
 

@@ -6,7 +6,7 @@ DATABASE_CONFIG = {
     'database': 'postgres',       # Nome do banco de dados
     'user': 'postgres',           # Usuário do banco
     'password': 'postgres',       # Senha do banco
-    'host': 'localhost',          # Host do banco
+    'host': '0.0.0.0',          # Host do banco
     'port': 5432,                 # Porta padrão do PostgreSQL
 }
 

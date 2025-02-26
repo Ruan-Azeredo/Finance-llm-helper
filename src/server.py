@@ -36,13 +36,15 @@ async def catch_exceptions_middleware(request: Request, call_next):
         tb_lines = traceback.format_exception(type(error), error, error.__traceback__)
         organized_traceback = "".join(tb_lines)
 
-        return JSONResponse(
+        response = JSONResponse(
             status_code=500,
-            content={
-                "detail": str(error),
-                "traceback": organized_traceback
-            },
+            content={"detail": str(error), "traceback": organized_traceback},
         )
+
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
 
 app.include_router(user_router, prefix="/user")
 app.include_router(transaction_router, prefix="/transaction")

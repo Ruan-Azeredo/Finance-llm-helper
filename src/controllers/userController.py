@@ -36,6 +36,10 @@ async def get_user(user_id: int):
         content = {"user": user.to_dict()}
     )
 
+@user_router_auth.get("/me")
+async def get_current_user(current_user: User = Depends(User.get_current_user)):
+    return current_user.to_dict()
+
 @user_router.post("/ops")
 async def create_user(user_input: UserCRUDInput):
 

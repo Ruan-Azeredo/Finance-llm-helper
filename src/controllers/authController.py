@@ -26,8 +26,8 @@ async def login(user_input: LoginInput):
     ):
         raise email_or_password_invalid
 
-    access_token = Security.create_jwt_token(data = {"sub": user.email})
-    refresh_token = Security.create_jwt_token(data = {"sub": user.email})
+    access_token = Security.create_jwt_token(data = {"sub": user.email}, type = "access")
+    refresh_token = Security.create_jwt_token(data = {"sub": user.email}, type = "refresh")
 
     return {
         "access_token": { "token": access_token, "token_type": "bearer" },

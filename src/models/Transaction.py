@@ -91,14 +91,23 @@ class Transaction(BaseModel):
         super(Transaction, self).update(**values)
 
     @handle_database_error
-    def get_transactions_by_user_id(user_id: int) -> list['Transaction']:
+    def get_transactions_by_user_id(user_id: int, start_date: int = None, end_date: int = None) -> list['Transaction']:
 
         try:
             User.get_by_id(user_id)
         except Exception:
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
 
-        return Transaction.select().where(Transaction.user_id == user_id)
+        if start_date and end_date:
+            transactions = Transaction.select().where(Transaction.user_id == user_id, Transaction.date >= start_date, Transaction.date <= end_date)
+        elif start_date:
+            transactions = Transaction.select().where(Transaction.user_id == user_id, Transaction.date >= start_date)
+        elif end_date:
+            transactions = Transaction.select().where(Transaction.user_id == user_id, Transaction.date <= end_date)
+        else:
+            transactions = Transaction.select().where(Transaction.user_id == user_id)
+
+        return transactions.order_by(Transaction.date.asc())
     
     @handle_database_error
     def update_category(self, category: str) -> None:

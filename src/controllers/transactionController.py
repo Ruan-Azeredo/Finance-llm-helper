@@ -28,9 +28,9 @@ async def get_all_transactions():
     )
 
 @transaction_router_auth.get("/from-user/{user_id}")
-async def get_transactions_by_user_id(user_id: int):
+async def get_transactions_by_user_id(user_id: int, start_date: int = None, end_date: int = None):
 
-    transactions: list[Transaction] = Transaction.get_transactions_by_user_id(user_id)
+    transactions: list[Transaction] = Transaction.get_transactions_by_user_id(user_id, start_date, end_date)
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,

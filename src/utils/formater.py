@@ -14,7 +14,7 @@ def formatAmountToFloat(amount: str) -> float:
     
 def formatTimestampToDateStr(timestamp: int) -> str:
     """
-    :param timestamp: Timestamp em segundos.
+    :param timestamp: Timestamp em segundos (divided by 1000).
     :return: Data no formato dd/mm/aaaa.
     """
     data = datetime.fromtimestamp(timestamp)
@@ -23,7 +23,7 @@ def formatTimestampToDateStr(timestamp: int) -> str:
 def formatDateStrToTimestamp(data: str) -> int:
     """
     :param data: Data no formato dd/mm/aaaa.
-    :return: Timestamp correspondente em segundos.
+    :return: Timestamp correspondente em segundos (divided by 1000).
     """
     try:
         data_formatada = datetime.strptime(data, "%d/%m/%Y")

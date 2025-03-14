@@ -2,6 +2,7 @@ import pytest
 
 from models import Transaction, User
 from testUtils import db_session
+from utils import formatDateStrToTimestamp, formatTimestampToDateStr
 
 def test_create_transaction_model(db_session):
 
@@ -183,6 +184,102 @@ def test_get_transactions_by_user_id_transaction_model_with_nonexistent_user_id(
 
     assert 'Usuario com id 14 nao encontrado' in str(error.value)
 
+def test_get_transactions_by_user_id_transaction_model_with_dates_range(db_session):
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '44,22',
+        date = '12/11/2024',
+        memo = 'memo'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '25,87',
+        date = '12/12/2024',
+        memo = 'xixixi'
+    )
+
+    transactions = Transaction.get_transactions_by_user_id(user.id, start_date = formatDateStrToTimestamp('12/11/2024'), end_date = formatDateStrToTimestamp('12/12/2024'))
+
+    assert len(transactions) == 2
+
+    assert transactions[0].amount == 44.22
+    assert formatTimestampToDateStr(transactions[0].date) == '12/11/2024'
+    assert transactions[0].memo == 'memo'
+    assert transactions[0].user_id_id == user.id
+
+    assert transactions[1].amount == 25.87
+    assert formatTimestampToDateStr(transactions[1].date) == '12/12/2024'
+    assert transactions[1].memo == 'xixixi'
+    assert transactions[1].user_id_id == user.id
+
+    transactions = Transaction.get_transactions_by_user_id(user.id, start_date = formatDateStrToTimestamp('11/11/2024'), end_date = formatDateStrToTimestamp('11/12/2024'))
+
+    assert len(transactions) == 1
+
+    assert transactions[0].amount == 44.22
+    assert formatTimestampToDateStr(transactions[0].date) == '12/11/2024'
+    assert transactions[0].memo == 'memo'
+    assert transactions[0].user_id_id == user.id
+
+    transactions = Transaction.get_transactions_by_user_id(user.id, start_date = formatDateStrToTimestamp('09/11/2024'), end_date = formatDateStrToTimestamp('10/11/2024'))
+
+    assert len(transactions) == 0
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '78,45',
+        date = '14/11/2024',
+        memo = 'laele'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '265,90',
+        date = '16/12/2024',
+        memo = 'ruan'
+    )
+
+    transactions = Transaction.get_transactions_by_user_id(user.id, start_date = formatDateStrToTimestamp('13/11/2024'))
+
+    assert len(transactions) == 3
+
+    assert transactions[0].amount == 78.45
+    assert formatTimestampToDateStr(transactions[0].date) == '14/11/2024'
+    assert transactions[0].memo == 'laele'
+    assert transactions[0].user_id_id == user.id
+
+    assert transactions[1].amount == 25.87
+    assert formatTimestampToDateStr(transactions[1].date) == '12/12/2024'
+    assert transactions[1].memo == 'xixixi'
+    assert transactions[1].user_id_id == user.id
+
+    assert transactions[2].amount == 265.90
+    assert formatTimestampToDateStr(transactions[2].date) == '16/12/2024'
+    assert transactions[2].memo == 'ruan'
+    assert transactions[2].user_id_id == user.id
+
+    transactions = Transaction.get_transactions_by_user_id(user.id, end_date = formatDateStrToTimestamp('14/11/2024'))
+
+    assert len(transactions) == 2
+
+    assert transactions[0].amount == 44.22
+    assert formatTimestampToDateStr(transactions[0].date) == '12/11/2024'
+    assert transactions[0].memo == 'memo'
+    assert transactions[0].user_id_id == user.id
+
+    assert transactions[1].amount == 78.45
+    assert formatTimestampToDateStr(transactions[1].date) == '14/11/2024'
+    assert transactions[1].memo == 'laele'
+    assert transactions[1].user_id_id == user.id
+
 def test_update_category_transaction_model(db_session):
 
     user: User = User.create(
@@ -202,7 +299,7 @@ def test_update_category_transaction_model(db_session):
 
     transaction_updated = Transaction.from_id(transaction.id)
 
-    assert transaction_updated.category == 'category'
+    assert transaction_updated.category == 'category'  
 
 def test_create_transaction_with_wrong_amount_format(db_session):
 

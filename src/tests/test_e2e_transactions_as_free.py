@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from src.server import app
 from models import User, Transaction
 from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser
+from utils import formatDateStrToTimestamp
 
 client_test = TestClient(app)
 
@@ -53,6 +54,17 @@ async def test_get_user_transactions_e2e_as_free(authenticated_client: TestClien
     user: User = User.get_user_by_email(user_credentials['email'])
 
     response = authenticated_client.get(f'/transaction/from-user/{user.id}')
+
+    assert response.status_code == 200
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction])
+async def test_get_user_transactions_with_time_range_e2e_as_free(authenticated_client: TestClient, user_credentials):
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    response = authenticated_client.get(f'/transaction/from-user/{user.id}?start_date={formatDateStrToTimestamp("12/11/2024")}&end_date={formatDateStrToTimestamp("19/11/2024")}')
 
     assert response.status_code == 200
 

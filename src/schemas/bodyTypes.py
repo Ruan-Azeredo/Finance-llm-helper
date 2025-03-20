@@ -54,3 +54,20 @@ class CategoryCRUDInput(BaseModel):
 class LoginInput(BaseModel):
     email: str
     password: str
+
+class MonthCRUDInput(BaseModel):
+    date: Optional[str] = None
+    balance_diff: Optional[str] = None
+    income: Optional[float] = None
+    expense: Optional[float] = None
+
+    def to_dict(obj) -> dict:
+        """
+        Converte um objeto em dicionário, verificando se ele é uma instância de Pydantic ou uma classe genérica.
+        """
+        if hasattr(obj, 'dict') and callable(getattr(obj, 'dict')):  # Verifica se tem o método `dict()`
+            return obj.model_dump()
+        elif hasattr(obj, '__dict__'):  # Classes Python normais
+            return vars(obj)
+        else:
+            raise ValueError("O objeto não pode ser convertido em um dicionário.")

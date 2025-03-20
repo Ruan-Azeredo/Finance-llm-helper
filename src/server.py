@@ -2,7 +2,7 @@ from services import dataProcessingService
 from pTypes import FileTransaction
 from services import categorizeTransactionService
 from useCases import generateReport
-from controllers import user_router, auth_router, transaction_router, catTransact_router
+from controllers import user_router, auth_router, transaction_router, catTransact_router, category_router, month_router, category_router
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
@@ -50,6 +50,8 @@ app.include_router(user_router, prefix="/user")
 app.include_router(transaction_router, prefix="/transaction")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(catTransact_router, prefix="/categorize-transaction")
+app.include_router(category_router, prefix="/category")
+app.include_router(month_router, prefix="/month")
 
 
 @app.get("/")

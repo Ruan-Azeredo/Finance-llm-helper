@@ -66,8 +66,8 @@ async def create_many_transactions(user_id: int, transactions_input: list[Transa
             **transaction_input.to_dict()
         )
 
-        transaction_month_number = datetime.fromtimestamp(transaction_input.date).month
-        transaction_month_year = datetime.fromtimestamp(transaction_input.date).year
+        transaction_month_number = datetime.fromtimestamp(formatDateStrToTimestamp(transaction_input.date)).month
+        transaction_month_year = datetime.fromtimestamp(formatDateStrToTimestamp(transaction_input.date)).year
 
         if (str(transaction_month_number) + '/' + str(transaction_month_year)) not in month_already_have_transactions:
             month_already_have_transactions.append(str(transaction_month_number) + '/' + str(transaction_month_year))

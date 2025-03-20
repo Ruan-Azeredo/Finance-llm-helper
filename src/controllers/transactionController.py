@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
+from datetime import datetime
 
-from models import Transaction
+from models import Transaction, Month
 from schemas import TransactionCRUDInput
 from .utilsController import *
+from utils import formatDateStrToTimestamp
 
 transaction_router = APIRouter()
 
@@ -47,6 +49,8 @@ async def create_transaction(user_id: int, transaction_input: TransactionCRUDInp
 
     print(transaction.formatedTransactionToClient().to_dict())
 
+    Month.verify_and_create(transaction.date, user_id)
+
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
         content = {"message": "Transação criada", "transaction": transaction.formatedTransactionToClient().to_dict()}
@@ -55,11 +59,19 @@ async def create_transaction(user_id: int, transaction_input: TransactionCRUDInp
 @transaction_router_auth.post("/create-many-transactions/{user_id}")
 async def create_many_transactions(user_id: int, transactions_input: list[TransactionCRUDInput]):
 
+    month_already_have_transactions: list[str] = []
     for transaction_input in transactions_input:
         Transaction.create(
             user_id = user_id,
             **transaction_input.to_dict()
         )
+
+        transaction_month_number = datetime.fromtimestamp(transaction_input.date).month
+        transaction_month_year = datetime.fromtimestamp(transaction_input.date).year
+
+        if (str(transaction_month_number) + '/' + str(transaction_month_year)) not in month_already_have_transactions:
+            month_already_have_transactions.append(str(transaction_month_number) + '/' + str(transaction_month_year))
+            Month.verify_and_create(formatDateStrToTimestamp(transaction_input.date), user_id)
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
@@ -71,7 +83,7 @@ async def update_transaction(transaction_id: str, transaction_input: Transaction
 
     transaction: Transaction = Transaction.from_id(transaction_id)
 
-    print('transaction in put: ',transaction)
+    print('transaction in put: ', transaction)
 
     if not transaction:
         raise HTTPException(status_code = 404, detail = "Transação nao encontrada")
@@ -81,6 +93,9 @@ async def update_transaction(transaction_id: str, transaction_input: Transaction
     )
 
     updated_transaction: Transaction = Transaction.from_id(transaction_id)
+
+    if updated_transaction.date != transaction.date:
+        Month.verify_and_create(updated_transaction.date, transaction.user_id)
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,

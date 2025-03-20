@@ -264,6 +264,8 @@ async def test_create_many_transactions_e2e_as_free(authenticated_client: TestCl
     ]
 
     response = authenticated_client.post(f'/transaction/create-many-transactions/{user.id}', json = many_transaction_data)
+    
+    print(response.json())
 
     assert response.status_code == 201
     assert response.json()['message'] == "Transações criadas"

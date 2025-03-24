@@ -41,7 +41,7 @@ async def create_category(user_id: int, category_input: CategoryCRUDInput):
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
-        content = {"message": "Category criada", "category": category.to_dict()}
+        content = {"message": "Categoria criada", "category": category.to_dict()}
     )
 
 @category_router_auth.post("/create-many-categories/{user_id}")
@@ -55,7 +55,7 @@ async def create_many_categories(user_id: int, categories_input: list[CategoryCR
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
-        content = {"message": "Categories criadas"}
+        content = {"message": "Categorias criadas"}
     )
 
 @category_router_auth_by_category.put("/ops/{category_id}")
@@ -64,7 +64,7 @@ async def update_category(category_id: str, category_input: CategoryCRUDInput):
     category: Category = Category.from_id(category_id)
 
     if not category:
-        raise HTTPException(status_code = 404, detail = "Category não encontrada")
+        raise HTTPException(status_code = 404, detail = "Categoria não encontrada")
     
     category.update(
         **category_input.to_dict()
@@ -74,7 +74,7 @@ async def update_category(category_id: str, category_input: CategoryCRUDInput):
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"message": "Category atualizada", "category": updated_category.to_dict()}
+        content = {"message": "Categoria atualizada", "category": updated_category.to_dict()}
     )
 
 @category_router_auth_by_category.delete("/ops/{category_id}")
@@ -83,13 +83,13 @@ async def delete_category(category_id: str):
     category: Category = Category.from_id(category_id)
 
     if not category:
-        raise HTTPException(status_code = 404, detail = "Category não encontrada")
+        raise HTTPException(status_code = 404, detail = "Categoria não encontrada")
     
     category.delete()
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"message": "Category deletada"}
+        content = {"message": "Categoria deletada"}
     )
 
 category_router.include_router(category_router_auth)

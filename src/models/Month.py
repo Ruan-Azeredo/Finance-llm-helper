@@ -1,9 +1,10 @@
+import peewee as pw
 from peewee import DateTimeField, ForeignKeyField, DoesNotExist, FloatField, IntegerField, AutoField
 from datetime import datetime
 from copy import deepcopy
 
 from .BaseModel import BaseModel
-from models import User
+from models import User, Transaction
 from database import db
 from .handles import handle_values, handle_database_error
 from utils import validate_month_input, formatAmountToFloat, formatAmountToString, formatTimestampToDateStr
@@ -108,15 +109,29 @@ class Month(BaseModel):
 
         return months_to_update
     
-    def _scan_months_and_get_reference(month_date: int, user_id: int) -> 'Month':
+    def _scan_months_and_get_balance_diff_reference(month_date: int, user_id: int) -> 'Month':
 
         # closest next month
         closest_month = Month.select().where(Month.user_id == user_id, Month.date > month_date).order_by(Month.date.asc()).first()
-        if not closest_month:
+
+        if closest_month:
+            balance_diff_reference = closest_month.balance_diff
+        else:
             # closest previous month
             closest_month = Month.select().where(Month.user_id == user_id, Month.date < month_date).order_by(Month.date.desc()).first()
 
-        return closest_month
+            if not closest_month:
+                return None
+            
+            transactions_sum = Transaction.select(pw.fn.SUM(Transaction.amount).alias('total')).where(
+                Transaction.user_id == user_id,
+                Transaction.date >= closest_month.date,
+                Transaction.date < month_date
+            ).scalar() or 0
+
+            balance_diff_reference = closest_month.balance_diff + transactions_sum
+
+        return balance_diff_reference
     
     @handle_database_error
     def verify_and_create(transaction_date: int, user_id: int) -> None:
@@ -127,13 +142,13 @@ class Month(BaseModel):
 
         if months_to_update.count() == 0:
 
-            month_reference = Month._scan_months_and_get_reference(start_of_month, user_id)
+            balance_diff_reference = Month._scan_months_and_get_balance_diff_reference(start_of_month, user_id)
 
-            if month_reference == None:
+            if balance_diff_reference == None:
                 print("Month reference not found")
                 balance_diff = 0
             else:
-                balance_diff = month_reference.balance_diff
+                balance_diff = balance_diff_reference
 
             Month.create(user_id = user_id, date = start_of_month, balance_diff = balance_diff)
 

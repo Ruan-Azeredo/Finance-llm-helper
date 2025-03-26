@@ -1,8 +1,14 @@
 import pytest
+from datetime import datetime
 
-from models import Month, User
+from models import Month, User, Transaction
 from testUtils import db_session
 from utils import formatDateStrToTimestamp
+
+# test dependencies
+def monthToTimestamp(month: str, year: int = 2025):
+    month_number = datetime.strptime(month[:3], '%b').month
+    return formatDateStrToTimestamp(f'01/{month_number:02d}/{year}')
 
 def test_create_month_model(db_session):
     user: User = User.create(
@@ -12,7 +18,7 @@ def test_create_month_model(db_session):
     )
 
     Month.create(
-        date = formatDateStrToTimestamp('01/03/2025'),
+        date = monthToTimestamp('Mar'),
         user_id = user.id
     )
 
@@ -20,7 +26,7 @@ def test_create_month_model(db_session):
 
     assert month.balance_diff == 0
     assert month.user_id_id == user.id
-    assert month.date == formatDateStrToTimestamp('01/03/2025')
+    assert month.date == monthToTimestamp('Mar')
 
 def test_get_month_by_timestamp_date_and_user(db_session):
     user: User = User.create(
@@ -30,15 +36,15 @@ def test_get_month_by_timestamp_date_and_user(db_session):
     )
 
     Month.create(
-        date = formatDateStrToTimestamp('01/03/2025'),
+        date = monthToTimestamp('Mar'),
         user_id = user.id
     )
 
-    month: Month = Month.get_month_by_timestamp_date_and_user(formatDateStrToTimestamp('01/03/2025'), user.id)
+    month: Month = Month.get_month_by_timestamp_date_and_user(monthToTimestamp('Mar'), user.id)
 
     assert month.balance_diff == 0
     assert month.user_id_id == user.id
-    assert month.date == formatDateStrToTimestamp('01/03/2025')
+    assert month.date == monthToTimestamp('Mar')
 
 def test_get_month_by_timestamp_date_and_user_not_found_date(db_session):
     user: User = User.create(
@@ -100,7 +106,7 @@ def test_update_month_model(db_session):
     updated_month: Month = Month.from_id(1)
     assert updated_month.balance_diff == 100
     assert updated_month.user_id_id == user.id
-    assert updated_month.date == formatDateStrToTimestamp('01/03/2025')
+    assert updated_month.date == monthToTimestamp('Mar')
 
 def test_verify_and_create(db_session):
 
@@ -112,11 +118,74 @@ def test_verify_and_create(db_session):
 
     Month.verify_and_create(formatDateStrToTimestamp('21/03/2025'), user.id)
     
-    month: Month = Month.from_id(1)
+    month: Month = Month.get_month_by_timestamp_date_and_user(monthToTimestamp('Mar'), user.id)
 
     assert month.balance_diff == 0
     assert month.user_id_id == user.id
-    assert month.date == formatDateStrToTimestamp('01/03/2025')
+    assert month.date == monthToTimestamp('Mar')
+
+    Month.verify_and_create(formatDateStrToTimestamp('28/03/2025'), user.id)
+
+    month: Month = Month.get_month_by_timestamp_date_and_user(monthToTimestamp('Mar'), user.id)
+
+    assert month.balance_diff == 0
+    assert month.user_id_id == user.id
+    assert month.date == monthToTimestamp('Mar')
+
+    total_user_months = Month.get_months_by_user_id(user.id)
+
+    assert len(total_user_months) == 1
+
+    Month.verify_and_create(formatDateStrToTimestamp('03/04/2025'), user.id)
+
+    total_user_months = Month.get_months_by_user_id(user.id)
+
+    assert len(total_user_months) == 2
+
+    assert total_user_months[0].date == monthToTimestamp('Mar')
+    assert total_user_months[1].date == monthToTimestamp('Apr')
+
+    assert total_user_months[0].balance_diff == 0
+    assert total_user_months[1].balance_diff == 0
+
+    # Test balance_diff logical
+
+    Transaction.create(
+        date = '14/04/2025',
+        memo = 'description',
+        amount = '134,50',
+        user_id = user.id
+    )
+
+    Transaction.create(
+        date = '21/04/2025',
+        memo = 'description',
+        amount = '10,00',
+        user_id = user.id
+    )
+
+    Month.verify_and_create(formatDateStrToTimestamp('05/05/2025'), user.id)
+    month: Month = Month.get_month_by_timestamp_date_and_user(monthToTimestamp('May'), user.id)
+
+    assert month.balance_diff == 144.50
+    assert month.user_id_id == user.id
+    assert month.date == monthToTimestamp('May')
+
+    # Should not update balance_diff from created month
+
+    Month.verify_and_create(formatDateStrToTimestamp('10/05/2025'), user.id)
+    month: Month = Month.get_month_by_timestamp_date_and_user(monthToTimestamp('May'), user.id)
+
+    assert month.balance_diff == 144.50
+    assert month.user_id_id == user.id
+    assert month.date == monthToTimestamp('May')
+
+    Month.verify_and_create(formatDateStrToTimestamp('10/04/2025'), user.id)
+    month: Month = Month.get_month_by_timestamp_date_and_user(monthToTimestamp('Apr'), user.id)
+
+    assert month.balance_diff == 0
+    assert month.user_id_id == user.id
+    assert month.date == monthToTimestamp('Apr')
 
 def test_update_month_model(db_session):
     user: User = User.create(

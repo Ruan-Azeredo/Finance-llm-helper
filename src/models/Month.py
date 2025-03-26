@@ -6,7 +6,7 @@ from .BaseModel import BaseModel
 from models import User
 from database import db
 from .handles import handle_values, handle_database_error
-from utils import validate_month_input, formatAmountToFloat, formatAmountToString
+from utils import validate_month_input, formatAmountToFloat, formatAmountToString, formatTimestampToDateStr
 
 class Month(BaseModel):
     id = AutoField(unique = True, primary_key = True)
@@ -74,7 +74,15 @@ class Month(BaseModel):
     
     @handle_database_error
     def get_month_by_timestamp_date_and_user(date: float, user_id: int) -> 'Month':
-        return Month.select().where((Month.user_id == user_id) & (Month.date == date)).get()
+        try:
+            User.get_by_id(user_id)
+        except  Exception:
+            raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
+        
+        try:
+            return Month.select().where((Month.user_id == user_id) & (Month.date == date)).get()
+        except DoesNotExist:
+            raise DoesNotExist(f"Mes com data {formatTimestampToDateStr(date)} nao encontrado")
     
     # --------------------------------- verify / create month ---------------------------------------------------------------------------
 

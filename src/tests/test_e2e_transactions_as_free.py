@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from src.server import app
 from models import User, Transaction, Month
 from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser
-from utils import formatDateStrToTimestamp
+from utils import formatDateStrToTimestamp, formatTimestampToDateStr
 
 client_test = TestClient(app)
 
@@ -294,3 +294,205 @@ async def test_create_transaction_with_direction_default_e2e_as_free(authenticat
     assert response.json()['transaction']['date'] == "12/03/2024"
     assert response.json()['transaction']['memo'] == "memo"
     assert response.json()['transaction']['direction'] == "expense"
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+async def test_create_transaction_and_create_month_e2e_as_free(authenticated_client: TestClient, user_credentials):
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    transaction_data = {
+        "amount": "12,34",
+        "date": "12/03/2024",
+        "memo": "memo",
+        "direction": "expense"
+    }
+
+    response = authenticated_client.post(f'/transaction/ops/{user.id}', json = transaction_data)
+
+    print(response.json())
+
+    assert response.status_code == 201
+    assert response.json()['message'] == "Transação criada"
+    assert response.json()['transaction']['user_id'] == user.id
+    assert response.json()['transaction']['amount'] == '12,34'
+    assert response.json()['transaction']['date'] == "12/03/2024"
+    assert response.json()['transaction']['memo'] == "memo"
+    assert response.json()['transaction']['direction'] == "expense"
+
+    months: list[Month] = Month.get_months_by_user_id(user.id)
+
+    print(formatTimestampToDateStr(months[0].date))
+    assert months[0] is not None
+    assert months[0].user_id_id == user.id
+    assert months[0].balance_diff == 0
+    assert months[0].date == formatDateStrToTimestamp("01/03/2024")
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+async def test_create_transaction_and_create_month_e2e_as_free_with_month_already_created(authenticated_client: TestClient, user_credentials):
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    Month.create(
+        balance_diff = 0,
+        date = formatDateStrToTimestamp("01/03/2024"),
+        user_id = user.id,
+    )
+
+    months: list[Month] = Month.get_months_by_user_id(user.id)
+
+    assert len(months) == 1
+    assert months[0].user_id_id == user.id
+    assert months[0].balance_diff == 0
+    assert months[0].date == formatDateStrToTimestamp("01/03/2024")
+
+    transaction_data = {
+        "amount": "12,34",
+        "date": "12/03/2024",
+        "memo": "memo",
+        "direction": "expense"
+    }
+
+    response = authenticated_client.post(f'/transaction/ops/{user.id}', json = transaction_data)
+
+    assert response.status_code == 201
+    assert response.json()['message'] == "Transação criada"
+    assert response.json()['transaction']['user_id'] == user.id
+    assert response.json()['transaction']['amount'] == '12,34'
+    assert response.json()['transaction']['date'] == "12/03/2024"
+    assert response.json()['transaction']['memo'] == "memo"
+    assert response.json()['transaction']['direction'] == "expense"
+
+    months_after_create_transaction: list[Month] = Month.get_months_by_user_id(user.id)
+
+    assert len(months_after_create_transaction) == 1
+    assert months_after_create_transaction[0].user_id_id == user.id
+    assert months_after_create_transaction[0].balance_diff == 0
+    assert months_after_create_transaction[0].date == formatDateStrToTimestamp("01/03/2024")
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+async def test_create_many_transactions_and_create_months_e2e_as_free(authenticated_client: TestClient, user_credentials):
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    many_transaction_data = []
+
+    for i in range(10):
+        transaction_data = {
+            "amount": f"1{i},34",
+            "date": f"1{i}/03/2024",
+            "memo": f"memo {i}",
+            "direction": "expense"
+        }
+
+        many_transaction_data.append(transaction_data)
+
+    response = authenticated_client.post(f'/transaction/create-many-transactions/{user.id}', json = many_transaction_data)
+    
+    print(response.json())
+
+    assert response.status_code == 201
+    assert response.json()['message'] == "Transações criadas"
+
+    months: list[Month] = Month.get_months_by_user_id(user.id)
+
+    assert len(months) == 1
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+async def test_create_many_transactions_and_create_months_e2e_as_free_with_month_already_created(authenticated_client: TestClient, user_credentials):
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    Month.create(
+        user_id = user.id,
+        balance_diff = "12,34",
+        date = formatDateStrToTimestamp("01/03/2024")
+    )
+
+    many_transaction_data = []
+
+    for i in range(10):
+        transaction_data = {
+            "amount": f"1{i},34",
+            "date": f"1{i}/03/2024",
+            "memo": f"memo {i}",
+            "direction": "expense"
+        }
+
+        many_transaction_data.append(transaction_data)
+
+    response = authenticated_client.post(f'/transaction/create-many-transactions/{user.id}', json = many_transaction_data)
+
+    assert response.status_code == 201
+    assert response.json()['message'] == "Transações criadas"
+
+    months: list[Month] = Month.get_months_by_user_id(user.id)
+
+    assert len(months) == 1
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+async def test_update_transaction_and_update_months_e2e_as_free(authenticated_client: TestClient, user_credentials):    
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    transaction_data = {
+        "amount": "12,34",
+        "date": "12/02/2024",
+        "memo": "memo",
+        "direction": "expense"
+    }
+
+    response = authenticated_client.post(f'/transaction/ops/{user.id}', json = transaction_data)
+
+    assert response.status_code == 201
+    assert response.json()['message'] == "Transação criada"
+    assert response.json()['transaction']['user_id'] == user.id 
+    assert response.json()['transaction']['amount'] == '12,34'
+    assert response.json()['transaction']['date'] == "12/02/2024"
+    assert response.json()['transaction']['memo'] == "memo"
+    assert response.json()['transaction']['direction'] == "expense"
+
+    months: list[Month] = Month.get_months_by_user_id(user.id)
+
+    assert len(months) == 1
+    assert months[0].user_id_id == user.id
+    assert months[0].balance_diff == 0
+    assert months[0].date == formatDateStrToTimestamp("01/02/2024")
+
+
+    update_transaction_data = {
+        "amount": "12,34",
+        "date": "12/04/2024",
+        "memo": "memo",
+        "direction": "income"
+    }
+
+    update_response = authenticated_client.put(f'/transaction/ops/{response.json()["transaction"]["id"]}', json = update_transaction_data)
+
+    assert update_response.status_code == 200
+    assert update_response.json()['message'] == "Transação atualizada"
+    assert update_response.json()['transaction']['user_id'] == user.id
+    assert update_response.json()['transaction']['amount'] == '12,34'
+    assert update_response.json()['transaction']['date'] == "12/04/2024"
+    assert update_response.json()['transaction']['memo'] == "memo"
+    assert update_response.json()['transaction']['direction'] == "income"
+
+    months_after_update_transaction: list[Month] = Month.get_months_by_user_id(user.id)
+
+    assert len(months_after_update_transaction) == 2
+    assert months_after_update_transaction[0].user_id_id == user.id
+    assert months_after_update_transaction[0].balance_diff == 0
+    assert months_after_update_transaction[0].date == formatDateStrToTimestamp("01/02/2024")
+    assert months_after_update_transaction[1].user_id_id == user.id
+    assert months_after_update_transaction[1].balance_diff == 0
+    assert months_after_update_transaction[1].date == formatDateStrToTimestamp("01/04/2024")
+    

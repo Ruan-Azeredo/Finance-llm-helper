@@ -82,10 +82,36 @@ async def test_update_category_e2e_as_free(authenticated_client: TestClient, use
         "color": 1
     }
 
-    response = authenticated_client.put(f'/category/ops/{response.json()['category']['id']}', json = update_category_data)
+    response = authenticated_client.put(f'/category/ops/{response.json()["category"]["id"]}', json = update_category_data)
 
     assert response.status_code == 200
     assert response.json()['message'] == "Categoria atualizada"
     assert response.json()['category']['user_id'] == user.id
     assert response.json()['category']['name'] == "new category"
     assert response.json()['category']['color'] == 1
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseHandleLoggedUser(client_test = client, models = [User, Category])
+async def test_delete_category_e2e_as_free(authenticated_client: TestClient, user_credentials):
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    category_data = {
+        "name": "category",
+        "color": 1
+    }
+
+    category_data_2 = {
+        "name": "category2",
+        "color": 1
+    }
+
+    authenticated_client.post(f'/category/ops/{user.id}', json = category_data_2)
+    response = authenticated_client.post(f'/category/ops/{user.id}', json = category_data)
+
+    delete_response = authenticated_client.delete(f'/category/ops/{response.json()["category"]["id"]}')
+
+    
+
+    assert delete_response.status_code == 200

@@ -44,9 +44,10 @@ def SendPasswordResetEmail(user_email: str, reset_token: str):
         server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
         server.starttls()
         server.ehlo()
-        server.login(EMAIL_USER, EMAIL_PASS +  's')
+        server.login(EMAIL_USER, EMAIL_PASS)
         server.send_message(msg)
         print("Email sent successfully")
+        return {"message": "Email sent successfully"}
     except Exception as error:
         print(f"Error sending email: {error}")
         Exception(f"Error sending email: {error}")

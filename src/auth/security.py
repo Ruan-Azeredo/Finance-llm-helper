@@ -80,4 +80,17 @@ class Security:
         except jwt.InvalidTokenError as error:
             print(f"Erro: Token inválido. Detalhes: {error}")
             raise jwt.InvalidTokenError(f"Token inválido: {error}")
+        
+        
+    # Simulando um banco de dados para armazenar tokens de redefinição de senha temporariamente
+    password_reset_tokens = {}
+        
+    # @staticmethod
+    # def update_password_token(email: str) -> str:
 
+    # @staticmethod
+    # def validate_update_password_token(email: str, token: str) -> None:
+        
+    # @staticmethod
+    # def remove_password_reset_token(email: str) -> None:
+        

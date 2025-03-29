@@ -55,6 +55,14 @@ class LoginInput(BaseModel):
     email: str
     password: str
 
+class ForgotPassword(BaseModel):
+    email: str
+
+class ResetPassword(BaseModel):
+    email: str
+    token: str
+    new_password: str
+
 class MonthCRUDInput(BaseModel):
     date: Optional[str] = None
     balance_diff: Optional[str] = None

@@ -53,5 +53,5 @@ def validate_category_input(category: dict):
         raise Exception(f'Formato de name está incorreto, name não pode ser vazio')
     
 def validate_month_input(month: dict):
-    if 'date' in month and month['date'] != None and type(month['date']) != float:
-        raise Exception(f'Formato de date está incorreto, date deve ser um número float. O date recebido foi: {month["date"]}') 
+    if 'date' in month and month['date'] != None and (type(month['date']) != int and type(month['date']) != float):
+        raise Exception(f'Formato de date está incorreto, date deve ser um número float. O date recebido foi: {month["date"]}, tipo: {type(month["date"])}') 

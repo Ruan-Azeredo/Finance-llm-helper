@@ -1,8 +1,13 @@
 from fastapi.testclient import TestClient
 from peewee import SqliteDatabase, Model
 import os
+import functools
+import pytest_mock
 
 from models import User
+from src.server import app
+
+defalut_client = TestClient(app)
 
 EMAIL = 'test@gmail.com'
 PASSWORD = 'test'
@@ -62,39 +67,48 @@ Utilize essa função como decorator, passando os parametros necessarios para a 
 É de suma importancia a função de test receber o authenticated_client como parametro!
 """
 
-def setupDatabaseFileWithTables(client_test: TestClient, is_admin: bool = False, models: list[Model] = [User]):
+def setupDatabaseFileWithTables(client_test: TestClient = defalut_client, is_admin: bool = False, models: list[Model] = [User]):
     def decorator(func):
+        #@functools.wraps(func) # Preserve function signature for pytest
         async def wrapper(*args, **kwargs):
+
+            print(f"Function: {func.__name__}")
+            print(f"Args: {args}")
+            print(f"Kwargs Before Modification: {kwargs}")
      
             test_db = _setupDb(func_name = func.__name__, models = models)
             
+
             authenticated_client, _ = defineAuthUser(client_test = client_test, is_admin = is_admin)
 
+            print('kwargs', kwargs)
+            #if 'authenticated_client' in kwargs:
             kwargs['authenticated_client'] = authenticated_client
 
             try:
-                test = await func(*args, **kwargs)
-                return test
+                return await func(*args, **kwargs)
             finally:
                 _deleteUserDb(test_db = test_db, func_name = func.__name__)
 
         return wrapper
     return decorator
 
-def setupDatabaseHandleLoggedUser(client_test: TestClient, is_admin: bool = False, models: list[Model] = [User]):
+def setupDatabaseHandleLoggedUser(client_test: TestClient = defalut_client, is_admin: bool = False, models: list[Model] = [User]):
+    print('client_test', client_test)
     def decorator(func):
+        #@functools.wraps(func)
         async def wrapper(*args, **kwargs):
      
             test_db = _setupDb(func_name = func.__name__, models = models)
             
             authenticated_client, user_credentials = defineAuthUser(client_test = client_test, is_admin = is_admin)
 
+
             kwargs['authenticated_client'] = authenticated_client
             kwargs['user_credentials'] = user_credentials
-            
+        
             try:
-                test = await func(*args, **kwargs)
-                return test
+                return await func(*args, **kwargs)
             finally:
                 _deleteUserDb(test_db = test_db, func_name = func.__name__)
 

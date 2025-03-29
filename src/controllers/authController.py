@@ -1,10 +1,13 @@
 from peewee import DoesNotExist
 from fastapi import APIRouter, HTTPException, Request, status, Depends
+import secrets
+import time
 
 from auth import Security
 from models import User
-from schemas import LoginInput
+from schemas import LoginInput, ResetPassword, ForgotPassword
 from .utilsController import *
+from services import SendPasswordResetEmail
 
 auth_router = APIRouter()
 
@@ -64,5 +67,54 @@ async def get_access_token(request: Request):
             status_code = status.HTTP_401_UNAUTHORIZED,
             detail = str(error)
         )
+    
+# Simulando um banco de dados para armazenar tokens de redefinição de senha temporariamente
+password_reset_tokens = {}
+
+@auth_router.post("/forgot-password")
+async def forgot_password(forgot_password: ForgotPassword):
+    try:
+        User.get_user_by_email(forgot_password.email)
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+    # Gerar token único de redefinição de senha
+    reset_token = secrets.token_hex(32)
+    password_reset_tokens[forgot_password.email] = {"token": reset_token, "expires": time.time() + 3600}  # Expira em 1 hora
+
+    # Enviar e-mail com link de redefinição de senha
+    SendPasswordResetEmail(forgot_password.email, reset_token)
+
+    return {"message": "E-mail de recuperação enviado!"}
+
+
+@auth_router.post("/reset-password")
+async def reset_password(reset_password: ResetPassword):
+
+    try:
+        User.get_user_by_email(reset_password.email)
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+    # Verificar se o token é válido
+    if reset_password.email not in password_reset_tokens or password_reset_tokens[reset_password.email]["token"] != reset_password.token:
+        raise HTTPException(status_code=400, detail="Token inválido ou expirado")
+
+    if time.time() > password_reset_tokens[reset_password.email]["expires"]:
+        raise HTTPException(status_code=400, detail="Token expirado")
+
+    try:
+        user: User = User.get_user_by_email(reset_password.email)
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
+    # Atualizar a senha do usuário
+    user = User.get_user_by_email(reset_password.email)
+    user.update(password = reset_password.new_password)
+
+    # Remover o token após o uso
+    del password_reset_tokens[reset_password.email]
+
+    return {"message": "Senha redefinida com sucesso!"}
     
 auth_router.include_router(auth_router_auth)

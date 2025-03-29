@@ -3,31 +3,35 @@ from fastapi.testclient import TestClient
 from peewee import SqliteDatabase
 from datetime import timedelta
 import os
+import time
+import pytest_mock
 
 from src.server import app
 from models import User
 from auth import Security
+from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser
 
 client = TestClient(app)
 
-@pytest.fixture(scope="session", autouse=True)
-def setup_and_teardown_database():
-    test_db = SqliteDatabase('test.db')
-    # Configuração do banco de dados
-    User._meta.database = test_db
-    test_db.connect()
-    test_db.create_tables([User])
-    yield
-    # Teardown - Fecha a conexão e remove o arquivo do banco de dados
-    test_db.drop_tables([User])
-    test_db.close()
-    if os.path.exists('test.db'):
-        os.remove('test.db')
+# @pytest.fixture(scope="session", autouse=True)
+# def setup_and_teardown_database():
+#     test_db = SqliteDatabase('test.db')
+#     # Configuração do banco de dados
+#     User._meta.database = test_db
+#     test_db.connect()
+#     test_db.create_tables([User])
+#     yield
+#     # Teardown - Fecha a conexão e remove o arquivo do banco de dados
+#     test_db.drop_tables([User])
+#     test_db.close()
+#     if os.path.exists('test.db'):
+#         os.remove('test.db')
 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_access_to_protected_route():
+@setupDatabaseFileWithTables(models = [User])
+async def test_access_to_protected_route(authenticated_client):
 
     User.create(
         name = 'test1',
@@ -57,7 +61,8 @@ async def test_access_to_protected_route():
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_access_to_protected_route_with_invalid_token():
+@setupDatabaseFileWithTables(models = [User])
+async def test_access_to_protected_route_with_invalid_token(authenticated_client):
 
     response = client.get('/user/protected-route', headers={"Authorization": "Bearer invalid_token"})
 
@@ -66,7 +71,8 @@ async def test_access_to_protected_route_with_invalid_token():
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_access_to_protected_route_without_token():
+@setupDatabaseFileWithTables(models = [User])
+async def test_access_to_protected_route_without_token(authenticated_client):
 
     response = client.get('/user/protected-route')
 
@@ -75,7 +81,8 @@ async def test_access_to_protected_route_without_token():
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_access_to_protected_route_with_expired_token():
+@setupDatabaseFileWithTables(models = [User])
+async def test_access_to_protected_route_with_expired_token(authenticated_client):
 
     User.create(
         name = 'test2',
@@ -108,3 +115,128 @@ async def test_request_access_token_without_refresh_token():
 
 async def test_request_access_token_with_expired_refresh_token():
 """
+
+def mock_send_password_reset_email(email: str, reset_token: str):
+    print(f"E-mail enviado para {email} com token {reset_token}")
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseFileWithTables(models = [User])
+async def test_forgot_password(mocker: pytest_mock.MockerFixture, authenticated_client):
+
+    """Testa se a solicitação de redefinição de senha funciona corretamente"""
+    mocker.patch('services.SendPasswordResetEmail', mock_send_password_reset_email)
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email',
+        password = 'password'
+    )
+
+    response = client.post('/auth/forgot-password', json={"email": user.email})
+    print('response', response.json())
+    assert response.status_code == 200
+    assert response.json()["message"] == "E-mail de recuperação enviado!"
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseFileWithTables(models = [User])
+async def test_forgot_password_with_invalid_email(authenticated_client):
+    response = client.post('/auth/forgot-password', json={"email": "invalid_email"})
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Usuário não encontrado"
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseFileWithTables(models = [User])
+async def test_reset_password(mocker: pytest_mock.MockerFixture, authenticated_client):
+
+    user: User = User.create(
+        name = 'name',
+        email = 'email',
+        password = 'password'
+    )
+
+    """Testa se a redefinição de senha funciona corretamente"""
+    # Gerar um token de teste manualmente
+    reset_token = "testtoken123"
+    password_reset_tokens = {}
+    password_reset_tokens[user.email] = {"token": reset_token, "expires": time.time() + 3600}
+
+    mocker.patch('controllers.authController.password_reset_tokens', password_reset_tokens)
+
+    new_password = "NovaSenha123"
+    response = client.post("/auth/reset-password", json={
+        "email": user.email,
+        "token": reset_token,
+        "new_password": new_password
+    })
+
+    print('response', response.json())
+    assert response.status_code == 200
+    assert response.json() == {"message": "Senha redefinida com sucesso!"}
+
+    # Verificar se a senha foi realmente alterada no banco de dados
+    user: User = User.get_user_by_email(user.email)
+    assert Security.verify_password(new_password, user.password)  # A senha deve ter sido alterada
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseFileWithTables(models = [User])
+async def test_reset_password_with_invalid_token(authenticated_client):
+    
+    user: User = User.create(
+        name = 'name',
+        email = 'email',
+        password = 'password'
+    )
+
+    response = client.post("/auth/reset-password", json={
+    "email": user.email,
+    "token": "invalid_token",
+    "new_password": "NovaSenha123"
+    })
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Token inválido ou expirado"}
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseFileWithTables(models = [User])
+async def test_reset_password_with_invalid_email(authenticated_client):
+
+    response = client.post("/auth/reset-password", json={
+    "email": "invalid_email",
+    "token": "valid_token",
+    "new_password": "NovaSenha123"
+    })
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Usuário não encontrado"}
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@setupDatabaseFileWithTables(models = [User])
+async def test_reset_password_with_expired_token(authenticated_client, mocker: pytest_mock.MockerFixture):
+    
+    user: User = User.create(
+        name = 'name',
+        email = 'email',
+        password = 'password'
+    )
+
+    reset_token = "testtoken123"
+    password_reset_tokens = {}
+    password_reset_tokens[user.email] = {"token": reset_token, "expires": time.time() - 1} # Token expirado
+
+    mocker.patch('controllers.authController.password_reset_tokens', password_reset_tokens)
+
+
+    response = client.post("/auth/reset-password", json={
+    "email": user.email,
+    "token": "expired_token",
+    "new_password": "NovaSenha123"
+    })
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Token inválido ou expirado"}

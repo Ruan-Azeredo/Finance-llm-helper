@@ -33,6 +33,20 @@ else
 	@set POSTGRES_HOST=0.0.0.0 && cd src && uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 endif
 
+# start db with docker and run server out of container
+devstartwdb:
+ifeq ($(COLIMA), true)
+	@echo "Starting Colima..."
+	@colima start
+endif
+ifeq ($(OS), Linux)
+	@docker-compose up db -d && cd src && POSTGRES_HOST=0.0.0.0 uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+else ifeq ($(OS), Darwin)
+	@docker-compose up db -d && cd src && POSTGRES_HOST=0.0.0.0 uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+else
+	@set POSTGRES_HOST=0.0.0.0 && docker-compose up db -d && cd src && uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+endif
+
 # make script file=script_name
 script:
 ifeq ($(OS), Linux)

@@ -3,23 +3,29 @@ from fastapi.testclient import TestClient
 
 from src.server import app
 from models import User, Category
-from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser
+from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser, setup_database_with_tables
 
 client = TestClient(app)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client, is_admin = True, models = [User, Category])
-async def test_get_all_categories_e2e_as_admin(authenticated_client: TestClient):
+@pytest.mark.parametrize("setup_database_with_tables", [{"is_admin": True, "models": [User, Category]}], indirect=True)
+async def test_get_all_categories_e2e_as_admin(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
 
     response = authenticated_client.get('/category/ops')
+
+    print(response.json())
 
     assert response.status_code == 200
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client, models = [User, Category])
-async def test_get_all_categories_e2e_as_free(authenticated_client: TestClient):
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+async def test_get_all_categories_e2e_as_free(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
 
     response = authenticated_client.get('/category/ops')
 
@@ -27,8 +33,11 @@ async def test_get_all_categories_e2e_as_free(authenticated_client: TestClient):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client, models = [User, Category])
-async def test_create_category_e2e_as_free(authenticated_client: TestClient, user_credentials):
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+async def test_create_category_e2e_as_free(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
+    user_credentials = setup_database_with_tables['user_credentials']
 
     user: User = User.get_user_by_email(user_credentials['email'])
 
@@ -46,8 +55,12 @@ async def test_create_category_e2e_as_free(authenticated_client: TestClient, use
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client, models = [User, Category])
-async def test_create_category_defining_color_e2e_as_free(authenticated_client: TestClient, user_credentials):
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+async def test_create_category_defining_color_e2e_as_free(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
+    user_credentials = setup_database_with_tables['user_credentials']
+
     user: User = User.get_user_by_email(user_credentials['email'])
 
     category_data = {
@@ -65,8 +78,11 @@ async def test_create_category_defining_color_e2e_as_free(authenticated_client: 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client, models = [User, Category])
-async def test_update_category_e2e_as_free(authenticated_client: TestClient, user_credentials):
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+async def test_update_category_e2e_as_free(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
+    user_credentials = setup_database_with_tables['user_credentials']
 
     user: User = User.get_user_by_email(user_credentials['email'])
 
@@ -92,8 +108,11 @@ async def test_update_category_e2e_as_free(authenticated_client: TestClient, use
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client, models = [User, Category])
-async def test_delete_category_e2e_as_free(authenticated_client: TestClient, user_credentials):
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+async def test_delete_category_e2e_as_free(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
+    user_credentials = setup_database_with_tables['user_credentials']
 
     user: User = User.get_user_by_email(user_credentials['email'])
 

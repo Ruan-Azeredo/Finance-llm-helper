@@ -9,7 +9,7 @@ def _load_env_environment():
 
     FRONTEND_URL = os.getenv("FRONTEND_URL")
     EMAIL_HOST = os.getenv("EMAIL_HOST")
-    EMAIL_PORT = int(os.getenv("EMAIL_PORT"))
+    EMAIL_PORT = int(os.getenv("EMAIL_PORT") or 587)
     EMAIL_USER = os.getenv("EMAIL_USER")
     EMAIL_PASS = os.getenv("EMAIL_PASS")
 

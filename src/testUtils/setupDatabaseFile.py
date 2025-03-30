@@ -2,12 +2,13 @@ from fastapi.testclient import TestClient
 from peewee import SqliteDatabase, Model
 import os
 import functools
-import pytest_mock
+import pytest
+from typing import Generator
 
 from models import User
 from src.server import app
 
-defalut_client = TestClient(app)
+default_client = TestClient(app)
 
 EMAIL = 'test@gmail.com'
 PASSWORD = 'test'
@@ -67,7 +68,25 @@ Utilize essa função como decorator, passando os parametros necessarios para a 
 É de suma importancia a função de test receber o authenticated_client como parametro!
 """
 
-def setupDatabaseFileWithTables(client_test: TestClient = defalut_client, is_admin: bool = False, models: list[Model] = [User]):
+@pytest.fixture
+def setup_database_with_tables(request: pytest.FixtureRequest) -> Generator[dict[str, dict[str, TestClient | str]], None, None]:
+    models: list[Model] = request.param.get('models') if request.param.get('models') else [User]
+    client_test = request.param.get('client_test') if request.param.get('client_test') else default_client
+    is_admin = request.param.get('is_admin') if request.param.get('is_admin') else False
+
+    test_db = _setupDb(func_name = request._pyfuncitem.name, models = models)
+
+    authenticated_client, user_credentials = defineAuthUser(client_test = client_test, is_admin = is_admin)
+    
+    yield {
+        "authenticated_client": authenticated_client,
+        "user_credentials": user_credentials
+    }
+
+    _deleteUserDb(test_db = test_db, func_name = request._pyfuncitem.name)
+
+        
+def setupDatabaseFileWithTables(client_test: TestClient = default_client, is_admin: bool = False, models: list[Model] = [User]):
     def decorator(func):
         #@functools.wraps(func) # Preserve function signature for pytest
         async def wrapper(*args, **kwargs):
@@ -93,7 +112,7 @@ def setupDatabaseFileWithTables(client_test: TestClient = defalut_client, is_adm
         return wrapper
     return decorator
 
-def setupDatabaseHandleLoggedUser(client_test: TestClient = defalut_client, is_admin: bool = False, models: list[Model] = [User]):
+def setupDatabaseHandleLoggedUser(client_test: TestClient = default_client, is_admin: bool = False, models: list[Model] = [User]):
     print('client_test', client_test)
     def decorator(func):
         #@functools.wraps(func)

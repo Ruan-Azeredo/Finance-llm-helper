@@ -1,2 +1,2 @@
 from .memoryMockDatabase import test_db, db_session
-from .setupDatabaseFile import setupDatabaseHandleLoggedUser, setupDatabaseFileWithTables
+from .setupDatabaseFile import setupDatabaseHandleLoggedUser, setupDatabaseFileWithTables, setup_database_with_tables

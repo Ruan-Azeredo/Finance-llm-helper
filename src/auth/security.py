@@ -1,9 +1,12 @@
+from fastapi import HTTPException
 import jwt
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from typing import Literal
 from dotenv import load_dotenv
 import os
+import secrets
+import time
 
 from .config import (
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES, 
@@ -85,12 +88,22 @@ class Security:
     # Simulando um banco de dados para armazenar tokens de redefinição de senha temporariamente
     password_reset_tokens = {}
         
-    # @staticmethod
-    # def update_password_token(email: str) -> str:
+    @staticmethod
+    def update_password_token(email: str) -> str:
+        reset_token = secrets.token_hex(32)
+        Security.password_reset_tokens[email] = {"token": reset_token, "expires": time.time() + 3600}  # Expira em 1 hora
+        return reset_token
 
-    # @staticmethod
-    # def validate_update_password_token(email: str, token: str) -> None:
+    @staticmethod
+    def validate_update_password_token(email: str, token: str) -> None:
+        password_reset_tokens = Security.password_reset_tokens
+
+        if email not in password_reset_tokens or password_reset_tokens[email]["token"] != token:
+            raise HTTPException(status_code=400, detail="Token inválido ou expirado")
+
+        if time.time() > password_reset_tokens[email]["expires"]:
+            raise HTTPException(status_code=400, detail="Token expirado")
         
-    # @staticmethod
-    # def remove_password_reset_token(email: str) -> None:
-        
+    @staticmethod
+    def remove_password_reset_token(email: str) -> None:
+        del Security.password_reset_tokens[email]

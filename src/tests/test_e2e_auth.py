@@ -163,7 +163,7 @@ async def test_reset_password(mocker: pytest_mock.MockerFixture, setup_database_
     password_reset_tokens = {}
     password_reset_tokens[user.email] = {"token": reset_token, "expires": time.time() + 3600}
 
-    mocker.patch('controllers.authController.password_reset_tokens', password_reset_tokens)
+    mocker.patch('auth.security.Security.password_reset_tokens', password_reset_tokens)
 
     new_password = "NovaSenha123"
     response = not_logged_client.post("/auth/reset-password", json={

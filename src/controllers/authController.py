@@ -79,8 +79,7 @@ async def forgot_password(forgot_password: ForgotPassword):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
     # Gerar token único de redefinição de senha
-    reset_token = secrets.token_hex(32)
-    password_reset_tokens[forgot_password.email] = {"token": reset_token, "expires": time.time() + 3600}  # Expira em 1 hora
+    reset_token = Security.update_password_token(forgot_password.email)
 
     # Enviar e-mail com link de redefinição de senha
     SendPasswordResetEmail(forgot_password.email, reset_token)
@@ -97,11 +96,7 @@ async def reset_password(reset_password: ResetPassword):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
     # Verificar se o token é válido
-    if reset_password.email not in password_reset_tokens or password_reset_tokens[reset_password.email]["token"] != reset_password.token:
-        raise HTTPException(status_code=400, detail="Token inválido ou expirado")
-
-    if time.time() > password_reset_tokens[reset_password.email]["expires"]:
-        raise HTTPException(status_code=400, detail="Token expirado")
+    Security.validate_update_password_token(reset_password.email, reset_password.token)
 
     try:
         user: User = User.get_user_by_email(reset_password.email)
@@ -113,7 +108,7 @@ async def reset_password(reset_password: ResetPassword):
     user.update(password = reset_password.new_password)
 
     # Remover o token após o uso
-    del password_reset_tokens[reset_password.email]
+    Security.remove_password_reset_token(reset_password.email)
 
     return {"message": "Senha redefinida com sucesso!"}
     

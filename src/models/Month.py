@@ -7,7 +7,7 @@ from .BaseModel import BaseModel
 from models import User, Transaction
 from database import db
 from .handles import handle_values, handle_database_error
-from utils import validate_month_input, formatAmountToFloat, formatAmountToString, formatTimestampToDateStr
+from utils import validate_month_input, formatAmountToFloat, formatAmountToString, formatTimestampToDateStr, get_start_and_end_of_month_by_date
 
 class Month(BaseModel):
     id = AutoField(unique = True, primary_key = True)
@@ -73,7 +73,7 @@ class Month(BaseModel):
         
         return Month.select().where(Month.user_id == user_id)
     
-    @handle_database_error
+    
     def get_month_by_timestamp_date_and_user(date: float, user_id: int) -> 'Month':
         try:
             User.get_by_id(user_id)
@@ -87,23 +87,9 @@ class Month(BaseModel):
     
     # --------------------------------- verify / create month ---------------------------------------------------------------------------
 
-    def _get_start_and_end_of_month_by_date(date: int) -> tuple[int, int]:
-
-        transaction_month_number = datetime.fromtimestamp(date).month # month is 1-12
-        transaction_month_year = datetime.fromtimestamp(date).year # year is 2023, 2024, etc.
-
-        start_of_month = datetime(transaction_month_year, transaction_month_number, 1).timestamp()
-
-        if transaction_month_number == 12:
-            start_of_next_month = datetime(transaction_month_year + 1, 1, 1).timestamp()
-        else:
-            start_of_next_month = datetime(transaction_month_year, transaction_month_number + 1, 1).timestamp()
-
-        return start_of_month, start_of_next_month
-
     def _find_months_to_update_by_date(transaction_date: int, user_id) -> int:
        
-        start_of_month, start_of_next_month = Month._get_start_and_end_of_month_by_date(transaction_date)
+        start_of_month, start_of_next_month = get_start_and_end_of_month_by_date(transaction_date)
 
         months_to_update = Month.select().where(Month.user_id == user_id).where(Month.date >= start_of_month, Month.date < start_of_next_month)
 
@@ -123,11 +109,13 @@ class Month(BaseModel):
             if not closest_month:
                 return None
             
-            transactions_sum = Transaction.select(pw.fn.SUM(Transaction.amount).alias('total')).where(
+            transactions: list[Transaction] = Transaction.select(Transaction.amount, Transaction.direction).where(
                 Transaction.user_id == user_id,
                 Transaction.date >= closest_month.date,
                 Transaction.date < month_date
-            ).scalar() or 0
+            )
+
+            transactions_sum = Transaction.sum_transactions_amount(transactions)
 
             balance_diff_reference = closest_month.balance_diff + transactions_sum
 
@@ -138,7 +126,7 @@ class Month(BaseModel):
         
         months_to_update = Month._find_months_to_update_by_date(transaction_date, user_id)
 
-        start_of_month, _ = Month._get_start_and_end_of_month_by_date(transaction_date)
+        start_of_month, _ = get_start_and_end_of_month_by_date(transaction_date)
 
         if months_to_update.count() == 0:
 

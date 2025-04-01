@@ -388,3 +388,38 @@ def test_verify_and_create_with_invalid_user_id(db_session):
         Month.verify_and_create(formatDateStrToTimestamp('21/03/2025'), user.id + 1)
         print(error.value)
         assert error.value.args[0] == f"Usuário nao encontrado"
+
+def test_get_last_month_until_date(db_session):
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    Month.create(
+        date = formatDateStrToTimestamp('01/03/2025'),
+        user_id = user.id
+    )
+
+    Month.create(
+        date = formatDateStrToTimestamp('01/04/2025'),
+        user_id = user.id
+    )
+
+    Month.create(
+        date = formatDateStrToTimestamp('01/05/2025'),
+        user_id = user.id
+    )
+
+    last_month: Month = Month.get_last_month_until_date(formatDateStrToTimestamp('21/08/2025'), user.id)
+
+    assert last_month.date == formatDateStrToTimestamp('01/05/2025')
+
+    last_month: Month = Month.get_last_month_until_date(formatDateStrToTimestamp('01/03/2025'), user.id)
+
+    assert last_month.date == formatDateStrToTimestamp('01/03/2025')
+
+    with pytest.raises(Exception) as error:
+        Month.get_last_month_until_date(formatDateStrToTimestamp('01/02/2025'), user.id)
+        print(error.value)
+        assert error.value.args[0] == f"Mes com data menor do que 01/02/202501/02/2025 nao encontrado para o usuario com id 1"

@@ -64,16 +64,35 @@ class Month(BaseModel):
 
     # non used yet
     @handle_database_error
-    def get_months_by_user_id(user_id: int) -> list['Month']:
+    def get_months_by_user_id(user_id: int, max_date_timestamp: int | None = None, min_date_timestamp: int | None = None) -> list['Month']:
         
         try:
             User.get_by_id(user_id)
         except  Exception:
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
         
-        return Month.select().where(Month.user_id == user_id)
+        if max_date_timestamp == None and min_date_timestamp == None:
+            return Month.select().where(Month.user_id == user_id)
+        elif max_date_timestamp == None:
+            return Month.select().where(Month.user_id == user_id, Month.date >= min_date_timestamp)
+        elif min_date_timestamp == None:
+            return Month.select().where(Month.user_id == user_id, Month.date <= max_date_timestamp)
+        else:
+            return Month.select().where(Month.user_id == user_id, Month.date >= min_date_timestamp, Month.date <= max_date_timestamp)
+        
+    @handle_database_error
+    def get_last_month_until_date(date: int, user_id: int) -> 'Month':
+        try:
+            User.get_by_id(user_id)
+        except  Exception:
+            raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
+
+        try:
+            return Month.select().where(Month.user_id == user_id, Month.date <= date).order_by(Month.date.desc()).first()
+        except DoesNotExist:
+            raise DoesNotExist(f"Mes com data menor do que {formatTimestampToDateStr(date)} nao encontrado para o usuario com id {user_id}")
     
-    
+    @handle_database_error
     def get_month_by_timestamp_date_and_user(date: float, user_id: int) -> 'Month':
         try:
             User.get_by_id(user_id)

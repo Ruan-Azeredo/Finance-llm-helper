@@ -119,4 +119,80 @@ async def test_months_balance(setup_database_with_tables):
     assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/03/2025'))] == -35.00
     assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/04/2025'))] == 5.00
 
-    
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Month, Transaction]}], indirect=True)
+async def test_year_balance(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
+    user_credentials = setup_database_with_tables['user_credentials']
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    #----------------------------------------------------------------------
+
+    # balance_diff = 0
+    Month.verify_and_create(
+        transaction_date = formatDateStrToTimestamp('01/03/2025'),
+        user_id = user.id
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '10,00',
+        date = '21/03/2025',
+        memo = 'memo',
+        direction = 'expense'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '25,00',
+        date = '31/03/2025',
+        memo = 'memo',
+        direction = 'expense'
+    )
+
+    # Saldo do mes 3 de 2025 = - 35,00
+
+    #------------------------- ----------------- ------------- -------- ---
+
+    # balance_diff = - 35,00
+    Month.verify_and_create(
+        transaction_date = formatDateStrToTimestamp('01/04/2025'),
+        user_id = user.id
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '10,00',
+        date = '21/04/2025',
+        memo = 'memo',
+        direction = 'expense'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '50,00',
+        date = '14/04/2025',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    # Saldo do mes 4 de 2025 = - 35,00 - 10,00 + 50,00 = 5,00
+
+    # ----------------------------------------------------------------------
+
+    # Saldo final de de 2025 = ultimo saldo do mes 4 de 2025 = 5,00
+
+    response = authenticated_client.post(f'/month/months-balance/', json = {
+        "timestamps": [formatDateStrToTimestamp('01/01/2024'), formatDateStrToTimestamp('01/01/2025'), formatDateStrToTimestamp('01/01/2026')],
+        "type": "years"
+    })
+
+    print(response.json())
+
+    assert response.status_code == 200
+    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/01/2024'))] == 0
+    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/01/2025'))] == 5.00
+    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/01/2026'))] == 5.00

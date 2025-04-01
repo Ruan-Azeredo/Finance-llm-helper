@@ -3,9 +3,9 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
 from src.server import app
-from models import User, Month
-from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser
-from utils import formatDateStrToTimestamp
+from models import User, Month, Transaction
+from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser, setup_database_with_tables
+from utils import formatDateStrToTimestamp, formatTimestampToDateStr
 
 client_test = TestClient(app)
 
@@ -37,3 +37,86 @@ handle  errors, controller errors
 
 create tests in transactionsController.py to handle errors annd months creation especific cases
 """
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Month, Transaction]}], indirect=True)
+async def test_months_balance(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
+    user_credentials = setup_database_with_tables['user_credentials']
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    #----------------------------------------------------------------------
+
+    # balance_diff = 0
+    Month.verify_and_create(
+        transaction_date = formatDateStrToTimestamp('01/03/2025'),
+        user_id = user.id
+    )
+
+    month_1: Month = Month.get_month_by_timestamp_date_and_user(formatDateStrToTimestamp('01/03/2025'), user.id)
+    print(month_1.balance_diff, formatTimestampToDateStr(month_1.date), ' - ', month_1.date)
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '10,00',
+        date = '21/03/2025',
+        memo = 'memo',
+        direction = 'expense'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '25,00',
+        date = '31/03/2025',
+        memo = 'memo',
+        direction = 'expense'
+    )
+
+    # Saldo do mes 3 de 2025 = - 35,00
+
+    #------------------------- ----------------- ------------- -------- ---
+
+    # balance_diff = - 35,00
+    Month.verify_and_create(
+        transaction_date = formatDateStrToTimestamp('01/04/2025'),
+        user_id = user.id
+    )
+
+    month_2: Month = Month.get_month_by_timestamp_date_and_user(formatDateStrToTimestamp('01/04/2025'), user.id)
+    print(month_2.balance_diff, formatTimestampToDateStr(month_2.date), ' - ', month_2.date)
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '10,00',
+        date = '21/04/2025',
+        memo = 'memo',
+        direction = 'expense'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '50,00',
+        date = '14/04/2025',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    # Saldo do mes 4 de 2025 = - 35,00 - 10,00 + 50,00 = 5,00
+
+    # ----------------------------------------------------------------------
+
+    response = authenticated_client.post(f'/month/months-balance/', json = {
+        "timestamps": [formatDateStrToTimestamp('01/03/2025'), formatDateStrToTimestamp('01/04/2025')]
+    })
+
+    print(response.json())
+
+    assert response.status_code == 200
+    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/03/2025'))] == -35.00
+    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/04/2025'))] == 5.00
+
+    

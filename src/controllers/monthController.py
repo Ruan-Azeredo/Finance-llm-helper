@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
+from peewee import DoesNotExist
 
-from schemas import MonthCRUDInput
+from models import Month, User, Transaction 
+from schemas import MonthCRUDInput, MonthsBalanceInput
 from .utilsController import *
+from utils import get_start_and_end_of_month_by_date
 
 month_router = APIRouter()
 
@@ -70,6 +73,32 @@ async def update_month(month_id: int, month_input: MonthCRUDInput):
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {"message": "Month atualizado", "month": updated_month.formatedMonthToClient().to_dict()}
+    )
+
+@month_router_auth.post("/months-balance")
+async def get_months_with_transactions_sum_by_time(MonthsBalanceInput: MonthsBalanceInput, current_user: User = Depends(User.get_current_user)):
+
+    months_balance = {}
+
+    for month_timestamp in MonthsBalanceInput.timestamps:
+
+        transactions_in_time_range: list[Transaction] = Transaction.get_by_timestamps_range(user_id = current_user.id, start_timestamp = month_timestamp, end_timestamp = get_start_and_end_of_month_by_date(month_timestamp)[1])
+
+        transactions_in_month_sum = Transaction.sum_transactions_amount(transactions_in_time_range)
+
+        try:
+            month: Month = Month.get_month_by_timestamp_date_and_user(month_timestamp, current_user.id)
+        except Exception:
+            month = None
+
+        if month is None:
+            months_balance[month_timestamp] = transactions_in_month_sum
+        else:
+            months_balance[month_timestamp] = month.balance_diff + transactions_in_month_sum
+    
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {"months_balance": months_balance}
     )
 
 """ 

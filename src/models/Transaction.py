@@ -112,4 +112,19 @@ class Transaction(BaseModel):
     @handle_database_error
     def update_category(self, category: str) -> None:
         self.update(category = category)
+
+    @handle_database_error
+    def get_by_timestamps_range(user_id: int, start_timestamp: int, end_timestamp: int) -> list['Transaction']:
+        transactions = Transaction.select().where(Transaction.date >= start_timestamp, Transaction.date <= end_timestamp)
+
+        return transactions.order_by(Transaction.date.asc())
     
+    def sum_transactions_amount(transactions: list['Transaction']) -> float:
+        sum = 0
+        for transaction in transactions:
+            if transaction.direction == "income":
+                sum += transaction.amount
+            elif transaction.direction == "expense":
+                sum -= transaction.amount
+
+        return sum

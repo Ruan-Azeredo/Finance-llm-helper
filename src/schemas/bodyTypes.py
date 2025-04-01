@@ -79,3 +79,6 @@ class MonthCRUDInput(BaseModel):
             return vars(obj)
         else:
             raise ValueError("O objeto não pode ser convertido em um dicionário.")
+        
+class MonthsBalanceInput(BaseModel):
+    timestamps: list[int]

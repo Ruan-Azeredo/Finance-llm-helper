@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Literal
 
 class UserCRUDInput(BaseModel):
     name: Optional[str] = None
@@ -82,3 +82,4 @@ class MonthCRUDInput(BaseModel):
         
 class MonthsBalanceInput(BaseModel):
     timestamps: list[int]
+    type: Literal["months", "years"] = "months"

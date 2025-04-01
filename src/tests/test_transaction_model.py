@@ -486,3 +486,38 @@ def test_formated_transaction_to_client(db_session):
     assert transaction.formatedTransactionToClient().date == '12/12/2024'
     assert transaction.formatedTransactionToClient().memo == 'memo'
     assert transaction.formatedTransactionToClient().direction == 'income'
+
+def test_sum_transactions_amount(db_session):
+    user: User = User.create(
+        name = 'name',
+        email = 'email@email.com',
+        password = 'password'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '30,00',
+        date = '12/12/2024',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '10,00',
+        date = '12/12/2024',
+        memo = 'memo',
+        direction = 'income'
+    )
+
+    Transaction.create(
+        user_id = user.id,
+        amount = '2,00',
+        date = '12/12/2024',
+        memo = 'memo',
+        direction = 'expense'
+    )
+
+    transactions = Transaction.get_transactions_by_user_id(user.id)
+
+    assert Transaction.sum_transactions_amount(transactions) == 38.0

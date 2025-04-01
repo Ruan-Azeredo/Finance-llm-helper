@@ -153,6 +153,7 @@ def test_verify_and_create(db_session):
     Transaction.create(
         date = '14/04/2025',
         memo = 'description',
+        direction = 'income',
         amount = '134,50',
         user_id = user.id
     )
@@ -160,14 +161,24 @@ def test_verify_and_create(db_session):
     Transaction.create(
         date = '21/04/2025',
         memo = 'description',
+        direction = 'income',
         amount = '10,00',
+        user_id = user.id
+    )
+
+    Transaction.create(
+        date = '25/04/2025',
+        memo = 'description',
+        direction = 'expense',
+        amount = '1,00',
         user_id = user.id
     )
 
     Month.verify_and_create(formatDateStrToTimestamp('05/05/2025'), user.id)
     month: Month = Month.get_month_by_timestamp_date_and_user(monthToTimestamp('May'), user.id)
 
-    assert month.balance_diff == 144.50
+    # 134.50 + 10.00 - 1.00 = 143.50
+    assert month.balance_diff == 143.50
     assert month.user_id_id == user.id
     assert month.date == monthToTimestamp('May')
 
@@ -176,7 +187,7 @@ def test_verify_and_create(db_session):
     Month.verify_and_create(formatDateStrToTimestamp('10/05/2025'), user.id)
     month: Month = Month.get_month_by_timestamp_date_and_user(monthToTimestamp('May'), user.id)
 
-    assert month.balance_diff == 144.50
+    assert month.balance_diff == 143.50
     assert month.user_id_id == user.id
     assert month.date == monthToTimestamp('May')
 

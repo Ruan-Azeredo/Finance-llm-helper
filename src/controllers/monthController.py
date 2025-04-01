@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from peewee import DoesNotExist
 
 from models import Month, User, Transaction 
-from schemas import MonthCRUDInput, MonthsBalanceInput
+from schemas import MonthCRUDInput, RequestBalancesInput
 from .utilsController import *
 from utils import get_start_and_end_of_month_by_date, get_start_and_end_of_year_by_date
 
@@ -75,8 +75,8 @@ async def update_month(month_id: int, month_input: MonthCRUDInput):
         content = {"message": "Month atualizado", "month": updated_month.formatedMonthToClient().to_dict()}
     )
 
-@month_router_auth.post("/months-balance")
-async def get_months_with_transactions_sum_by_time(request_balances_input: MonthsBalanceInput, current_user: User = Depends(User.get_current_user)):
+@month_router_auth.post("/require-balances")
+async def request_real_baalances_by_time(request_balances_input: RequestBalancesInput, current_user: User = Depends(User.get_current_user)):
 
     balances = {}
 

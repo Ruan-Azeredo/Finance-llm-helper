@@ -80,6 +80,6 @@ class MonthCRUDInput(BaseModel):
         else:
             raise ValueError("O objeto não pode ser convertido em um dicionário.")
         
-class MonthsBalanceInput(BaseModel):
+class RequestBalancesInput(BaseModel):
     timestamps: list[int]
     type: Literal["months", "years"] = "months"

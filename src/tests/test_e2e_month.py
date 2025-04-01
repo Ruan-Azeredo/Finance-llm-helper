@@ -109,7 +109,7 @@ async def test_months_balance(setup_database_with_tables):
 
     # ----------------------------------------------------------------------
 
-    response = authenticated_client.post(f'/month/months-balance/', json = {
+    response = authenticated_client.post(f'/month/require-balances/', json = {
         "timestamps": [formatDateStrToTimestamp('01/03/2025'), formatDateStrToTimestamp('01/04/2025')]
     })
 
@@ -185,7 +185,7 @@ async def test_year_balance(setup_database_with_tables):
 
     # Saldo final de de 2025 = ultimo saldo do mes 4 de 2025 = 5,00
 
-    response = authenticated_client.post(f'/month/months-balance/', json = {
+    response = authenticated_client.post(f'/month/require-balances/', json = {
         "timestamps": [formatDateStrToTimestamp('01/01/2024'), formatDateStrToTimestamp('01/01/2025'), formatDateStrToTimestamp('01/01/2026')],
         "type": "years"
     })

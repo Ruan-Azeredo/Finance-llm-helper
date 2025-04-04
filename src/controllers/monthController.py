@@ -102,7 +102,11 @@ async def request_real_baalances_by_time(request_balances_input: RequestBalances
 
 
         if month_reference is None:
-            balances[balance_requested_timestamp] = 0
+            balances[balance_requested_timestamp] = {
+                "income": 0,
+                "expense": 0,
+                "balance": 0
+            }
         else:
             transactions_in_time_range: list[Transaction] = Transaction.get_by_timestamps_range(
                 user_id = current_user.id,
@@ -110,15 +114,21 @@ async def request_real_baalances_by_time(request_balances_input: RequestBalances
                 end_timestamp = get_start_and_end_of_month_by_date(month_reference.date)[1] - 1
             )
 
-            transactions_in_month_sum = Transaction.sum_transactions_amount(transactions_in_time_range)
+            transactions_in_month_sum_expense = Transaction.sum_transactions_expense_amount(transactions_in_time_range)
+            transactions_in_month_sum_income = Transaction.sum_transactions_income_amount(transactions_in_time_range)
+            transactions_in_month_sum = transactions_in_month_sum_income - transactions_in_month_sum_expense
 
-            balances[balance_requested_timestamp] = month_reference.balance_diff + transactions_in_month_sum
+            balances[balance_requested_timestamp] = {
+                "income": transactions_in_month_sum_income,
+                "expense": transactions_in_month_sum_expense,
+                "balance": month_reference.balance_diff + transactions_in_month_sum
+            }
 
         print('balances: ', balances)
     
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"months_balance": balances}
+        content = balances
     )
 
 """ 

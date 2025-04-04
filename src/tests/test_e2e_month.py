@@ -116,8 +116,8 @@ async def test_months_balance(setup_database_with_tables):
     print(response.json())
 
     assert response.status_code == 200
-    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/03/2025'))] == -35.00
-    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/04/2025'))] == 5.00
+    assert response.json()[str(formatDateStrToTimestamp('01/03/2025'))]['balance'] == -35.00
+    assert response.json()[str(formatDateStrToTimestamp('01/04/2025'))]['balance'] == 5.00
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
@@ -185,7 +185,7 @@ async def test_year_balance(setup_database_with_tables):
 
     # Saldo final de de 2025 = ultimo saldo do mes 4 de 2025 = 5,00
 
-    response = authenticated_client.post(f'/month/require-balances/', json = {
+    response = authenticated_client.post(f'/month/require-balances', json = {
         "timestamps": [formatDateStrToTimestamp('01/01/2024'), formatDateStrToTimestamp('01/01/2025'), formatDateStrToTimestamp('01/01/2026')],
         "type": "years"
     })
@@ -193,6 +193,6 @@ async def test_year_balance(setup_database_with_tables):
     print(response.json())
 
     assert response.status_code == 200
-    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/01/2024'))] == 0
-    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/01/2025'))] == 5.00
-    assert response.json()['months_balance'][str(formatDateStrToTimestamp('01/01/2026'))] == 5.00
+    assert response.json()[str(formatDateStrToTimestamp('01/01/2024'))]['balance'] == 0
+    assert response.json()[str(formatDateStrToTimestamp('01/01/2025'))]['balance'] == 5.00
+    assert response.json()[str(formatDateStrToTimestamp('01/01/2026'))]['balance'] == 5.00

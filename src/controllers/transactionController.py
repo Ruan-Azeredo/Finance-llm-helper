@@ -49,7 +49,10 @@ async def create_transaction(user_id: int, transaction_input: TransactionCRUDInp
 
     print(transaction.formatedTransactionToClient().to_dict())
 
-    Month.verify_and_create(transaction.date, user_id)
+    try:
+        Month.verify_and_create(transaction.date, user_id)
+    except Exception as e:
+        Exception(f"Erro ao verificar ou criar o mes: {e}")
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
@@ -71,7 +74,10 @@ async def create_many_transactions(user_id: int, transactions_input: list[Transa
 
         if (str(transaction_month_number) + '/' + str(transaction_month_year)) not in month_already_have_transactions:
             month_already_have_transactions.append(str(transaction_month_number) + '/' + str(transaction_month_year))
-            Month.verify_and_create(formatDateStrToTimestamp(transaction_input.date), user_id)
+            try:
+                Month.verify_and_create(formatDateStrToTimestamp(transaction_input.date), user_id)
+            except Exception as e:
+                Exception(f"Erro ao verificar ou criar o mes: {e}")
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
@@ -95,7 +101,11 @@ async def update_transaction(transaction_id: str, transaction_input: Transaction
     updated_transaction: Transaction = Transaction.from_id(transaction_id)
 
     if updated_transaction.date != transaction.date:
-        Month.verify_and_create(updated_transaction.date, transaction.user_id)
+        try:
+            Month.verify_and_create(updated_transaction.date, transaction.user_id)
+        except Exception as e:
+            Exception(f"Erro ao verificar ou criar o mes: {e}")
+
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,

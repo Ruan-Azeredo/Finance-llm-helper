@@ -128,3 +128,19 @@ class Transaction(BaseModel):
                 sum -= transaction.amount
 
         return sum
+    
+    def sum_transactions_expense_amount(transactions: list['Transaction']) -> float:
+        sum = 0
+        for transaction in transactions:
+            if transaction.direction == "expense":
+                sum += transaction.amount
+
+        return sum
+    
+    def sum_transactions_income_amount(transactions: list['Transaction']) -> float:
+        sum = 0
+        for transaction in transactions:
+            if transaction.direction == "income":
+                sum += transaction.amount
+
+        return sum

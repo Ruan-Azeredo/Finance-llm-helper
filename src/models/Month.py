@@ -72,13 +72,13 @@ class Month(BaseModel):
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
         
         if max_date_timestamp == None and min_date_timestamp == None:
-            return Month.select().where(Month.user_id == user_id)
+            return Month.select().where(Month.user_id == user_id).order_by(Month.date.desc())
         elif max_date_timestamp == None:
-            return Month.select().where(Month.user_id == user_id, Month.date >= min_date_timestamp)
+            return Month.select().where(Month.user_id == user_id, Month.date >= min_date_timestamp).order_by(Month.date.desc())
         elif min_date_timestamp == None:
-            return Month.select().where(Month.user_id == user_id, Month.date <= max_date_timestamp)
+            return Month.select().where(Month.user_id == user_id, Month.date <= max_date_timestamp).order_by(Month.date.desc())
         else:
-            return Month.select().where(Month.user_id == user_id, Month.date >= min_date_timestamp, Month.date <= max_date_timestamp)
+            return Month.select().where(Month.user_id == user_id, Month.date >= min_date_timestamp, Month.date <= max_date_timestamp).order_by(Month.date.desc())
         
     @handle_database_error
     def get_last_month_until_date(date: int, user_id: int) -> 'Month':

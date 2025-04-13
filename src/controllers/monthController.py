@@ -5,7 +5,7 @@ from peewee import DoesNotExist
 from models import Month, User, Transaction 
 from schemas import MonthCRUDInput, RequestBalancesInput
 from .utilsController import *
-from utils import get_start_and_end_of_month_by_date, get_start_and_end_of_year_by_date
+from utils import get_start_and_end_of_month_by_date, get_start_and_end_of_year_by_date, formatTimestampToDateStr
 
 month_router = APIRouter()
 
@@ -30,16 +30,6 @@ async def get_months():
         content = {"months": [month.formatedMonthToClient().to_dict() for month in months]}
     )
 
-@month_router_auth.get("/from-user/{user_id}")
-async def get_months_by_user_id(user_id: int):
-
-    months: list[Month] = Month.get_months_by_user_id(user_id)
-
-    return JSONResponse(
-        status_code = status.HTTP_200_OK,
-        content = {"months": [month.formatedMonthToClient().to_dict() for month in months]}
-    )
-
 @month_router_auth.post("/ops/{user_id}")
 async def create_month(user_id: int, month_input: MonthCRUDInput):
 
@@ -53,6 +43,16 @@ async def create_month(user_id: int, month_input: MonthCRUDInput):
         content = {"message": "Month criado", "month": month.formatedMonthToClient().to_dict()}
     ) 
 """
+
+@month_router_auth.get("/from-user/{user_id}")
+async def get_months_by_user_id(user_id: int):
+
+    months: list[Month] = Month.get_months_by_user_id(user_id)
+
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {"months": [month.formatedMonthToClient().to_dict() for month in months]}
+    )
 
 @month_router_auth_by_month.put("/ops/{month_id}")
 async def update_month(month_id: int, month_input: MonthCRUDInput):
@@ -124,7 +124,7 @@ async def request_real_baalances_by_time(request_balances_input: RequestBalances
                 "balance": month_reference.balance_diff + transactions_in_month_sum
             }
 
-        print('balances: ', balances)
+            print(formatTimestampToDateStr(balance_requested_timestamp))
     
     return JSONResponse(
         status_code = status.HTTP_200_OK,

@@ -20,7 +20,13 @@ pw-migrate migrate --database postgresql://postgres:postgres@0.0.0.0:5432/postgr
 
 > pode-se adicionar ao final do comnando, a migration especifica que deseja fazer a migração
 
+3. Rollback *
 
+rollback para a migration anterior
+
+```bash
+pw-migrate rollback --database postgresql://postgres:postgres@0.0.0.0:5432/postgres
+```
 
 
 https://github.com/klen/peewee_migrate

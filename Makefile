@@ -8,11 +8,11 @@ test:
 
 init_db:
 ifeq ($(OS), Linux)
-	@cd src && POSTGRES_HOST=0.0.0.0 python initialize_db.py
+	@cd src && pw-migrate migrate --database postgresql://postgres:postgres@0.0.0.0:5432/postgres && POSTGRES_HOST=0.0.0.0 python initialize_db.py
 else ifeq ($(OS), Darwin)
-	@cd src && POSTGRES_HOST=0.0.0.0 python initialize_db.py
+	@cd src && pw-migrate migrate --database postgresql://postgres:postgres@0.0.0.0:5432/postgres && POSTGRES_HOST=0.0.0.0 python initialize_db.py
 else
-	@set POSTGRES_HOST=0.0.0.0 && cd src && python initialize_db.py
+	@set POSTGRES_HOST=0.0.0.0 && cd src && pw-migrate migrate --database postgresql://postgres:postgres@0.0.0.0:5432/postgres && python initialize_db.py
 endif
 
 start:
@@ -40,11 +40,11 @@ ifeq ($(COLIMA), true)
 	@colima start
 endif
 ifeq ($(OS), Linux)
-	@docker-compose up db -d && cd src && POSTGRES_HOST=0.0.0.0 uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+	@docker compose up db -d && cd src && POSTGRES_HOST=0.0.0.0 uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 else ifeq ($(OS), Darwin)
 	@docker-compose up db -d && cd src && POSTGRES_HOST=0.0.0.0 uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 else
-	@set POSTGRES_HOST=0.0.0.0 && docker-compose up db -d && cd src && uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+	@set POSTGRES_HOST=0.0.0.0 && docker compose up db -d && cd src && uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 endif
 
 # make script file=script_name

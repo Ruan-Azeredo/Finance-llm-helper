@@ -29,13 +29,13 @@ volumes:
 
 
 # Run the following command to start the services:
-# docker-compose up, docker-compose up -d (detached mode)
+# docker compose up, docker compose up -d (detached mode)
 
 # stop the services:
-# docker-compose down
+# docker compose down
 
 # --------------------------------------------
 
 # For current development, I suggest just run the db into docker, and run the web server locally.
 # To do that, you can run the following command:
-# ``` docker-compose up db -d ```
+# ``` docker compose up db -d ```

@@ -31,8 +31,6 @@ class Month(BaseModel):
     
     def formatedMonthToClient(self) -> 'Month':
         formatedMonth = deepcopy(self)
-        formatedMonth.balance_diff = formatAmountToString(formatedMonth.balance_diff)
-
         return formatedMonth
 
     @handle_database_error

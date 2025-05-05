@@ -42,7 +42,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     @migrator.create_model
     class Category(pw.Model):
         id = pw.AutoField(unique = True, primary_key = True)
-        name = pw.CharField(max_length=255, unique = True, null = False)
+        name = pw.CharField(max_length=255, null = False)
         color = pw.IntegerField(default = 0, null = False)
         user_id = pw.ForeignKeyField(column_name='user_id', field='id', model=migrator.orm['users'], on_delete='CASCADE')
         created_at = pw.DateTimeField(default = datetime.datetime.now())

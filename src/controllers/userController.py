@@ -38,7 +38,13 @@ async def get_user(user_id: int):
 
 @user_router_auth.get("/me")
 async def get_current_user(current_user: User = Depends(User.get_current_user)):
-    return current_user.to_dict()
+
+    categories: list[Category] = Category.get_categories_by_user_id(current_user.id)
+    print("categories", categories, current_user, current_user.id)
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {"user": current_user.to_dict(), "categories": [category.to_dict() for category in categories]}
+    )
 
 @user_router.post("/ops")
 async def create_user(user_input: UserCRUDInput):

@@ -9,7 +9,7 @@ from utils import default_users_categories, validate_category_input
 
 class Category(BaseModel):
     id = AutoField(unique = True, primary_key = True)
-    name = CharField(unique = True, null = False)
+    name = CharField(null = False)
     color = IntegerField(default = 0, null = False)
     user_id = ForeignKeyField(User, field='id', backref='categories', on_delete='CASCADE')
     created_at = DateTimeField(default = datetime.now())
@@ -63,7 +63,7 @@ class Category(BaseModel):
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
 
 
-        return Category.select().where(Category.user_id == user_id)
+        return Category.select().where(Category.user_id == user_id).order_by(Category.id.asc())
     
     @handle_database_error
     def create_default_categories(user_id: int) -> None:

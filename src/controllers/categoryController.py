@@ -21,7 +21,7 @@ async def get_categories():
         content = {"categories": [category.to_dict() for category in categories]}
     )
 
-@category_router_auth.get("/from-user/{category_id}")
+@category_router_auth.get("/from-user/{user_id}")
 async def get_category_by_user_id(user_id: int):
     
     categories: list[Category] = Category.get_categories_by_user_id(user_id)

@@ -34,6 +34,21 @@ async def test_get_all_categories_e2e_as_free(setup_database_with_tables):
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+async def test_get_categories_by_user_id_e2e_as_free(setup_database_with_tables):
+
+    authenticated_client = setup_database_with_tables['authenticated_client']
+    user_credentials = setup_database_with_tables['user_credentials']
+
+    user: User = User.get_user_by_email(user_credentials['email'])
+
+    response = authenticated_client.get(f'/category/from-user/{user.id}')
+
+    assert response.status_code == 200
+    assert response.json()['categories'] == []
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
 async def test_create_category_e2e_as_free(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']

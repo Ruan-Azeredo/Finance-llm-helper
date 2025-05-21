@@ -36,6 +36,8 @@ A aplicação está pronta!
 
 > Caso esteja desenvolvendo, indicamos executar apenas a imagem do postgres atravez do comando abaixo, e rodar a aplicação atravez dos comandos do *Makefile*
 
+*certifique-se de ter migrado as tabelas do banco de dados (caso não 'make init_db')
+
 ```bash
 docker-compose up db -d
 ```

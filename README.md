@@ -34,6 +34,8 @@ docker-compose up
 
 A aplicação está pronta!
 
+*Para entrar no front, crie um usuario de teste, rodando o initialize_db.py
+
 > Caso esteja desenvolvendo, indicamos executar apenas a imagem do postgres atravez do comando abaixo, e rodar a aplicação atravez dos comandos do *Makefile*
 
 *certifique-se de ter migrado as tabelas do banco de dados (caso não 'make init_db')

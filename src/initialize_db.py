@@ -1,4 +1,4 @@
-from models import User
+from models import User, Category
 from dotenv import load_dotenv
 from database import db
 import os
@@ -12,6 +12,7 @@ def create_user(name, email, password, role='free'):
             password=password,
             role=role
         )
+        Category.create_default_categories(user.id)
     except Exception as e:
         print(f"Erro ao criar usuário: {e}")
         

@@ -68,11 +68,13 @@ class Transaction(BaseModel):
         kwargs.setdefault('id', _defineId())
 
         values = handle_values(kwargs)
+        print(user_id)
         values['user_id'] = user_id
 
         values = Transaction._prepareFormatsToDb(values)
 
         created_transaction = super(Transaction, Transaction).create(**values)
+        print(created_transaction)
 
         return created_transaction
     
@@ -115,7 +117,11 @@ class Transaction(BaseModel):
 
     @handle_database_error
     def get_by_timestamps_range(user_id: int, start_timestamp: int, end_timestamp: int) -> list['Transaction']:
-        transactions = Transaction.select().where(Transaction.date >= start_timestamp, Transaction.date <= end_timestamp)
+        transactions = Transaction.select().where(
+            Transaction.user_id == user_id,
+            Transaction.date >= start_timestamp,
+            Transaction.date <= end_timestamp
+        )
 
         return transactions.order_by(Transaction.date.asc())
     

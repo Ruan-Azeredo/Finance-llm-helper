@@ -10,19 +10,20 @@ async def llmInterface(
     prompt: str,
     llmAnswerCheck: Callable[[str], bool],
     callLLM: Callable[[str], str],
+    user_categories: list[str] = None,
     limit: int = 5
 ) -> str:
     _  = load_dotenv(find_dotenv())
 
     answer = await callLLM(prompt)
 
-    is_answer_checked = llmAnswerCheck(answer)
+    is_answer_checked = llmAnswerCheck(answer, user_categories)
 
     if is_answer_checked:
         return answer
     elif limit > 0:
         print('LLM try, limit: ', limit)
-        return await llmInterface(prompt, llmAnswerCheck, callLLM, limit - 1)
+        return await llmInterface(prompt, llmAnswerCheck, callLLM, user_categories, limit - 1)
     else:
         raise Exception(f"Erro na interface com a LLM, muitas tentativas sem sucesso")
         

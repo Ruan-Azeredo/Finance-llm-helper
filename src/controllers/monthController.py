@@ -76,8 +76,7 @@ async def update_month(month_id: int, month_input: MonthCRUDInput):
     )
 
 @month_router_auth.post("/require-balances")
-async def request_real_baalances_by_time(request_balances_input: RequestBalancesInput, current_user: User = Depends(User.get_current_user)):
-
+async def request_real_balances_by_time(request_balances_input: RequestBalancesInput, current_user: User = Depends(User.get_current_user)):
     balances = {}
 
     for balance_requested_timestamp in request_balances_input.timestamps:
@@ -114,17 +113,23 @@ async def request_real_baalances_by_time(request_balances_input: RequestBalances
                 end_timestamp = get_start_and_end_of_month_by_date(month_reference.date)[1] - 1
             )
 
+            # Filter to ensure only current user's transactions are included
+            """ transactions_in_time_range = [
+                t for t in transactions_in_time_range if t.user_id == current_user.id
+            ] """
+
+            print("Transactions in time range:", [t.to_dict() for t in transactions_in_time_range])
+
             transactions_in_month_sum_expense = Transaction.sum_transactions_expense_amount(transactions_in_time_range)
             transactions_in_month_sum_income = Transaction.sum_transactions_income_amount(transactions_in_time_range)
             transactions_in_month_sum = transactions_in_month_sum_income - transactions_in_month_sum_expense
+            print("Sum expense:", transactions_in_month_sum_expense)
 
             balances[balance_requested_timestamp] = {
                 "income": transactions_in_month_sum_income,
                 "expense": transactions_in_month_sum_expense,
                 "balance": month_reference.balance_diff + transactions_in_month_sum
             }
-
-            print(formatTimestampToDateStr(balance_requested_timestamp))
     
     return JSONResponse(
         status_code = status.HTTP_200_OK,

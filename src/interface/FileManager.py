@@ -101,7 +101,7 @@ async def loadDataFromCsvFile(content: bytes, headers: dict = default_headers):
 def _process_row(index, row) -> FileTransaction:
     valor_str = row.get('Valor')
     if valor_str:
-        amount = float(valor_str.replace(',', '.'))
+        amount = float(valor_str.replace('.', '').replace(',', '.'))
     else:
         amount = 0.0
 
@@ -154,7 +154,7 @@ def _process_abstract_row(index, row, headers: dict[list]) -> FileTransaction:
     transaction = {
         'id': index,
         'date': date,
-        'amount': float(amount.replace(',', '.')),
+        'amount': float(amount.replace('.', '').replace(',', '.')),
         'memo': description,
     }
 

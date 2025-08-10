@@ -10,7 +10,7 @@ def formatAmountToString(amount: float) -> str:
     return f"{abs(amount):.2f}".replace('.', ',')
 
 def formatAmountToFloat(amount: str) -> float:
-        return float(amount.replace(',', '.'))
+    return float(amount.replace('.', '').replace(',', '.'))
     
 def formatTimestampToDateStr(timestamp: int) -> str:
     """

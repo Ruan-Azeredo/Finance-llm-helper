@@ -19,7 +19,7 @@ According to the business rules, months will be created in accordance with trans
 
 
 
-""" 
+
 @month_router_admin.get("/ops")
 async def get_months():
 
@@ -42,7 +42,7 @@ async def create_month(user_id: int, month_input: MonthCRUDInput):
         status_code = status.HTTP_201_CREATED,
         content = {"message": "Month criado", "month": month.formatedMonthToClient().to_dict()}
     ) 
-"""
+
 
 @month_router_auth.get("/from-user/{user_id}")
 async def get_months_by_user_id(user_id: int):
@@ -136,7 +136,55 @@ async def request_real_balances_by_time(request_balances_input: RequestBalancesI
         content = balances
     )
 
-""" 
+""" @month_router_admin.get("/from-user/{user_id}")
+async def get_months_by_user_id_admin(user_id: int):
+
+    months: list[Month] = Month.get_months_by_user_id(user_id)
+
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {"months": [month.formatedMonthToClient().to_dict() for month in months]}
+    )
+
+@month_router_admin.put("/ops/{month_id}")
+async def update_month_admin(month_id: int, month_input: MonthCRUDInput):
+    month: Month = Month.from_id(month_id)  
+
+    if month is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Month nao encontrada"
+        )
+    
+    month.update(
+        **month_input.to_dict()
+    )
+
+    updated_month: Month = Month.from_id(month_id)
+
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {"message": "Month atualizado", "month": updated_month.formatedMonthToClient().to_dict()}
+    )
+
+@month_router_admin.delete("/ops/{month_id}")
+async def delete_month_admin(month_id: int):
+    month: Month = Month.from_id(month_id)
+
+    if month is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Month nao encontrada"
+        )
+    
+    month.delete()
+
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {"message": "Month deletado"}
+    )
+
+ """
 @month_router_auth_by_month.delete("/ops/{month_id}")
 async def delete_month(month_id: int):
     month: Month = Month.from_id(month_id)
@@ -153,7 +201,7 @@ async def delete_month(month_id: int):
         status_code = status.HTTP_200_OK,
         content = {"message": "Month deletado"}
     )
-"""
+
 
 month_router.include_router(month_router_auth)
 month_router.include_router(month_router_auth_by_month)

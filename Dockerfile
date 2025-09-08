@@ -1,9 +1,6 @@
 # Usa uma imagem oficial do Python como base
 FROM python:3.11
 
-# Define timezone
-ENV TZ="America/New_York"
-
 # Define o diretório de trabalho dentro do container
 WORKDIR /app
 

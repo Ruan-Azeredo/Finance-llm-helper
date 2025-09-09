@@ -57,6 +57,16 @@ else
 	@set POSTGRES_HOST=0.0.0.0 && cd src && set PYTHONPATH=./ && python scripts/$(file).py
 endif
 
+# make script-prod file=script_name
+script-prod:
+ifeq ($(OS), Linux)
+	@cd src && POSTGRES_HOST=$$(grep POSTGRES_HOST_PROD ../.env | cut -d '=' -f2) POSTGRES_PASSWORD=$$(grep POSTGRES_PASSWORD_PROD ../.env | cut -d '=' -f2) PYTHONPATH=./ python scripts/$(file).py
+else ifeq ($(OS), Darwin)
+	@cd src && POSTGRES_HOST=$$(grep POSTGRES_HOST_PROD ../.env | cut -d '=' -f2) POSTGRES_PASSWORD=$$(grep POSTGRES_PASSWORD_PROD ../.env | cut -d '=' -f2) PYTHONPATH=./ python scripts/$(file).py
+else
+	@for /f "tokens=2 delims==" %%i in ('findstr POSTGRES_HOST_PROD .env') do set POSTGRES_HOST=%%i && for /f "tokens=2 delims==" %%j in ('findstr POSTGRES_PASSWORD_PROD .env') do set POSTGRES_PASSWORD=%%j && cd src && set PYTHONPATH=./ && python scripts/$(file).py
+endif
+
 
 build: install init_db start
 

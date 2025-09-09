@@ -4,7 +4,7 @@ install:
 	@pip install -r requirements.txt
 
 test:
-	@cd src && pytest -m "not llm and not db and not email"
+	@cd src && TZ=UTC pytest -m "not llm and not db and not email"
 
 init_db:
 ifeq ($(OS), Linux)

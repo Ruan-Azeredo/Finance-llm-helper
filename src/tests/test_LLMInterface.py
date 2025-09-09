@@ -7,10 +7,10 @@ from utils import default_categories as categories
 @pytest.mark.asyncio
 async def test_llmInterface_returns_valid_answer():
 
-    def fakeLlmAnswerCheck(answer: str) -> bool:
+    def fakeLlmAnswerCheck(answer: str, _ = None) -> bool:
         return True
     
-    async def fakeCallLLM(prompt: str) -> str:
+    async def fakeCallLLM(prompt: str, _ = None) -> str:
         return 'answer'
 
     answer = await llmInterface('prompt', fakeLlmAnswerCheck, fakeCallLLM)
@@ -20,10 +20,10 @@ async def test_llmInterface_returns_valid_answer():
 @pytest.mark.asyncio
 async def test_llmInterface_when_pass_recursion_limit():
 
-    def fakellmAnswerCheck(answer: str):
+    def fakellmAnswerCheck(answer: str, _ = None):
         return False
     
-    async def fakeCallLLM(prompt: str) -> str:
+    async def fakeCallLLM(prompt: str, _ = None) -> str:
         return 'answer'
 
     with pytest.raises(Exception) as error:
@@ -39,12 +39,12 @@ async def test_llmInterface_when_pass_recursion_limit():
 @pytest.mark.asyncio
 async def test_llmInterface_recursion():
 
-    def fakellmAnswerCheck(answer: str):
+    def fakellmAnswerCheck(answer: str, _ = None):
         return False
     
 
     call_count = 0
-    async def fakeCallLLM(prompt: str) -> str:
+    async def fakeCallLLM(prompt: str, _ = None) -> str:
         nonlocal call_count
         call_count += 1
         return 'answer'

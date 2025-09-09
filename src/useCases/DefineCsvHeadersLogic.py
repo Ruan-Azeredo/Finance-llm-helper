@@ -1,7 +1,7 @@
 from utils import category_validator, formatHaderKey
 import json
 
-def llmAnswerCheck(answer: str, _):
+def llmAnswerCheck(answer: str, _ = None):
     answer = answer.replace("'", '"')
     print('answer: ', answer)
     if '#' in answer or '```' in answer:

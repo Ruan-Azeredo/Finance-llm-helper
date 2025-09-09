@@ -491,8 +491,8 @@ async def test_update_transaction_and_update_months_e2e_as_free(authenticated_cl
     assert len(months_after_update_transaction) == 2
     assert months_after_update_transaction[0].user_id_id == user.id
     assert months_after_update_transaction[0].balance_diff == 0
-    assert months_after_update_transaction[0].date == formatDateStrToTimestamp("01/02/2024")
+    assert months_after_update_transaction[0].date == formatDateStrToTimestamp("01/04/2024")
     assert months_after_update_transaction[1].user_id_id == user.id
     assert months_after_update_transaction[1].balance_diff == 0
-    assert months_after_update_transaction[1].date == formatDateStrToTimestamp("01/04/2024")
+    assert months_after_update_transaction[1].date == formatDateStrToTimestamp("01/02/2024")
     

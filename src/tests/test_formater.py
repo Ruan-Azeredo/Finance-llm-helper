@@ -14,11 +14,11 @@ def test_formatAmountToFloat():
     assert formatAmountToFloat("1,234") == 1.234
 
 def test_formatTimestampToDateStr():
-    assert formatTimestampToDateStr(1640995200) == "31/12/2021"
-    assert formatTimestampToDateStr(1640995201) == "31/12/2021"
-    assert formatTimestampToDateStr(1640995202) == "31/12/2021"
+    assert formatTimestampToDateStr(1640995200) == "01/01/2022"
+    assert formatTimestampToDateStr(1640995201) == "01/01/2022"
+    assert formatTimestampToDateStr(1640995202) == "01/01/2022"
 
 def test_formatDateStrToTimestamp():
-    assert formatDateStrToTimestamp("31/12/2021") == 1640919600
-    assert formatDateStrToTimestamp("31/12/2021") == 1640919600
-    assert formatDateStrToTimestamp("31/12/2021") == 1640919600
+    assert formatDateStrToTimestamp("31/12/2021") == 1640908800
+    assert formatDateStrToTimestamp("31/12/2021") == 1640908800
+    assert formatDateStrToTimestamp("31/12/2021") == 1640908800

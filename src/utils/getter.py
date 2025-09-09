@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 def get_start_and_end_of_month_by_date(date: int) -> tuple[int, int]:
 
-    transaction_month_number = datetime.fromtimestamp(date).month # month is 1-12
-    transaction_month_year = datetime.fromtimestamp(date).year # year is 2023, 2024, etc.
+    transaction_month_number = datetime.fromtimestamp(date, tz=timezone.utc).month # month is 1-12
+    transaction_month_year = datetime.fromtimestamp(date, tz=timezone.utc).year # year is 2023, 2024, etc.
 
     start_of_month = datetime(transaction_month_year, transaction_month_number, 1, tzinfo=timezone.utc).timestamp()
 
@@ -16,7 +16,7 @@ def get_start_and_end_of_month_by_date(date: int) -> tuple[int, int]:
 
 def get_start_and_end_of_year_by_date(date: int) -> tuple[int, int]:
     
-    transaction_year = datetime.fromtimestamp(date).year
+    transaction_year = datetime.fromtimestamp(date, tz=timezone.utc).year
 
     start_of_year = datetime(transaction_year, 1, 1, tzinfo=timezone.utc).timestamp()
     start_of_next_year = datetime(transaction_year + 1, 1, 1, tzinfo=timezone.utc).timestamp()

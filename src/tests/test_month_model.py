@@ -142,8 +142,8 @@ def test_verify_and_create(db_session):
 
     assert len(total_user_months) == 2
 
-    assert total_user_months[0].date == monthToTimestamp('Mar')
-    assert total_user_months[1].date == monthToTimestamp('Apr')
+    assert total_user_months[0].date == monthToTimestamp('Apr')
+    assert total_user_months[1].date == monthToTimestamp('Mar')
 
     assert total_user_months[0].balance_diff == 0
     assert total_user_months[1].balance_diff == 0

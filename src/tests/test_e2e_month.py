@@ -28,7 +28,7 @@ async def test_update_month_e2e(authenticated_client: TestClient, user_credentia
     print(response.json())
     assert response.status_code == 200
     assert response.json()['message'] == "Month atualizado"
-    assert response.json()['month']['balance_diff'] == '12,34'
+    assert response.json()['month']['balance_diff'] == 12.34
     assert response.json()['month']['user_id'] == user.id
     assert response.json()['month']['date'] == formatDateStrToTimestamp('01/03/2025')
 

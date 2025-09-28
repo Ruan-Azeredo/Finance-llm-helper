@@ -55,3 +55,13 @@ def validate_category_input(category: dict):
 def validate_month_input(month: dict):
     if 'date' in month and month['date'] != None and (type(month['date']) != int and type(month['date']) != float):
         raise Exception(f'Formato de date está incorreto, date deve ser um número float. O date recebido foi: {month["date"]}, tipo: {type(month["date"])}') 
+
+def validate_account_input(account: dict):
+    if 'name' in account and account['name'] != None and is_valid_category_name(account['name']) is False:
+        raise Exception(f'Formato de name está incorreto, name não pode ser vazio')
+
+    if 'balance' in account and account['balance'] != None and type(account['balance']) != float:
+        raise Exception(f'Formato de balance está incorreto, balance deve ser um número float. O balance recebido foi: {account["balance"]}, tipo: {type(account["balance"])}')
+
+    if 'origin' in account and account['origin'] != None and is_valid_category_name(account['origin']) is False:
+        raise Exception(f'Formato de origin está incorreto, origin não pode ser vazio')

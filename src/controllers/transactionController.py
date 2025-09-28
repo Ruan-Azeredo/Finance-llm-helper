@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
 from datetime import datetime
 
-from models import Transaction, Month
+from models import Transaction, Month, Account
 from schemas import TransactionCRUDInput
 from .utilsController import *
 from utils import formatDateStrToTimestamp
@@ -54,6 +54,15 @@ async def create_transaction(user_id: int, transaction_input: TransactionCRUDInp
     except Exception as e:
         Exception(f"Erro ao verificar ou criar o mes: {e}")
 
+    try:
+        Account.verify_and_update_balance(
+            -transaction.amount if transaction.direction == "expense" else transaction.amount,
+            transaction.date,
+            transaction.account_id
+        )
+    except Exception as e:
+        Exception(f"Erro ao verificar ou atualizar o saldo da conta: {e}")
+
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
         content = {"message": "Transação criada", "transaction": transaction.formatedTransactionToClient().to_dict()}
@@ -78,6 +87,15 @@ async def create_many_transactions(user_id: int, transactions_input: list[Transa
                 Month.verify_and_create(formatDateStrToTimestamp(transaction_input.date), user_id)
             except Exception as e:
                 Exception(f"Erro ao verificar ou criar o mes: {e}")
+
+            try:
+                Account.verify_and_update_balance(
+                    -transaction.amount if transaction.direction == "expense" else transaction.amount,
+                    transaction.date,
+                    transaction.account_id
+                )
+            except Exception as e:
+                Exception(f"Erro ao verificar ou atualizar o saldo da conta: {e}")
 
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
@@ -106,6 +124,24 @@ async def update_transaction(transaction_id: str, transaction_input: Transaction
         except Exception as e:
             Exception(f"Erro ao verificar ou criar o mes: {e}")
 
+    try:
+        if updated_transaction.amount != transaction.amount or updated_transaction.direction != transaction.direction or updated_transaction.account_id != transaction.account_id:
+            if updated_transaction.account_id != transaction.account_id:
+                Account.verify_and_update_balance(
+                    transaction.amount if transaction.direction == "expense" else -transaction.amount,
+                    transaction.date,
+                    transaction.account_id
+                )
+
+            Account.verify_and_update_balance(
+                -updated_transaction.amount if updated_transaction.direction == "expense" else updated_transaction.amount,
+                updated_transaction.date,
+                updated_transaction.account_id
+            )
+    except Exception as e:
+        Exception(f"Erro ao verificar ou atualizar o saldo da conta: {e}")
+
+
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
@@ -123,6 +159,15 @@ async def delete_transaction(*, transaction_id: str):
         raise HTTPException(status_code = 404, detail = "Transação nao encontrada")
     
     transaction.delete()
+
+    try:
+        Account.verify_and_update_balance(
+            transaction.amount if transaction.direction == "expense" else -transaction.amount,
+            transaction.date,
+            transaction.account_id
+        )
+    except Exception as e:
+        Exception(f"Erro ao verificar ou atualizar o saldo da conta: {e}")
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,

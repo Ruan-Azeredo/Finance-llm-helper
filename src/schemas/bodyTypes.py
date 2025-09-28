@@ -79,6 +79,22 @@ class MonthCRUDInput(BaseModel):
             return vars(obj)
         else:
             raise ValueError("O objeto não pode ser convertido em um dicionário.")
+
+class AccountCRUDInput(BaseModel):
+    name: Optional[str] = None
+    balance: Optional[float] = None
+    origin:  Optional[str] = None
+
+    def to_dict(obj) -> dict:
+        """
+        Converte um objeto em dicionário, verificando se ele é uma instância de Pydantic ou uma classe genérica.
+        """
+        if hasattr(obj, 'dict') and callable(getattr(obj, 'dict')):  # Verifica se tem o método `dict()`
+            return obj.model_dump()
+        elif hasattr(obj, '__dict__'):  # Classes Python normais
+            return vars(obj)
+        else:
+            raise ValueError("O objeto não pode ser convertido em um dicionário.")
         
 class RequestBalancesInput(BaseModel):
     timestamps: list[int]

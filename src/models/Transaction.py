@@ -4,7 +4,7 @@ import uuid
 from copy import deepcopy
 
 from .BaseModel import BaseModel
-from models import User
+from models import User, Account
 from database import db
 from .handles import handle_values, handle_database_error
 from utils import validate_transaction_input, formatAmountToString, formatTimestampToDateStr, formatDateStrToTimestamp, formatAmountToFloat
@@ -16,6 +16,7 @@ class Transaction(BaseModel):
     amount = FloatField()
     memo = CharField()
     user_id = ForeignKeyField(User, field='id', backref='transactions', on_delete='CASCADE')
+    account_id = ForeignKeyField(Account, field='id', backref='transactions', on_delete='CASCADE')
     category = CharField(default = None, null = True)
     created_at = DateTimeField(default = datetime.now())
     updated_at = DateTimeField(default = datetime.now())

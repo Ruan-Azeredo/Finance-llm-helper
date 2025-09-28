@@ -17,6 +17,7 @@ class User(BaseModel):
     email = CharField(unique = True)
     password = CharField()
     role = CharField(default = "free")
+    default_account_id = CharField(null = True)
     created_at = DateTimeField(default = datetime.now())
     updated_at = DateTimeField(default = datetime.now())
 

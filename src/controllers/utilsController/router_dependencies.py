@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from typing import Optional
 
-from models import User, Transaction, Category, Month
+from models import User, Transaction, Category, Month, Account
 
 def verify_only_self_access_user(current_user: User = Depends(User.get_current_user), user_id: Optional[int] = None) -> bool:
 
@@ -64,6 +64,26 @@ def verify_only_self_access_month(current_user: User = Depends(User.get_current_
         )
     
     user: User = User.from_id(month.user_id)
+
+    if current_user.role != "admin" and user.id is not None and current_user.id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado: não possui permissão para acessar esse dados de outro usuário"
+        )
+    
+    return True
+
+def verify_only_self_access_account(current_user: User = Depends(User.get_current_user), account_id: Optional[int] = None) -> bool:
+
+    account: Account = Account.from_id(account_id)
+    
+    if account is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Conta nao encontrada"
+        )
+
+    user: User = User.from_id(account.user_id)
 
     if current_user.role != "admin" and user.id is not None and current_user.id != user.id:
         raise HTTPException(

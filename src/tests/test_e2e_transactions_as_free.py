@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
 from src.server import app
-from models import User, Transaction, Month
+from models import User, Transaction, Month, Account
 from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser
 from utils import formatDateStrToTimestamp, formatTimestampToDateStr
 
@@ -12,7 +12,7 @@ client_test = TestClient(app)
 #----------------------------------------------------------- as admin
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client_test, is_admin = True, models = [User, Transaction,] )
+@setupDatabaseFileWithTables(client_test = client_test, is_admin = True, models = [User, Transaction, Account] )
 async def test_get_all_transactions_e2e_as_admin(authenticated_client: TestClient):
 
     response = authenticated_client.get('/transaction/ops')
@@ -22,7 +22,7 @@ async def test_get_all_transactions_e2e_as_admin(authenticated_client: TestClien
 #------------------------------------------------------------ as free
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_create_transaction_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -48,7 +48,7 @@ async def test_create_transaction_e2e_as_free(authenticated_client: TestClient, 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_get_user_transactions_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -59,7 +59,7 @@ async def test_get_user_transactions_e2e_as_free(authenticated_client: TestClien
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_get_user_transactions_with_time_range_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -70,7 +70,7 @@ async def test_get_user_transactions_with_time_range_e2e_as_free(authenticated_c
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_update_transaction_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -109,7 +109,7 @@ async def test_update_transaction_e2e_as_free(authenticated_client: TestClient, 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_delete_transaction_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -139,7 +139,7 @@ async def test_delete_transaction_e2e_as_free(authenticated_client: TestClient, 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_get_transaction_from_other_user_e2e_as_free(authenticated_client: TestClient):
 
     response = authenticated_client.get('/transaction/from-user/12')
@@ -149,7 +149,7 @@ async def test_get_transaction_from_other_user_e2e_as_free(authenticated_client:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_get_all_transactions_from_other_user_e2e_as_free(authenticated_client: TestClient):
 
     response = authenticated_client.get('/transaction/ops')
@@ -159,7 +159,7 @@ async def test_get_all_transactions_from_other_user_e2e_as_free(authenticated_cl
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_get_transactions_from_other_user_e2e_as_free(authenticated_client: TestClient):
 
     response = authenticated_client.get('/transaction/from-user/12')
@@ -169,7 +169,7 @@ async def test_get_transactions_from_other_user_e2e_as_free(authenticated_client
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_update_transaction_not_found_e2e_as_free(authenticated_client: TestClient):
 
     response = authenticated_client.put('/transaction/ops/12')
@@ -179,7 +179,7 @@ async def test_update_transaction_not_found_e2e_as_free(authenticated_client: Te
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_delete_transaction_not_found_e2e_as_free(authenticated_client: TestClient):
 
     response = authenticated_client.delete('/transaction/ops/12')
@@ -189,15 +189,19 @@ async def test_delete_transaction_not_found_e2e_as_free(authenticated_client: Te
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_update_transaction_from_other_user_e2e_as_free(authenticated_client: TestClient):
 
-    User.create(
+    user_12 = User.create(
         id = 12,
         email = "email",
         name = "name",
         password = "password"
     )
+    
+    # Create default account for user 12
+    default_account_12 = Account.create(user_12.id, name="Minha Conta")
+    user_12.update(default_account_id=default_account_12.id)
 
     transaction = Transaction.create(
         user_id = 12,
@@ -219,15 +223,19 @@ async def test_update_transaction_from_other_user_e2e_as_free(authenticated_clie
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseFileWithTables(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_delete_transaction_from_other_user_e2e_as_free(authenticated_client: TestClient):
 
-    User.create(
+    user_12 = User.create(
         id = 12,
         email = "email",
         name = "name",
         password = "password"
     )
+    
+    # Create default account for user 12
+    default_account_12 = Account.create(user_12.id, name="Minha Conta")
+    user_12.update(default_account_id=default_account_12.id)
 
     transaction = Transaction.create(
         user_id = 12,
@@ -244,7 +252,7 @@ async def test_delete_transaction_from_other_user_e2e_as_free(authenticated_clie
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_create_many_transactions_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -272,7 +280,7 @@ async def test_create_many_transactions_e2e_as_free(authenticated_client: TestCl
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_create_transaction_with_direction_default_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -297,7 +305,7 @@ async def test_create_transaction_with_direction_default_e2e_as_free(authenticat
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_create_transaction_and_create_month_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -331,7 +339,7 @@ async def test_create_transaction_and_create_month_e2e_as_free(authenticated_cli
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_create_transaction_and_create_month_e2e_as_free_with_month_already_created(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -375,7 +383,7 @@ async def test_create_transaction_and_create_month_e2e_as_free_with_month_alread
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_create_many_transactions_and_create_months_e2e_as_free(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -405,7 +413,7 @@ async def test_create_many_transactions_and_create_months_e2e_as_free(authentica
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_create_many_transactions_and_create_months_e2e_as_free_with_month_already_created(authenticated_client: TestClient, user_credentials):
 
     user: User = User.get_user_by_email(user_credentials['email'])
@@ -439,7 +447,7 @@ async def test_create_many_transactions_and_create_months_e2e_as_free_with_month
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Transaction, Month, Account])
 async def test_update_transaction_and_update_months_e2e_as_free(authenticated_client: TestClient, user_credentials):    
 
     user: User = User.get_user_by_email(user_credentials['email'])

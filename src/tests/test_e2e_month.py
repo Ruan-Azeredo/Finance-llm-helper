@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException
 
 from src.server import app
-from models import User, Month, Transaction
+from models import User, Month, Transaction, Account, Account
 from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser, setup_database_with_tables
 from utils import formatDateStrToTimestamp, formatTimestampToDateStr
 
@@ -11,7 +11,7 @@ client_test = TestClient(app)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Month])
+@setupDatabaseHandleLoggedUser(client_test = client_test, models = [User, Month, Account])
 async def test_update_month_e2e(authenticated_client: TestClient, user_credentials):
     user: User = User.get_user_by_email(user_credentials['email'])
 
@@ -41,7 +41,7 @@ create tests in transactionsController.py to handle errors annd months creation 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Month, Transaction]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Month, Transaction, Account]}], indirect=True)
 async def test_months_balance(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']
@@ -121,7 +121,7 @@ async def test_months_balance(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Month, Transaction]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Month, Transaction, Account]}], indirect=True)
 async def test_year_balance(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']

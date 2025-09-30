@@ -5,7 +5,7 @@ import functools
 import pytest
 from typing import Generator
 
-from models import User
+from models import User, Account
 from src.server import app
 
 default_client = TestClient(app)
@@ -19,14 +19,20 @@ def _createUser(is_admin: bool):
     else:
         role = 'free'
 
-    User.create(
+    user = User.create(
         name = 'test',
         email = EMAIL,
         password = PASSWORD,
         role = role
     )
+    
+    # Create default account for the user
+    default_account = Account.create(user.id, name="Minha Conta")
+    user.update(default_account_id=default_account.id)
+    
+    return user
 
-def _setupDb(func_name, models: list[Model] = [User]):
+def _setupDb(func_name, models: list[Model] = [User, Account]):
     test_db = SqliteDatabase(f'{func_name}.db')
     for model in models:
         model._meta.database = test_db
@@ -36,7 +42,7 @@ def _setupDb(func_name, models: list[Model] = [User]):
     return test_db
 
 def _deleteUserDb(test_db, func_name):
-    test_db.drop_tables([User])
+    test_db.drop_tables([User, Account])
     test_db.close()
     if os.path.exists(f'{func_name}.db'):
         os.remove(f'{func_name}.db')
@@ -70,7 +76,7 @@ Utilize essa função como decorator, passando os parametros necessarios para a 
 
 @pytest.fixture
 def setup_database_with_tables(request: pytest.FixtureRequest) -> Generator[dict[str, dict[str, TestClient | str]], None, None]:
-    models: list[Model] = request.param.get('models') if request.param.get('models') else [User]
+    models: list[Model] = request.param.get('models') if request.param.get('models') else [User, Account]
     client_test = request.param.get('client_test') if request.param.get('client_test') else default_client
     is_admin = request.param.get('is_admin') if request.param.get('is_admin') else False
 
@@ -86,7 +92,7 @@ def setup_database_with_tables(request: pytest.FixtureRequest) -> Generator[dict
     _deleteUserDb(test_db = test_db, func_name = request._pyfuncitem.name)
 
         
-def setupDatabaseFileWithTables(client_test: TestClient = default_client, is_admin: bool = False, models: list[Model] = [User]):
+def setupDatabaseFileWithTables(client_test: TestClient = default_client, is_admin: bool = False, models: list[Model] = [User, Account]):
     def decorator(func):
         #@functools.wraps(func) # Preserve function signature for pytest
         async def wrapper(*args, **kwargs):
@@ -97,6 +103,10 @@ def setupDatabaseFileWithTables(client_test: TestClient = default_client, is_adm
      
             test_db = _setupDb(func_name = func.__name__, models = models)
             
+            # Ensure Account is in the models list if not already there
+            if Account not in models:
+                models.append(Account)
+                test_db.create_tables([Account])
 
             authenticated_client, _ = defineAuthUser(client_test = client_test, is_admin = is_admin)
 
@@ -112,13 +122,18 @@ def setupDatabaseFileWithTables(client_test: TestClient = default_client, is_adm
         return wrapper
     return decorator
 
-def setupDatabaseHandleLoggedUser(client_test: TestClient = default_client, is_admin: bool = False, models: list[Model] = [User]):
+def setupDatabaseHandleLoggedUser(client_test: TestClient = default_client, is_admin: bool = False, models: list[Model] = [User, Account]):
     print('client_test', client_test)
     def decorator(func):
         #@functools.wraps(func)
         async def wrapper(*args, **kwargs):
      
             test_db = _setupDb(func_name = func.__name__, models = models)
+            
+            # Ensure Account is in the models list if not already there
+            if Account not in models:
+                models.append(Account)
+                test_db.create_tables([Account])
             
             authenticated_client, user_credentials = defineAuthUser(client_test = client_test, is_admin = is_admin)
 

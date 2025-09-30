@@ -1,9 +1,23 @@
 import pytest
 from datetime import datetime
 
-from models import Month, User, Transaction
+from models import Month, User, Transaction, Account
 from testUtils import db_session
 from utils import formatDateStrToTimestamp
+
+def create_user_with_account(name='name', email='email@email.com', password='password'):
+    """Helper function to create a user with a default account"""
+    user = User.create(
+        name=name,
+        email=email,
+        password=password
+    )
+    
+    # Create default account for the user
+    default_account = Account.create(user.id, name="Minha Conta")
+    user.update(default_account_id=default_account.id)
+    
+    return user
 
 # test dependencies
 def monthToTimestamp(month: str, year: int = 2025):
@@ -110,11 +124,7 @@ def test_update_month_model(db_session):
 
 def test_verify_and_create(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     Month.verify_and_create(formatDateStrToTimestamp('21/03/2025'), user.id)
     

@@ -59,7 +59,7 @@ class Transaction(BaseModel):
         validate_transaction_input(kwargs)
 
         try:
-            User.get_by_id(user_id) 
+            user = User.get_by_id(user_id) 
         except Exception:
             raise DoesNotExist(f"Usuario com id {user_id} nao encontrado")
 
@@ -71,6 +71,19 @@ class Transaction(BaseModel):
         values = handle_values(kwargs)
         print(user_id)
         values['user_id'] = user_id
+
+        # If no account_id is provided, use the user's default account
+        if 'account_id' not in values or values['account_id'] is None:
+            if user.default_account_id:
+                values['account_id'] = user.default_account_id
+            else:
+                # If user has no default account, get their first account
+                from models import Account
+                user_accounts = Account.get_accounts_by_user_id(user_id)
+                if user_accounts:
+                    values['account_id'] = user_accounts[0].id
+                else:
+                    raise Exception(f"Usuario {user_id} nao possui contas cadastradas")
 
         values = Transaction._prepareFormatsToDb(values)
 

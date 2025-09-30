@@ -7,7 +7,7 @@ import time
 import pytest_mock
 
 from src.server import app
-from models import User
+from models import User, Account
 from auth import Security
 from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser, setup_database_with_tables
 
@@ -30,7 +30,7 @@ not_logged_client = TestClient(app)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_access_to_protected_route(setup_database_with_tables):
 
     User.create(
@@ -61,7 +61,7 @@ async def test_access_to_protected_route(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_access_to_protected_route_with_invalid_token(setup_database_with_tables):
 
     response = not_logged_client.get('/user/protected-route', headers={"Authorization": "Bearer invalid_token"})
@@ -71,7 +71,7 @@ async def test_access_to_protected_route_with_invalid_token(setup_database_with_
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_access_to_protected_route_without_token(setup_database_with_tables):
 
     response = not_logged_client.get('/user/protected-route')
@@ -81,7 +81,7 @@ async def test_access_to_protected_route_without_token(setup_database_with_table
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_access_to_protected_route_with_expired_token(setup_database_with_tables):
 
     User.create(
@@ -121,7 +121,7 @@ def mock_send_password_reset_email(email: str, reset_token: str):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_forgot_password(setup_database_with_tables, mocker: pytest_mock.MockerFixture):
 
     """Testa se a solicitação de redefinição de senha funciona corretamente"""
@@ -140,7 +140,7 @@ async def test_forgot_password(setup_database_with_tables, mocker: pytest_mock.M
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_forgot_password_with_invalid_email(setup_database_with_tables):
     response = not_logged_client.post('/auth/forgot-password', json={"email": "invalid_email"})
     assert response.status_code == 404
@@ -148,7 +148,7 @@ async def test_forgot_password_with_invalid_email(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_reset_password(mocker: pytest_mock.MockerFixture, setup_database_with_tables):
 
     user: User = User.create(
@@ -182,7 +182,7 @@ async def test_reset_password(mocker: pytest_mock.MockerFixture, setup_database_
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_reset_password_with_invalid_token(setup_database_with_tables):
     
     user: User = User.create(
@@ -202,7 +202,7 @@ async def test_reset_password_with_invalid_token(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_reset_password_with_invalid_email(setup_database_with_tables):
 
     response = not_logged_client.post("/auth/reset-password", json={
@@ -216,7 +216,7 @@ async def test_reset_password_with_invalid_email(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Account]}], indirect=True)
 async def test_reset_password_with_expired_token(setup_database_with_tables, mocker: pytest_mock.MockerFixture):
     
     user: User = User.create(

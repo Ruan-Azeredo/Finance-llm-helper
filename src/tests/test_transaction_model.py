@@ -1,16 +1,26 @@
 import pytest
 
-from models import Transaction, User
+from models import Transaction, User, Account
 from testUtils import db_session
 from utils import formatDateStrToTimestamp, formatTimestampToDateStr
 
+def create_user_with_account(name='name', email='email@email.com', password='password'):
+    """Helper function to create a user with a default account"""
+    user = User.create(
+        name=name,
+        email=email,
+        password=password
+    )
+    
+    # Create default account for the user
+    default_account = Account.create(user.id, name="Minha Conta")
+    user.update(default_account_id=default_account.id)
+    
+    return user
+
 def test_create_transaction_model(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
     
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -43,11 +53,7 @@ def test_create_transaction_model_with_nonexistent_user(db_session):
 
 def test_update_transaction_model(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
     
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -71,11 +77,7 @@ def test_update_transaction_model(db_session):
 
 def test_update_transaction_model_with_wrong_type_properties_null(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
     
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -94,11 +96,7 @@ def test_update_transaction_model_with_wrong_type_properties_null(db_session):
 
 def test_update_transaction_model_with_right_type_properties_null(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
     
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -118,11 +116,7 @@ def test_update_transaction_model_with_right_type_properties_null(db_session):
 
 def test_get_transactions_by_user_id_transaction_model(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
     
     Transaction.create(
         user_id = user.id,
@@ -186,11 +180,7 @@ def test_get_transactions_by_user_id_transaction_model_with_nonexistent_user_id(
 
 def test_get_transactions_by_user_id_transaction_model_with_dates_range(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     Transaction.create(
         user_id = user.id,
@@ -282,11 +272,7 @@ def test_get_transactions_by_user_id_transaction_model_with_dates_range(db_sessi
 
 def test_update_category_transaction_model(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
     
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -303,11 +289,7 @@ def test_update_category_transaction_model(db_session):
 
 def test_create_transaction_with_wrong_amount_format(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     with pytest.raises(Exception) as error:
         Transaction.create(
@@ -341,11 +323,7 @@ def test_create_transaction_with_wrong_amount_format(db_session):
 
 def test_create_transaction_with_wrong_direction_format(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     with pytest.raises(Exception) as error:
         Transaction.create(
@@ -371,11 +349,7 @@ def test_create_transaction_with_wrong_direction_format(db_session):
 
 def test_create_transaction_with_wrong_date_format(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     with pytest.raises(Exception) as error:
         Transaction.create(
@@ -393,11 +367,7 @@ def test_create_transaction_with_wrong_date_format(db_session):
 
 def test_format_date(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -411,11 +381,7 @@ def test_format_date(db_session):
 
 def test_format_amount(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -429,11 +395,7 @@ def test_format_amount(db_session):
 
 def test_formated_amount(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -448,11 +410,7 @@ def test_formated_amount(db_session):
 
 def test_formated_date(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -467,11 +425,7 @@ def test_formated_date(db_session):
     
 def test_formated_transaction_to_client(db_session):
 
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     transaction: Transaction = Transaction.create(
         user_id = user.id,
@@ -488,11 +442,7 @@ def test_formated_transaction_to_client(db_session):
     assert transaction.formatedTransactionToClient().direction == 'income'
 
 def test_sum_transactions_amount(db_session):
-    user: User = User.create(
-        name = 'name',
-        email = 'email@email.com',
-        password = 'password'
-    )
+    user: User = create_user_with_account()
 
     Transaction.create(
         user_id = user.id,

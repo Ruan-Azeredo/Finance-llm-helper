@@ -2,14 +2,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.server import app
-from models import User, Category
+from models import User, Category, Account
 from testUtils import setupDatabaseFileWithTables, setupDatabaseHandleLoggedUser, setup_database_with_tables
 
 client = TestClient(app)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"is_admin": True, "models": [User, Category]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"is_admin": True, "models": [User, Category, Account]}], indirect=True)
 async def test_get_all_categories_e2e_as_admin(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']
@@ -22,7 +22,7 @@ async def test_get_all_categories_e2e_as_admin(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category, Account]}], indirect=True)
 async def test_get_all_categories_e2e_as_free(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']
@@ -33,7 +33,7 @@ async def test_get_all_categories_e2e_as_free(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category, Account]}], indirect=True)
 async def test_get_categories_by_user_id_e2e_as_free(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']
@@ -48,7 +48,7 @@ async def test_get_categories_by_user_id_e2e_as_free(setup_database_with_tables)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category, Account]}], indirect=True)
 async def test_create_category_e2e_as_free(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']
@@ -70,7 +70,7 @@ async def test_create_category_e2e_as_free(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category, Account]}], indirect=True)
 async def test_create_category_defining_color_e2e_as_free(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']
@@ -93,7 +93,7 @@ async def test_create_category_defining_color_e2e_as_free(setup_database_with_ta
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category, Account]}], indirect=True)
 async def test_update_category_e2e_as_free(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']
@@ -123,7 +123,7 @@ async def test_update_category_e2e_as_free(setup_database_with_tables):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category]}], indirect=True)
+@pytest.mark.parametrize("setup_database_with_tables", [{"models": [User, Category, Account]}], indirect=True)
 async def test_delete_category_e2e_as_free(setup_database_with_tables):
 
     authenticated_client = setup_database_with_tables['authenticated_client']

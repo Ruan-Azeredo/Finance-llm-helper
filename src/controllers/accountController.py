@@ -19,7 +19,7 @@ async def get_accounts():
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
-            "accounts": [account.to_dict() for account in accounts]
+            "accounts": [account.formatedAccountToClient().to_dict() for account in accounts]
         }
     )
 
@@ -31,7 +31,7 @@ async def get_accounts_from_user(user_id: int):
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
-            "accounts": [account.to_dict() for account in accounts]
+            "accounts": [account.formatedAccountToClient().to_dict() for account in accounts]
         }
     )
 
@@ -46,7 +46,7 @@ async def create_account(user_id: int, account_input: AccountCRUDInput):
     return JSONResponse(
         status_code = status.HTTP_201_CREATED,
         content = {
-            "message": "Conta criada", "account": account.to_dict()
+            "message": "Conta criada", "account": account.formatedAccountToClient().to_dict()
         }
     )
 
@@ -72,7 +72,7 @@ async def update_account(account_id: int, account_input: AccountCRUDInput):
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
-            "message": "Conta atualizada", "account": update_account.to_dict()
+            "message": "Conta atualizada", "account": update_account.formatedAccountToClient().to_dict()
         }
     )
 

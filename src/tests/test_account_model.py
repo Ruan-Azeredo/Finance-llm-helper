@@ -37,7 +37,7 @@ def test_create_account_model_with_balance(db_session):
     account = Account.create(
         user_id=user.id,
         name='Conta Corrente',
-        balance=1500.50
+        balance='1500,50'
     )
 
     assert account.name == 'Conta Corrente'
@@ -105,8 +105,8 @@ def test_create_account_model_with_empty_name(db_session):
 
     assert 'Formato de name está incorreto, name não pode ser vazio' in str(error.value)
 
-def test_create_account_model_with_invalid_balance_type(db_session):
-    """Test creating account with invalid balance type should fail"""
+def test_create_account_model_with_invalid_balance_format(db_session):
+    """Test creating account with invalid balance format should fail"""
     user = User.create(
         name='name',
         email='email@email.com',
@@ -120,7 +120,77 @@ def test_create_account_model_with_invalid_balance_type(db_session):
             balance='invalid'
         )
 
-    assert 'Formato de balance está incorreto, balance deve ser um número float' in str(error.value)
+    assert 'Formato de balance está incorreto, o formato correto é "9999,99"' in str(error.value)
+
+def test_create_account_model_with_wrong_balance_format(db_session):
+    """Test creating account with wrong balance format (using dot instead of comma)"""
+    user = User.create(
+        name='name',
+        email='email@email.com',
+        password='password'
+    )
+
+    with pytest.raises(Exception) as error:
+        Account.create(
+            user_id=user.id,
+            name='Conta Teste',
+            balance='1500.50'  # Should be 1500,50
+        )
+
+    assert 'Formato de balance está incorreto, o formato correto é "9999,99"' in str(error.value)
+
+def test_create_account_model_with_missing_decimal_places(db_session):
+    """Test creating account with missing decimal places in balance"""
+    user = User.create(
+        name='name',
+        email='email@email.com',
+        password='password'
+    )
+
+    with pytest.raises(Exception) as error:
+        Account.create(
+            user_id=user.id,
+            name='Conta Teste',
+            balance='1500,5'  # Should be 1500,50
+        )
+
+    assert 'Formato de balance está incorreto, o formato correto é "9999,99"' in str(error.value)
+
+def test_create_account_model_with_zero_balance(db_session):
+    """Test creating account with zero balance in string format"""
+    user = User.create(
+        name='name',
+        email='email@email.com',
+        password='password'
+    )
+
+    account = Account.create(
+        user_id=user.id,
+        name='Conta Zero',
+        balance='0,00'
+    )
+
+    assert account.name == 'Conta Zero'
+    assert account.balance == 0.0
+    assert account.user_id_id == user.id
+
+def test_create_account_model_with_large_balance(db_session):
+    """Test creating account with large balance in string format"""
+    user = User.create(
+        name='name',
+        email='email@email.com',
+        password='password'
+    )
+
+    account = Account.create(
+        user_id=user.id,
+        name='Conta Grande',
+        balance='999999999,99'
+    )
+
+    assert account.name == 'Conta Grande'
+    assert account.balance == 999999999.99
+    assert account.user_id_id == user.id
 
 def test_update_account_model(db_session):
     """Test updating account fields"""
@@ -137,7 +207,7 @@ def test_update_account_model(db_session):
 
     account.update(
         name='Conta Atualizada',
-        balance=2500.75
+        balance='2500,75'
     )
 
     updated_account = Account.get_by_id(account.id)
@@ -164,7 +234,7 @@ def test_update_account_balance_updates_timestamp(db_session):
     import time
     time.sleep(0.01)
 
-    account.update(balance=1000.0)
+    account.update(balance='1000,00')
 
     updated_account = Account.get_by_id(account.id)
     assert updated_account.balance_updated > original_timestamp
@@ -208,6 +278,24 @@ def test_update_account_with_invalid_name(db_session):
         account.update(name='')
 
     assert 'Formato de name está incorreto, name não pode ser vazio' in str(error.value)
+
+def test_update_account_with_invalid_balance_format(db_session):
+    """Test updating account with invalid balance format should fail"""
+    user = User.create(
+        name='name',
+        email='email@email.com',
+        password='password'
+    )
+
+    account = Account.create(
+        user_id=user.id,
+        name='Conta Teste'
+    )
+
+    with pytest.raises(Exception) as error:
+        account.update(balance='1500.50')  # Should be 1500,50
+
+    assert 'Formato de balance está incorreto, o formato correto é "9999,99"' in str(error.value)
 
 def test_delete_account_model(db_session):
     """Test deleting account when user has multiple accounts"""
@@ -311,7 +399,7 @@ def test_verify_and_update_balance_method_exists(db_session):
     account = Account.create(
         user_id=user.id,
         name='Conta Teste',
-        balance=1000.0
+        balance='1000,00'
     )
 
     # Test that the method can be called without errors (basic functionality test)
@@ -350,7 +438,7 @@ def test_verify_and_update_balance_with_invalid_date_format(db_session):
     account = Account.create(
         user_id=user.id,
         name='Conta Teste',
-        balance=1000.0
+        balance='1000,00'
     )
 
     with pytest.raises(Exception) as error:

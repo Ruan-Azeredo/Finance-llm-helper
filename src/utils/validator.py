@@ -60,8 +60,8 @@ def validate_account_input(account: dict):
     if 'name' in account and account['name'] != None and is_valid_category_name(account['name']) is False:
         raise Exception(f'Formato de name está incorreto, name não pode ser vazio')
 
-    if 'balance' in account and account['balance'] != None and type(account['balance']) != float:
-        raise Exception(f'Formato de balance está incorreto, balance deve ser um número float. O balance recebido foi: {account["balance"]}, tipo: {type(account["balance"])}')
+    if 'balance' in account and account['balance'] != None and is_valid_amount_input_format(account['balance']) is False:
+        raise Exception(f'Formato de balance está incorreto, o formato correto é "9999,99". O formato recebido foi: {account["balance"]}')
 
     if 'origin' in account and account['origin'] != None and is_valid_category_name(account['origin']) is False:
         raise Exception(f'Formato de origin está incorreto, origin não pode ser vazio')

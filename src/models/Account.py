@@ -1,11 +1,12 @@
 from .BaseModel import BaseModel
 from peewee import CharField, IntegerField, FloatField, AutoField, ForeignKeyField, DateTimeField, DoesNotExist
 from datetime import datetime, timezone
+from copy import deepcopy
 
 from .handles import handle_values, handle_database_error
 from database import db
 from models import User
-from utils import validate_account_input, formatDateStrToTimestamp
+from utils import validate_account_input, formatDateStrToTimestamp, formatAmountToFloat, formatAmountToString
 
 class Account(BaseModel):
     id = AutoField(unique = True, primary_key = True)
@@ -21,6 +22,12 @@ class Account(BaseModel):
         database = db
         table_name = 'accounts'
 
+    def formatedAccountToClient(self) -> 'Account':
+        formatedAccount = deepcopy(self)
+        formatedAccount.balance = formatAmountToString(formatedAccount.balance)
+
+        return formatedAccount
+
     @handle_database_error
     def create(user_id: int, **kwargs) -> 'Account':
         
@@ -33,6 +40,10 @@ class Account(BaseModel):
         values = handle_values(kwargs)
         values['user_id'] = user_id
 
+        # Convert balance from string to float if provided
+        if 'balance' in values and values['balance'] is not None:
+            values['balance'] = formatAmountToFloat(values['balance'])
+
         return super(Account, Account).create(**values)
 
 
@@ -41,7 +52,9 @@ class Account(BaseModel):
         validate_account_input(kwargs)
         values = handle_values(kwargs)
 
-        if 'balance' in values:
+        # Convert balance from string to float if provided
+        if 'balance' in values and values['balance'] is not None:
+            values['balance'] = formatAmountToFloat(values['balance'])
             values['balance_updated'] = datetime.now(timezone.utc).timestamp()
 
         return super(Account, self).update(**values)

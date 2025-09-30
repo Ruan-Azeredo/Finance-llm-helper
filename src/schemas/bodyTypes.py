@@ -82,7 +82,7 @@ class MonthCRUDInput(BaseModel):
 
 class AccountCRUDInput(BaseModel):
     name: Optional[str] = None
-    balance: Optional[float] = None
+    balance: Optional[str] = None
     origin:  Optional[str] = None
 
     def to_dict(obj) -> dict:

@@ -92,13 +92,13 @@ async def test_create_user_e2e_and_update_balance(authenticated_client):
     authenticated_client.headers.update({"Authorization": f"Bearer {login_reponse.json()['access_token']['token']}"})
 
     update_response = authenticated_client.put(f"/account/ops/{response.json()['accounts'][0]['id']}", json = {
-        "balance": 1000.0,
+        "balance": "1000,00",
     })
     print(update_response.json())
 
     assert update_response.status_code == 200
     assert update_response.json()['message'] == "Conta atualizada"
-    assert update_response.json()['account']['balance'] == 1000
+    assert update_response.json()['account']['balance'] == "1000,00"
     assert update_response.json()['account']['origin'] == "default"
     assert update_response.json()['account']['name'] == "Minha Conta"
 

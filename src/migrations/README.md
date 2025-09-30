@@ -6,7 +6,7 @@ As migrations devem garantir a equivalncia entre o banco de dados e os modelos n
 1. Para cada alteração nas estruturas das tabelas existentes ou criação de alguma nova, deve ser criada ao menos uma migration que indique todas as alterações, afinal, o comando de migration ira rodar na build da aplicação e aas diffs entre as migrations e o banco de dados serão "migradas" para o banco de dados.
 
 > Pode-se criar uma nova migration atravez:
->> Importante estar o diretorio src
+>> ## Importante estar o diretorio src!!!
 ```bash
 pw-migrate create --database postgresql://postgres:postgres@0.0.0.0:5432/postgres [migration-name]
 ```

@@ -16,18 +16,16 @@ auth_router_auth = APIRouter(dependencies = [Depends(verify_only_self_access_use
 @auth_router.post("/login")
 async def login(user_input: LoginInput):
     
-    email_or_password_invalid = HTTPException(status_code = 400, detail = "Email ou senha inválido")
-    
     try:
         user: User = User.get_user_by_email(user_input.email)
     except DoesNotExist:
-        raise email_or_password_invalid
+        raise HTTPException(status_code = 404, detail = "Email não encontrado")
 
     if not user or not Security.verify_password(
         plain_password = user_input.password,
         hashed_password = user.password
     ):
-        raise email_or_password_invalid
+        raise HTTPException(status_code = 400, detail = "Email ou senha incorreto")
 
     access_token = Security.create_jwt_token(data = {"sub": user.email}, type = "access")
     refresh_token = Security.create_jwt_token(data = {"sub": user.email}, type = "refresh")

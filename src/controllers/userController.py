@@ -40,10 +40,14 @@ async def get_user(user_id: int):
 async def get_current_user(current_user: User = Depends(User.get_current_user)):
 
     categories: list[Category] = Category.get_categories_by_user_id(current_user.id)
-    print("categories", categories, current_user, current_user.id)
+    accounts: list[Account] = Account.get_accounts_by_user_id(current_user.id)
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {"user": current_user.to_dict(), "categories": [category.to_dict() for category in categories]}
+        content = {
+            "user": current_user.to_dict(),
+            "categories": [category.to_dict() for category in categories],
+            "accounts": [account.to_dict() for account in accounts]
+        }
     )
 
 @user_router.post("/ops")

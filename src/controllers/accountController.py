@@ -23,7 +23,7 @@ async def get_accounts():
         }
     )
 
-@account_router_auth.get("/from_user/{user_id}")
+@account_router_auth.get("/from-user/{user_id}")
 async def get_accounts_from_user(user_id: int):
 
     accounts: list[Account] = Account.get_accounts_by_user_id(user_id)

@@ -40,7 +40,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your migrations here."""
     
     @migrator.create_model
-    class Month(pw.Model):
+    class Account(pw.Model):
         id = pw.AutoField(unique = True, primary_key = True)
         name = pw.CharField(null = False)
         user_id = pw.ForeignKeyField(column_name='user_id', field='id', model=migrator.orm['users'], on_delete='CASCADE')

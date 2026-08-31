@@ -30,7 +30,7 @@ async def llmInterface(
 
 async def callLLM(prompt: str) -> str:
     try:
-        chat = ChatGroq(model="llama-3.1-8b-instant")
+        chat = ChatGroq(model="llama-3.1-70b-versatile")
         answer = chat.invoke(prompt).content
         return answer
     except Exception as error:

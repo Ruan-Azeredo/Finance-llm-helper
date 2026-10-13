@@ -4,6 +4,7 @@ from langchain_core.prompts import PromptTemplate
 from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
 
+import asyncio
 from typing import Callable
 
 async def llmInterface(
@@ -31,7 +32,10 @@ async def llmInterface(
 async def callLLM(prompt: str) -> str:
     try:
         chat = ChatGroq(model="openai/gpt-oss-20b")
-        answer = chat.invoke(prompt).content
-        return answer
+        if hasattr(chat, "ainvoke"):
+            response = await chat.ainvoke(prompt)
+        else:
+            response = await asyncio.to_thread(chat.invoke, prompt)
+        return response.content
     except Exception as error:
         raise Exception(f"Erro ao comunicar-se com a LLM: {error}")

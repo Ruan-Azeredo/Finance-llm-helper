@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
 from fastapi.responses import JSONResponse
 
@@ -17,13 +18,18 @@ async def categorize_transactions_by_file(file: UploadFile = File(...), current_
     try:
         transactions, raw_transactions = await dataProcessingService(file = file)
         user_categories: list[Category] = Category.get_categories_by_user_id(current_user.id)
+        category_names = [category.name for category in user_categories]
 
-        categorized_transactions: list = []
-        for i, transaction in enumerate(transactions):
+        semaphore = asyncio.Semaphore(10)
 
-            categoryzed_transaction = await categorizeTransactionService(transaction, [category.name for category in user_categories])
+        async def categorize_single(transaction, raw_transaction):
+            async with semaphore:
+                categoryzed_transaction = await categorizeTransactionService(transaction, category_names)
+                return generateReport(raw_transaction, categoryzed_transaction)
 
-            categorized_transactions.append(generateReport(raw_transactions[i], categoryzed_transaction))
+        categorized_transactions = await asyncio.gather(
+            *(categorize_single(t, raw_t) for t, raw_t in zip(transactions, raw_transactions))
+        )
 
         return JSONResponse(content={
             "transactions": categorized_transactions, 

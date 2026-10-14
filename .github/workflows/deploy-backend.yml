@@ -5,13 +5,14 @@ on:
     branches:
       - main
       - master
-    paths:
-      - 'apps/llm_finance/**'
-      - '.github/workflows/deploy-backend.yml'
+    paths-ignore:
+      - 'README.md'
+      - '.docs/**'
+      - '.gitignore'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-backend
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push:
@@ -46,8 +47,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/llm_finance
-          file: ./apps/llm_finance/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -55,9 +56,12 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Trigger Coolify Webhook
-        if: env.COOLIFY_WEBHOOK_URL != ''
         env:
           COOLIFY_WEBHOOK_URL: ${{ secrets.COOLIFY_WEBHOOK_URL }}
         run: |
-          echo "Disparando redeploy no Coolify..."
-          curl -f -X GET "$COOLIFY_WEBHOOK_URL" || echo "Webhook URL não configurada ou falhou. Verifique os Secrets."
+          if [ -n "$COOLIFY_WEBHOOK_URL" ]; then
+            echo "Disparando redeploy no Coolify..."
+            curl -f -X GET "$COOLIFY_WEBHOOK_URL"
+          else
+            echo "Aviso: COOLIFY_WEBHOOK_URL não configurado nos Secrets do repositório. Pulando disparo de webhook."
+          fi

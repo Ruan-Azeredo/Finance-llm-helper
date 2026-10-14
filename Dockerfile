@@ -1,14 +1,23 @@
-# Usa uma imagem oficial do Python como base
-FROM python:3.11
+# Usa uma imagem oficial slim do Python para reduzir drasticamente o consumo de memória e disco
+FROM python:3.11-slim
 
 # Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y make
+# Variáveis de ambiente para otimização de runtime e instalação
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Copia o arquivo requirements.txt e instala as dependências
+# Instala curl para checagens de integridade e limpa o cache do apt para economizar espaço
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia e instala apenas os requirements de produção primeiro (aproveitamento ótimo de cache)
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia o restante do código para o container
 COPY . .

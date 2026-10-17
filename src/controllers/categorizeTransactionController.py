@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from services import dataProcessingService
 from services import categorizeTransactionService
 from useCases import generateReport
+from interface import LLMApiKeyError
 from .utilsController import *
 
 catTransact_router = APIRouter()
@@ -36,6 +37,8 @@ async def categorize_transactions_by_file(file: UploadFile = File(...), current_
             "message": "Transações categorizadas com sucesso"
         })
     
+    except LLMApiKeyError as error:
+        raise HTTPException(status_code=503, detail=str(error))
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error))
 

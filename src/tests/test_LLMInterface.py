@@ -133,3 +133,48 @@ async def test_llmInterface_when_receive_invalid_answer_from_callLLM():
         )
 
     assert str(error.value) == 'Erro na interface com a LLM, muitas tentativas sem sucesso'
+
+@pytest.mark.asyncio
+async def test_callLLM_falls_back_to_openrouter_when_gemini_fails(monkeypatch):
+    import interface.LLMInterface as llm
+
+    class FakeChat:
+        def __init__(self, base_url, **_):
+            self.base_url = base_url
+
+        async def ainvoke(self, prompt):
+            if 'googleapis' in self.base_url:
+                raise Exception('429 quota exceeded')
+            return type('Resp', (), {'content': ' Mercado '})()
+
+    monkeypatch.setattr(llm, 'ChatOpenAI', FakeChat)
+    monkeypatch.setenv('GEMINI_API_KEY', 'x')
+    monkeypatch.setenv('OPENROUTER_API_KEY', 'y')
+
+    assert await llm.callLLM('prompt') == 'Mercado'
+
+
+@pytest.mark.asyncio
+async def test_callLLM_raises_api_key_error_when_key_expired(monkeypatch):
+    import httpx
+    import openai
+    import interface.LLMInterface as llm
+
+    class FakeChat:
+        def __init__(self, base_url, **_):
+            self.base_url = base_url
+
+        async def ainvoke(self, prompt):
+            if 'googleapis' in self.base_url:
+                raise Exception('429 quota exceeded')
+            response = httpx.Response(401, request=httpx.Request('POST', self.base_url))
+            raise openai.AuthenticationError('User not found.', response=response, body=None)
+
+    monkeypatch.setattr(llm, 'ChatOpenAI', FakeChat)
+    monkeypatch.setenv('GEMINI_API_KEY', 'x')
+    monkeypatch.setenv('OPENROUTER_API_KEY', 'y')
+
+    with pytest.raises(llm.LLMApiKeyError) as error:
+        await llm.callLLM('prompt')
+
+    assert 'OPENROUTER_API_KEY' in str(error.value)

@@ -4,3 +4,4 @@ from .FileManager import loadDataFromCsvFile
 from .FileManager import openCsvFile
 from .LLMInterface import llmInterface
 from .LLMInterface import callLLM
+from .LLMInterface import LLMApiKeyError

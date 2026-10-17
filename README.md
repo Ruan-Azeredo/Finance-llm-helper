@@ -12,10 +12,11 @@ Siga os passos abaixo para configurar e executar o projeto corretamente:
 
 1. .Env
 Crie um arquivo .env e adicione as seguintes variáveis:
-> Utilize .env.example, no entanto é muito importante lembrar de adicionar a chave de API da GROQ
+> Utilize .env.example, no entanto é muito importante lembrar de adicionar a chave de API do Gemini (https://aistudio.google.com/apikey) e, como reserva, do OpenRouter (https://openrouter.ai/keys)
 
 ```bash
-GROQ_API_KEY=YOUR_API_KEY
+GEMINI_API_KEY=YOUR_API_KEY
+OPENROUTER_API_KEY=YOUR_API_KEY
 
 JWT_ACCESS_TOKEN_SECRET= 
 JWT_REFRESH_TOKEN_SECRET=
